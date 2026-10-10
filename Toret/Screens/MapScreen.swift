@@ -211,54 +211,22 @@ struct NoFountainsHere: View {
     let onNearest: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            StateMark(state: .unknown, size: 22)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Nenhuma fonte aqui")
-                    .font(Typo.ui(15, 700))
-                    .foregroundStyle(Palette.inchiostro)
-                Text("Afaste o mapa para ver as mais próximas.")
-                    .font(Typo.ui(13))
-                    .foregroundStyle(Palette.ink(0.75))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 0)
-            Button(action: onNearest) {
-                Text("Ir")
-                    .font(Typo.display(16, 800))
-                    .foregroundStyle(Palette.carta)
-                    .padding(.horizontal, 14)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .background(Palette.inchiostro)
-            }
-            .buttonStyle(.pressable)
-            .accessibilityLabel("Ir para a fonte mais próxima")
-        }
+        EmptyScene(
+            kind: .noPins, layout: .row,
+            actionTitle: String(localized: "Ir para a mais próxima"), action: onNearest
+        )
         .padding(12)
         .plate()
     }
 }
 
-/// What the map shows when the bundled catalogue could not be read — a build
+/// What the map shows when the bundled catalogue could not be read: a build
 /// fault, not something the user can fix, so it says what happened and stops.
 struct CatalogueMissing: View {
     var body: some View {
         ZStack {
             Palette.carta.ignoresSafeArea()
-            VStack(alignment: .leading, spacing: 14) {
-                StateMark(state: .dry, size: 44, outlined: false)
-                Text("As fontes não carregaram")
-                    .font(Typo.display(30, 900))
-                    .foregroundStyle(Palette.inchiostro)
-                Text("A lista de fontes que vem com o app não pôde ser lida. Feche e abra o Toret de novo; se continuar, reinstale o app.")
-                    .font(Typo.ui(16))
-                    .foregroundStyle(Palette.ink(0.8))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(24)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .plate()
-            .padding(.horizontal, 20)
+            EmptyScene(kind: .catalogueFailed)
         }
     }
 }

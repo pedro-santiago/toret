@@ -525,12 +525,18 @@ struct LocationBanner: View {
         if let message = Self.message(for: status) {
             let frame = message.tone == .warning ? Palette.rosso : Palette.inchiostro
             VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .top, spacing: 12) {
-                    Diamond()
-                        .fill(message.tone == .warning ? Palette.rosso : Palette.sole)
-                        .overlay { Diamond().stroke(Palette.inchiostro, lineWidth: 2) }
-                        .frame(width: 20, height: 20)
-                        .padding(.top, 1)
+                HStack(alignment: .center, spacing: 12) {
+                    if let scene = EmptySceneKind(location: status) {
+                        // The drawn scene stands in for the plain mark: the compass struck
+                        // through, or the dashed line to a far-off Turin.
+                        EmptySceneMini(kind: scene.art, height: 56, distanceLabel: nil)
+                    } else {
+                        Diamond()
+                            .fill(message.tone == .warning ? Palette.rosso : Palette.sole)
+                            .overlay { Diamond().stroke(Palette.inchiostro, lineWidth: 2) }
+                            .frame(width: 20, height: 20)
+                            .padding(.top, 1)
+                    }
                     Text(message.text)
                         .font(Typo.ui(14, 500))
                         .foregroundStyle(Palette.inchiostro)
@@ -564,18 +570,10 @@ struct SearchResults: View {
         let results = model.searchResults
         VStack(spacing: 0) {
             if results.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(String(localized: "Nenhuma fonte encontrada"))
-                        .font(Typo.display(20, 800))
-                        .foregroundStyle(Palette.inchiostro)
-                    Text(String(localized: "Procure pelo nome de uma rua, de uma praça ou de um bairro."))
-                        .font(Typo.ui(14))
-                        .foregroundStyle(Palette.ink(0.72))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityElement(children: .combine)
+                EmptyScene(kind: .noResults, layout: .row)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityElement(children: .combine)
             } else {
                 ForEach(results) { fountain in
                     FountainRow(fountain: fountain, compact: true) {

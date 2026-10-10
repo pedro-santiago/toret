@@ -263,16 +263,16 @@ struct RouteScreen: View {
     /// The honest line for the day there is no route: the app is guessing a
     /// direction, not reading a street plan, and says so.
     private var straightLineNote: some View {
-        HStack(spacing: 11) {
-            Diamond().fill(Palette.rosso).frame(width: 16, height: 16)
+        HStack(spacing: 12) {
+            EmptySceneMini(kind: .noStreetRoute, height: 52)
             Text("Sem rota de ruas: siga na direção da fonte.")
                 .font(Typo.ui(14, 600))
                 .foregroundStyle(Palette.inchiostro)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .plate(border: Palette.rosso)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .accessibilityElement(children: .combine)

@@ -1,0 +1,34 @@
+{
+ "Ainda não há relatos": {
+  "en": "No reports yet",
+  "it": "Ancora nessuna segnalazione"
+ },
+ "Abra uma fonte e conte como está a água.": {
+  "en": "Open a fountain and tell us how the water is.",
+  "it": "Apri una fontanella e racconta com’è l’acqua."
+ },
+ "Sem a sua posição": {
+  "en": "No position for you",
+  "it": "Nessuna posizione per te"
+ },
+ "Ative a localização em Ajustes para medir as distâncias a partir de você.": {
+  "en": "Turn on location in Settings to measure distances from where you are.",
+  "it": "Attiva la posizione in Impostazioni per misurare le distanze da dove ti trovi."
+ },
+ "Você está a %@ km de Turim": {
+  "en": "You are %@ km from Turin",
+  "it": "Sei a %@ km da Torino"
+ },
+ "As distâncias são medidas a partir da %@.": {
+  "en": "Distances are measured from %@.",
+  "it": "Le distanze sono misurate da %@."
+ },
+ "Sem rota de ruas": {
+  "en": "No street route",
+  "it": "Nessun percorso stradale"
+ },
+ "Ir para a mais próxima": {
+  "en": "Go to the nearest",
+  "it": "Vai alla più vicina"
+ }
+}

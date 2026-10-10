@@ -1397,6 +1397,28 @@
         }
       }
     },
+    "Abra uma fonte e conte como está a água." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open a fountain and tell us how the water is."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri una fontanella e racconta com’è l’acqua."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abra uma fonte e conte como está a água."
+          }
+        }
+      }
+    },
     "Abra uma fonte e toque em salvar. Ela aparece aqui, com a distância de onde você está agora." : {
       "localizations" : {
         "en" : {
@@ -1749,6 +1771,28 @@
         }
       }
     },
+    "Ainda não há relatos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No reports yet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna segnalazione"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ainda não há relatos"
+          }
+        }
+      }
+    },
     "Ainda não há relatos. Abra uma fonte e conte como está a água." : {
       "localizations" : {
         "en" : {
@@ -2057,6 +2101,28 @@
         }
       }
     },
+    "As distâncias são medidas a partir da %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distances are measured from %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le distanze sono misurate da %@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As distâncias são medidas a partir da %@."
+          }
+        }
+      }
+    },
     "As fontes não carregaram" : {
       "localizations" : {
         "en" : {
@@ -2119,6 +2185,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ativar posição precisa"
+          }
+        }
+      }
+    },
+    "Ative a localização em Ajustes para medir as distâncias a partir de você." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on location in Settings to measure distances from where you are."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva la posizione in Impostazioni per misurare le distanze da dove ti trovi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative a localização em Ajustes para medir as distâncias a partir de você."
           }
         }
       }
@@ -3637,6 +3725,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ir para a fonte mais próxima"
+          }
+        }
+      }
+    },
+    "Ir para a mais próxima" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to the nearest"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai alla più vicina"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir para a mais próxima"
           }
         }
       }
@@ -5995,6 +6105,28 @@
         }
       }
     },
+    "Sem a sua posição" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No position for you"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna posizione per te"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem a sua posição"
+          }
+        }
+      }
+    },
     "Sem acesso" : {
       "localizations" : {
         "en" : {
@@ -6277,6 +6409,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sem relatos"
+          }
+        }
+      }
+    },
+    "Sem rota de ruas" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No street route"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun percorso stradale"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem rota de ruas"
           }
         }
       }
@@ -7201,6 +7355,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Você deixa de ver tudo o que esta pessoa escreve. É possível desfazer na aba Relatos."
+          }
+        }
+      }
+    },
+    "Você está a %@ km de Turim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are %@ km from Turin"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei a %@ km da Torino"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você está a %@ km de Turim"
           }
         }
       }
