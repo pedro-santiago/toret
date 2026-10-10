@@ -95,7 +95,7 @@ struct FilterChips: View {
         let matches = count(filter)
         return Button { toggle(filter) } label: {
             HStack(spacing: 8) {
-                Text(filter.rawValue)
+                Text(filter.title)
                     .font(Typo.ui(14, 700))
                 if let matches {
                     Text("\(matches)")
@@ -113,7 +113,7 @@ struct FilterChips: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(filter.rawValue)
+        .accessibilityLabel(filter.title)
         .accessibilityValue(matches.map { String(localized: "\($0) fontes") } ?? "")
         .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
     }
