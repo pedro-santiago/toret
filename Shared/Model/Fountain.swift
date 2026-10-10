@@ -18,20 +18,20 @@ enum WaterState: String, Codable, Sendable, CaseIterable {
 
     var label: String {
         switch self {
-        case .running: "Água corrente"
-        case .weak: "Fluxo fraco"
-        case .dry: "Sem água"
-        case .unknown: "Sem relato recente"
+        case .running: String(localized: "Água corrente")
+        case .weak: String(localized: "Fluxo fraco")
+        case .dry: String(localized: "Sem água")
+        case .unknown: String(localized: "Sem relato recente")
         }
     }
 
     /// Short form for tight places: pins, chips, the widget.
     var shortLabel: String {
         switch self {
-        case .running: "Corrente"
-        case .weak: "Fraca"
-        case .dry: "Seca"
-        case .unknown: "Sem relato"
+        case .running: String(localized: "Corrente")
+        case .weak: String(localized: "Fraca")
+        case .dry: String(localized: "Seca")
+        case .unknown: String(localized: "Sem relato")
         }
     }
 
@@ -78,10 +78,10 @@ enum FountainKind: String, Codable, Sendable {
 
     var label: String {
         switch self {
-        case .toret: "Toret"
-        case .fountain: "Fontanella"
-        case .bubbler: "Bebedouro"
-        case .refill: "Ponto de recarga"
+        case .toret: String(localized: "Toret")
+        case .fountain: String(localized: "Fonte pública")
+        case .bubbler: String(localized: "Bebedouro")
+        case .refill: String(localized: "Recarga de garrafa")
         }
     }
 }
@@ -92,9 +92,9 @@ enum WheelchairAccess: String, Codable, Sendable {
 
     var label: String {
         switch self {
-        case .yes: "Acessível"
-        case .limited: "Acesso parcial"
-        case .no: "Sem acesso"
+        case .yes: String(localized: "Acessível")
+        case .limited: String(localized: "Acesso parcial")
+        case .no: String(localized: "Sem acesso")
         }
     }
 }
@@ -208,16 +208,30 @@ struct Fountain: Identifiable, Sendable {
     /// Walking minutes, on the design's 80 m/min pace, never rounded to zero.
     var walkingMinutes: Int { max(1, Int((Double(distance) / 80).rounded())) }
 
-    /// Names OpenStreetMap mappers use when they have nothing to say.
+    /// Names OpenStreetMap mappers use when they have nothing to say, in the
+    /// languages they write them in: Italian first, then English and Portuguese.
+    /// Compared lowercased and without accents, so "Água potável" and
+    /// "agua potavel" are the same name. These are data, not interface text, so
+    /// they stay out of the string catalog.
     private static let genericNames: Set<String> = [
-        "toret", "fontanella", "fontana", "fontanelle", "acqua", "acqua potabile",
-        "drinking water", "water", "fountain",
+        "toret", "toretto", "fontanella", "fontanelle", "fontanella pubblica", "fontana",
+        "fontana pubblica", "acqua", "acqua potabile", "acqua pubblica", "idrante",
+        "drinking water", "drinking fountain", "water", "water fountain", "fountain",
+        "public fountain", "bubbler", "water tap", "tap",
+        "fonte", "fonte publica", "bebedouro", "agua", "agua potavel", "torneira",
     ]
+
+    private static func isGeneric(_ name: String) -> Bool {
+        genericNames.contains(
+            name.trimmingCharacters(in: .whitespacesAndNewlines)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+        )
+    }
 
     /// What the fountain is called: its own name if it has a real one, otherwise
     /// the street it stands on, otherwise the neighbourhood.
     var place: String {
-        if let name, !Self.genericNames.contains(name.lowercased()) { return name }
+        if let name, !Self.isGeneric(name) { return name }
         return street ?? neighbourhood.map { "\(kind.label) · \($0)" } ?? kind.label
     }
 
@@ -229,10 +243,12 @@ struct Fountain: Identifiable, Sendable {
     }
 
     /// The neighbourhood, never empty.
-    var zone: String { neighbourhood ?? "Torino" }
+    var zone: String { neighbourhood ?? String(localized: "Turim") }
 
     /// "Toret n. 69442" where there is a plate, "Toret" where there is not.
-    var plateTitle: String { ref.map { "\(kind.label) n. \($0)" } ?? kind.label }
+    var plateTitle: String {
+        ref.map { String(localized: "\(kind.label) n. \($0)") } ?? kind.label
+    }
 
     /// The place name broken for display type: "Corso / Vittorio Emanuele II".
     ///

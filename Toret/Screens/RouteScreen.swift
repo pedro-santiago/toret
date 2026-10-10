@@ -3,13 +3,15 @@ import SwiftUI
 
 /// Walking.
 ///
-/// One instruction, set large enough to read at arm's length while moving, and
-/// nothing competing with it. Everything else — the arrival time, the remaining
-/// metres, the step after this one — is demoted to the card at the bottom, where
-/// you look only when you stop.
+/// The instruction is the poster: the metres to the next turn, set as large as
+/// the plate allows, with one plain line under it. Everything else — the arrival
+/// time, the metres left, the steps after this one — is demoted to the plate at
+/// the bottom, where you look only when you stop.
 struct RouteScreen: View {
     @Environment(ToretModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .largeTitle) private var figureSize: CGFloat = 120
 
     let fountain: Fountain
 
@@ -21,6 +23,13 @@ struct RouteScreen: View {
     /// far the user has walked away from its own answer.
     @State private var routedFrom: CLLocationCoordinate2D?
     @State private var isRouting = false
+    /// True once MapKit has answered — or failed to — at least once, so the
+    /// straight-line fallback is only announced after we really tried.
+    @State private var hasAnswered = false
+
+    /// Closer than this and you are there. A fountain is a fountain, not a point:
+    /// twenty metres is the width of a Turin square's corner.
+    static let arrivalRadius = 20
 
     init(fountain: Fountain) {
         self.fountain = fountain
@@ -33,52 +42,68 @@ struct RouteScreen: View {
         ))
     }
 
+    /// The straight-line distance now, from the live fix rather than from when
+    /// the screen opened.
+    private var currentDistance: Int {
+        model.fountains.first { $0.id == fountain.id }?.distance ?? fountain.distance
+    }
+
+    private var hasArrived: Bool { currentDistance <= Self.arrivalRadius }
+
+    /// MapKit had nothing to say about streets: no network, or nowhere to walk.
+    private var isStraightLine: Bool { hasAnswered && route.polyline == nil }
+
     var body: some View {
         ZStack(alignment: .top) {
             Map(position: $camera) {
-                UserAnnotation()
+                UserAnnotation { UserMark() }
 
                 if let polyline = route.polyline {
+                    // Stock under black ink, so the line prints cleanly over any street.
                     MapPolyline(polyline)
+                        .stroke(Palette.carta, style: StrokeStyle(lineWidth: 12, lineCap: .butt, lineJoin: .miter))
+                    MapPolyline(polyline)
+                        .stroke(Palette.inchiostro, style: StrokeStyle(lineWidth: 6, lineCap: .butt, lineJoin: .miter))
+                } else if isStraightLine {
+                    MapPolyline(coordinates: [model.origin, fountain.coordinate])
                         .stroke(
-                            Palette.green,
-                            style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round)
+                            Palette.inchiostro,
+                            style: StrokeStyle(lineWidth: 4, lineCap: .butt, dash: [9, 7])
                         )
                 }
 
                 Annotation(fountain.place, coordinate: fountain.coordinate, anchor: .center) {
                     FountainPin(
                         fountain: fountain, isSelected: true,
-                        token: model.selectionToken
+                        density: .full, token: model.selectionToken
                     ) {}
                 }
                 .annotationTitles(.hidden)
             }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+            .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
+            .mapControlVisibility(.hidden)
             .colorMultiply(Palette.mapWash)
             .ignoresSafeArea()
 
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
                 instruction
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
                 Spacer()
+                if isStraightLine && !hasArrived { straightLineNote }
                 progress
-                    .padding(.horizontal, 12)
-                PrimaryButton(
-                    title: "Encerrar rota", height: 48, fontSize: 15,
-                    background: Palette.ink.opacity(0.9)
-                ) {
-                    dismiss()
-                }
-                .padding(.horizontal, 12)
-                .padding(.top, 12)
-                .padding(.bottom, Screen.safeArea.bottom + 4)
+                closeButton
             }
+            .padding(.horizontal, 12)
             .padding(.top, Screen.safeArea.top + 8)
+            .padding(.bottom, Screen.safeArea.bottom + 4)
         }
         .ignoresSafeArea()
-        .task { await recompute(reframing: true) }
+        .sensoryFeedback(.success, trigger: hasArrived) { _, arrived in arrived }
+        .task {
+            // The same walk, on the Lock Screen and in the Dynamic Island.
+            WalkActivityController.shared.begin(to: fountain, from: model.origin)
+            await recompute(reframing: true)
+        }
+        .onDisappear { WalkActivityController.shared.end() }
         // A turn-by-turn screen that answers once and then goes quiet is worse
         // than a straight line: it keeps naming a turn you already took.
         .onChange(of: model.origin.latitude) { refreshIfMoved() }
@@ -96,14 +121,42 @@ struct RouteScreen: View {
 
         let from = model.origin
         let walked = await WalkingRoute.directions(from: from, to: fountain)
-        withAnimation(Motion.ui) {
+        withAnimation(reduceMotion ? nil : Motion.ui) {
             route = walked
-            if reframing, let polyline = walked.polyline {
-                // Frame the whole walk, with room for the two cards over it.
-                camera = .rect(polyline.boundingMapRect)
+            hasAnswered = true
+            if reframing {
+                camera = .rect(Self.framing(walked.polyline?.boundingMapRect, from: from, to: fountain.coordinate))
             }
         }
         routedFrom = from
+        // Without MapKit's answer the route is only the straight line, which the
+        // controller already measures better than a stale figure.
+        WalkActivityController.shared.routeDidChange(
+            remaining: walked.polyline == nil ? nil : walked.remaining,
+            toNextTurn: walked.toNextTurn, instruction: walked.headline,
+            routedFrom: from
+        )
+    }
+
+    /// The whole walk, with room round it for the two plates that cover the top
+    /// and the foot of the screen — the walk should sit in the strip between them.
+    static func framing(
+        _ rect: MKMapRect?, from origin: CLLocationCoordinate2D, to target: CLLocationCoordinate2D
+    ) -> MKMapRect {
+        let base = rect ?? {
+            let a = MKMapPoint(origin), b = MKMapPoint(target)
+            return MKMapRect(
+                x: min(a.x, b.x), y: min(a.y, b.y),
+                width: abs(a.x - b.x), height: abs(a.y - b.y)
+            )
+        }()
+        // About 160 m at Turin's latitude is the least worth showing.
+        let floor = 160 * MKMapPointsPerMeterAtLatitude(origin.latitude)
+        let width = max(base.width, floor), height = max(base.height, floor)
+        let centred = MKMapRect(
+            x: base.midX - width / 2, y: base.midY - height / 2, width: width, height: height
+        )
+        return centred.insetBy(dx: -width * 0.45, dy: -height * 1.05)
     }
 
     /// Twenty-five metres is about a third of a Turin block: far enough that the
@@ -126,121 +179,203 @@ struct RouteScreen: View {
     // MARK: The one thing to do next
 
     private var instruction: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Eyebrow(
-                    text: "A pé até a \(fountain.plateTitle.lowercased())",
-                    color: Palette.brass
-                )
-                Spacer()
-                Button { dismiss() } label: {
-                    IconView(shape: Icon.Lozenge(), size: 11, weight: 2, tint: Palette.paperRaised)
-                        .frame(width: 30, height: 30)
-                        .background { Circle().fill(Palette.paperRaised.opacity(0.14)) }
+        let nextIsTurn = route.steps.first?.kind != .arrive
+        return HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 0) {
+                if hasArrived {
+                    Text("Chegou")
+                        .font(Typo.display(min(figureSize * 0.62, 96), 900))
+                        .foregroundStyle(Palette.carta)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Text("A fonte está aqui.")
+                        .font(Typo.ui(22, 700))
+                        .foregroundStyle(Palette.carta)
+                        .padding(.top, 6)
+                    Text(fountain.place)
+                        .font(Typo.ui(15))
+                        .foregroundStyle(Palette.carta.opacity(0.8))
+                        .padding(.top, 4)
+                } else {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        CountingMetres(
+                            metres: route.toNextTurn, token: route.remaining,
+                            size: min(figureSize, 150), weight: 900, color: Palette.carta,
+                            tracking: Typo.tracking(-0.03, at: 120)
+                        )
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        Text("m")
+                            .font(Typo.ui(24, 700))
+                            .foregroundStyle(Palette.carta.opacity(0.85))
+                    }
+                    Text(isStraightLine ? String(localized: "Siga na direção da fonte") : route.headline)
+                        .font(Typo.ui(22, 700))
+                        .foregroundStyle(Palette.carta)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 4)
+                    Text(subhead)
+                        .font(Typo.ui(15))
+                        .foregroundStyle(Palette.carta.opacity(0.8))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 4)
                 }
-                .buttonStyle(.pressable)
-                .accessibilityLabel("Encerrar rota")
             }
-
-            HStack(alignment: .bottom, spacing: 12) {
-                CountingMetres(
-                    metres: route.toNextTurn, token: route.remaining,
-                    size: 54, color: Palette.paperRaised
-                )
-                Text("m")
-                    .font(Typo.ui(15, 500))
-                    .foregroundStyle(Palette.paperRaised.opacity(0.6))
-                    .padding(.bottom, 9)
+            Spacer(minLength: 0)
+            // The sun, with what to do on it: a turn, or the arrival.
+            ZStack {
+                Circle().fill(Palette.sole)
+                if hasArrived {
+                    StateMark(state: fountain.state, size: 26)
+                } else if nextIsTurn {
+                    IconView(shape: Icon.TurnRight(), size: 26, weight: 3, tint: Palette.inchiostro)
+                } else {
+                    Circle().fill(Palette.inchiostro).frame(width: 14, height: 14)
+                }
             }
-            .padding(.top, 12)
-
-            Text(route.headline)
-                .font(Typo.ui(21, 500))
-                .lineHeight(1.25, font: Typo.uiInterface(21, 500))
-                .foregroundStyle(Palette.paperRaised)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 8)
-
-            Text(route.subhead)
-                .font(Typo.ui(13.5))
-                .foregroundStyle(Palette.paperRaised.opacity(0.6))
-                .lineLimit(2)
-                .padding(.top, 6)
+            .frame(width: 58, height: 58)
+            .accessibilityHidden(true)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 18)
-        .padding(.bottom, 20)
+        .padding(.horizontal, 18)
+        .padding(.top, 14)
+        .padding(.bottom, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Palette.ink)
-                .shadow(color: Palette.ink.opacity(0.28), radius: 17, y: 10)
-        }
+        .background(Palette.inchiostro)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(route.toNextTurn) metros. \(route.headline). \(route.subhead)")
+        .accessibilityAddTraits(.updatesFrequently)
+        .accessibilityLabel(
+            hasArrived
+                ? "Você chegou à fonte, \(fountain.place)"
+                : "\(route.toNextTurn) metros. \(route.headline). \(subhead)"
+        )
+    }
+
+    /// The line under the headline: what comes after, or, with no streets to go
+    /// by, which way to face.
+    private var subhead: String {
+        if isStraightLine {
+            return Landmark.orientation(for: fountain.bearing, from: model.origin)
+        }
+        return route.subhead
+    }
+
+    /// The honest line for the day there is no route: the app is guessing a
+    /// direction, not reading a street plan, and says so.
+    private var straightLineNote: some View {
+        HStack(spacing: 11) {
+            Diamond().fill(Palette.rosso).frame(width: 16, height: 16)
+            Text("Sem rota de ruas: siga na direção da fonte.")
+                .font(Typo.ui(14, 600))
+                .foregroundStyle(Palette.inchiostro)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .plate(border: Palette.rosso)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Where you are in the walk
 
     private var progress: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .firstTextBaseline, spacing: 20) {
-                StatBlock(
-                    value: "\(route.minutes) min", caption: "CHEGADA \(route.arrival())",
-                    valueColor: Palette.green, size: 24
-                )
-                StatBlock(value: "\(route.remaining) m", caption: "RESTANTES", size: 24)
-                Spacer()
+            ViewThatFits(in: .horizontal) {
+                figures(stacked: false)
+                figures(stacked: true)
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 14)
-            .padding(.bottom, 12)
-            .overlay(alignment: .bottom) {
-                Rectangle().fill(Palette.ink.opacity(0.1)).frame(height: 1)
-            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
 
-            VStack(spacing: 0) {
-                ForEach(Array(route.steps.enumerated()), id: \.element.id) { index, step in
-                    HStack(spacing: 13) {
-                        ZStack {
-                            Circle().fill(Palette.green.opacity(0.12))
-                            switch step.kind {
-                            case .turn:
-                                IconView(
-                                    shape: Icon.TurnRight(), size: 12,
-                                    weight: 1.7, tint: Palette.green
-                                )
-                            case .arrive:
-                                Circle().fill(Palette.green).frame(width: 8, height: 8)
+            let upcoming = Array(route.steps.dropFirst())
+            if !upcoming.isEmpty && !hasArrived {
+                PosterRule()
+                VStack(spacing: 0) {
+                    ForEach(Array(upcoming.enumerated()), id: \.element.id) { index, step in
+                        HStack(spacing: 12) {
+                            ZStack {
+                                switch step.kind {
+                                case .turn:
+                                    IconView(
+                                        shape: Icon.TurnRight(), size: 15,
+                                        weight: 2.2, tint: Palette.inchiostro
+                                    )
+                                case .arrive:
+                                    Circle().fill(Palette.blu).frame(width: 12, height: 12)
+                                }
+                            }
+                            .frame(width: 24, height: 24)
+
+                            Text(step.instruction)
+                                .font(Typo.ui(14.5, 600))
+                                .foregroundStyle(Palette.inchiostro)
+                                .lineLimit(2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            if step.distance > 0 {
+                                Text("\(step.distance) m")
+                                    .font(Typo.ui(13.5, 600))
+                                    .foregroundStyle(Palette.ink(0.75))
                             }
                         }
-                        .frame(width: 22, height: 22)
-
-                        Text(step.instruction)
-                            .font(Typo.ui(14))
-                            .foregroundStyle(Palette.ink)
-                            .lineLimit(1)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        if step.distance > 0 {
-                            Text("\(step.distance) m")
-                                .font(Typo.ui(13, 500))
-                                .foregroundStyle(Palette.ink.opacity(0.5))
+                        .padding(.vertical, 10)
+                        .overlay(alignment: .bottom) {
+                            if index < upcoming.count - 1 { PosterRule(weight: .light) }
                         }
+                        .accessibilityElement(children: .combine)
                     }
-                    .padding(.vertical, 11)
-                    .overlay(alignment: .bottom) {
-                        if index < route.steps.count - 1 {
-                            Rectangle().fill(Palette.ink.opacity(0.07)).frame(height: 1)
-                        }
-                    }
-                    .accessibilityElement(children: .combine)
                 }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 4)
-            .padding(.bottom, 8)
         }
-        .glassPane(cornerRadius: 22, tone: .paper)
+        .plate()
+        .animation(reduceMotion ? nil : Motion.ui, value: route.steps.count)
+    }
+
+    /// Minutes and metres left, as two heavy figures split by a rule.
+    @ViewBuilder
+    private func figures(stacked: Bool) -> some View {
+        let minutes = figure(value: hasArrived ? "0" : "\(route.minutes)", unit: "min", caption: "Chegada às \(route.arrival())")
+        let remaining = figure(value: "\(hasArrived ? 0 : route.remaining)", unit: "m", caption: "restantes")
+        if stacked {
+            VStack(alignment: .leading, spacing: 10) { minutes; remaining }
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(spacing: 0) {
+                minutes.frame(maxWidth: .infinity, alignment: .leading)
+                Rectangle().fill(Palette.inchiostro).frame(width: 3, height: 58)
+                remaining.padding(.leading, 18).frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private func figure(value: String, unit: String, caption: String) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(Typo.display(44, 900))
+                    .foregroundStyle(Palette.inchiostro)
+                    .monospacedDigit()
+                Text(unit)
+                    .font(Typo.ui(16, 700))
+                    .foregroundStyle(Palette.inchiostro)
+            }
+            Text(caption)
+                .font(Typo.ui(13, 500))
+                .foregroundStyle(Palette.ink(0.75))
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var closeButton: some View {
+        if hasArrived {
+            PosterActionButton(title: String(localized: "Concluir"), height: 52) { dismiss() }
+        } else {
+            PosterOutlineButton(title: String(localized: "Encerrar rota"), height: 50) { dismiss() }
+                .background(Palette.carta)
+        }
     }
 }

@@ -25,23 +25,24 @@ struct ReviewSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Eyebrow(text: String(localized: "Avaliar"))
-                DisplayText(fountain.titleLines, size: 30, leading: 1.05)
-                    .padding(.top, 6)
-
                 if let sent {
                     confirmation(sent)
                 } else {
+                    PosterTitle("AVA", "LIAR", size: 64)
+                    Text(fountain.place)
+                        .font(Typo.ui(18, 700))
+                        .foregroundStyle(Palette.inchiostro)
+                        .padding(.top, 14)
                     form
                 }
             }
             .padding(.horizontal, 22)
-            .padding(.top, 28)
+            .padding(.top, 32)
             .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
-        .background(Palette.paper)
+        .background(Palette.carta)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .sensoryFeedback(.success, trigger: sent)
@@ -53,74 +54,88 @@ struct ReviewSheet: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 0) {
-            label(String(localized: "A água agora"))
-            HStack(spacing: 8) {
-                ForEach(WaterState.reportable, id: \.self) { state in
-                    waterTile(state)
+            group(String(localized: "Como está a água")) {
+                HStack(spacing: 8) {
+                    ForEach(WaterState.reportable, id: \.self) { waterTile($0) }
                 }
             }
 
-            label(String(localized: "Sua nota"))
-            LozengeRatingInput(rating: $rating)
+            group(String(localized: "Sua nota")) {
+                DiamondRatingInput(rating: $rating)
+            }
 
-            label(String(localized: "O que você notou (até 3)"))
-            FlowLayout(spacing: 8) {
-                ForEach(ReportTag.allCases) { tag in
-                    Button { toggle(tag) } label: {
-                        TagChip(label: tag.localizedLabel, isOn: tags.contains(tag))
+            group(String(localized: "O que você notou, até 3")) {
+                FlowLayout(spacing: 8) {
+                    ForEach(ReportTag.allCases) { tag in
+                        Button { toggle(tag) } label: {
+                            TagChip(label: tag.localizedLabel, isOn: tags.contains(tag))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAddTraits(tags.contains(tag) ? .isSelected : [])
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(tags.contains(tag) ? .isSelected : [])
                 }
             }
 
-            label(String(localized: "Uma linha, se quiser"))
-            VStack(alignment: .trailing, spacing: 6) {
-                TextField(
-                    String(localized: "Ex.: água gelada, fila pequena"),
-                    text: $note, axis: .vertical
-                )
-                .lineLimit(2 ... 4)
-                .font(Typo.ui(15))
-                .foregroundStyle(Palette.ink)
-                .focused($noteFocused)
-                .padding(14)
-                .background {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(Palette.ink.opacity(0.25), lineWidth: 1.2)
-                }
-                .onChange(of: note) {
-                    if note.count > Report.maximumNoteLength {
-                        note = String(note.prefix(Report.maximumNoteLength))
+            group(String(localized: "Uma linha, se quiser")) {
+                VStack(alignment: .trailing, spacing: 6) {
+                    TextField(
+                        String(localized: "Água gelada, fila pequena"),
+                        text: $note, axis: .vertical
+                    )
+                    .lineLimit(2 ... 4)
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.inchiostro)
+                    .focused($noteFocused)
+                    .padding(14)
+                    .background(Palette.cartaChiara)
+                    .overlay { Rectangle().strokeBorder(Palette.inchiostro, lineWidth: 2) }
+                    .onChange(of: note) {
+                        if note.count > Report.maximumNoteLength {
+                            note = String(note.prefix(Report.maximumNoteLength))
+                        }
+                        rejection = nil
                     }
-                    rejection = nil
-                }
 
-                Text("\(note.count)/\(Report.maximumNoteLength)")
-                    .font(Typo.ui(11.5))
-                    .foregroundStyle(Palette.ink.opacity(0.45))
-                    .monospacedDigit()
+                    Text("\(note.count)/\(Report.maximumNoteLength)")
+                        .font(Typo.ui(13))
+                        .foregroundStyle(Palette.inchiostro.opacity(0.7))
+                        .monospacedDigit()
+                }
             }
 
             if let rejection {
                 Text(message(for: rejection))
-                    .font(Typo.ui(13, 500))
-                    .foregroundStyle(Palette.terracotta)
+                    .font(Typo.ui(15, 600))
+                    .foregroundStyle(Palette.rosso)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 12)
+                    .padding(.top, 14)
             }
 
-            PrimaryButton(title: String(localized: "Enviar relato"), height: 52) { submit() }
+            PrimaryButton(title: String(localized: "Enviar relato"), height: 56) { submit() }
                 .disabled(!canSubmit)
                 .opacity(canSubmit ? 1 : 0.4)
-                .padding(.top, 22)
+                .padding(.top, 24)
 
             Text(CommunityNotice.text(for: community.availability, failed: false))
-                .font(Typo.ui(11.5))
-                .foregroundStyle(Palette.ink.opacity(0.5))
+                .font(Typo.ui(13))
+                .foregroundStyle(Palette.inchiostro.opacity(0.7))
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 10)
+                .padding(.top, 12)
         }
+    }
+
+    /// A heavy rule, a plain heading, and the control: the poster's own grouping.
+    private func group<Content: View>(
+        _ title: String, @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            PosterRule()
+            Text(title)
+                .font(Typo.ui(16, 700))
+                .foregroundStyle(Palette.inchiostro)
+            content()
+        }
+        .padding(.top, 26)
     }
 
     private func waterTile(_ state: WaterState) -> some View {
@@ -129,35 +144,22 @@ struct ReviewSheet: View {
             water = isOn ? nil : state
             rejection = nil
         } label: {
-            VStack(spacing: 8) {
-                StateGlyph(state: state, size: 24)
+            VStack(spacing: 10) {
+                StateMark(state: state, size: 30, night: isOn)
                 Text(state.shortLabel)
-                    .font(Typo.ui(13, 600))
-                    .foregroundStyle(Palette.ink)
+                    .font(Typo.ui(14, 700))
+                    .foregroundStyle(isOn ? Palette.carta : Palette.inchiostro)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 80)
-            .background {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isOn ? state.color.opacity(0.14) : Color.clear)
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(isOn ? state.color : Palette.ink.opacity(0.25), lineWidth: isOn ? 2 : 1.2)
-            }
+            .frame(height: 92)
+            .background(isOn ? Palette.inchiostro : Palette.cartaChiara)
+            .overlay { Rectangle().strokeBorder(Palette.inchiostro, lineWidth: isOn ? 3 : 2) }
             .contentShape(.rect)
         }
         .buttonStyle(.pressable)
         .sensoryFeedback(.selection, trigger: water)
         .accessibilityLabel(state.label)
         .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
-    }
-
-    private func label(_ text: String) -> some View {
-        Text(text.uppercased())
-            .font(Typo.narrow(9.5))
-            .tracking(Typo.tracking(0.14, at: 9.5))
-            .foregroundStyle(Palette.ink.opacity(0.5))
-            .padding(.top, 24)
-            .padding(.bottom, 10)
     }
 
     // MARK: Sending
@@ -180,7 +182,7 @@ struct ReviewSheet: View {
         switch result {
         case let .accepted(delivery):
             rejection = nil
-            sent = delivery
+            withAnimation(Motion.ui) { sent = delivery }
             Task {
                 try? await Task.sleep(for: .seconds(1.6))
                 dismiss()
@@ -206,18 +208,17 @@ struct ReviewSheet: View {
     // MARK: Confirmation
 
     private func confirmation(_ delivery: SubmitDelivery) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            StateGlyph(state: water ?? .unknown, size: 34)
-                .padding(.top, 36)
-            Text("Obrigado")
-                .font(Typo.display(34))
-                .foregroundStyle(Palette.ink)
+        VStack(alignment: .leading, spacing: 18) {
+            StateMark(state: water ?? .unknown, size: 56)
+            PosterTitle("OBRI", "GADO", size: 64)
             Text(deliveryText(delivery))
-                .font(Typo.ui(15))
-                .foregroundStyle(Palette.ink.opacity(0.65))
+                .font(Typo.ui(16))
+                .foregroundStyle(Palette.inchiostro)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .padding(.top, 24)
         .accessibilityElement(children: .combine)
+        .transition(.opacity)
     }
 
     private func deliveryText(_ delivery: SubmitDelivery) -> String {

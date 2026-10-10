@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>pt-BR</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Toret</string>
 	<key>CFBundleExecutable</key>
@@ -14,6 +14,8 @@
 	<string>6.0</string>
 	<key>CFBundleLocalizations</key>
 	<array>
+		<string>en</string>
+		<string>it</string>
 		<string>pt-BR</string>
 	</array>
 	<key>CFBundleName</key>
@@ -38,9 +40,9 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Com a localização sempre ativa, a bússola do Toret continua visível na tela bloqueada e no widget, e você é avisado quando passa perto de uma fonte.</string>
+	<string>With location always on, the Toret compass stays visible on the Lock Screen and in the widget, and you get a heads-up when you pass a fountain.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>O Toret usa a sua localização para apontar a agulha para a fonte mais próxima e calcular a distância a pé.</string>
+	<string>Toret uses your location to point the needle at the nearest fountain and work out the walking distance.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>ToretCloudContainer</key>

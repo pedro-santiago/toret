@@ -137,7 +137,7 @@ struct PosterTitle: View {
         let font = Typo.uiDisplay(size, 900)
         HStack(alignment: .top, spacing: size * 0.16) {
             Rectangle().fill(ruleColor).frame(width: 3)
-            VStack(alignment: .leading, spacing: size * 0.8 - font.lineHeight) {
+            VStack(alignment: .leading, spacing: font.pointSize * 0.8 - font.lineHeight) {
                 ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                     Text(line.uppercased())
                         .font(Font(font))

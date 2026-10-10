@@ -16,14 +16,14 @@ Revisar depois que o app for fechado: o texto só pode prometer o que a versão 
 
 **Nome (30):** Toret · Água em Turim
 **Subtítulo (30):** Fontes públicas na bússola
-**Texto promocional (170):** Quase 700 fontes de água pública de Turim no seu bolso: a agulha aponta, a distância conta, e o widget responde sem você abrir o app.
+**Texto promocional (170):** Mais de 700 fontes de água pública de Turim no seu bolso: a agulha aponta, a distância conta, e o widget responde sem você abrir o app.
 
 **Descrição (4000):**
 
 Turim tem fontes de água pública em quase todas as esquinas, dos famosos *toret* de ferro fundido, os touros que dão água à cidade desde o século XIX, a bebedouros e pontos de recarga. O Toret encontra a mais próxima e leva você até ela.
 
 • Bússola de verdade: a agulha aponta para a fonte e gira com você. Em vez de "296°", o app diz "olhe entre a Mole e Superga".
-• Mapa com todas as fontes públicas de Turim, com busca por rua, praça ou bairro.
+• Mapa com as fontes públicas de Turim, com busca por rua, praça ou bairro.
 • Perto de mim: as fontes ordenadas pelo que decide uma caminhada, a distância.
 • Rota a pé, uma instrução por vez, grande o bastante para ler andando.
 • Widgets na tela inicial e na tela bloqueada, controles na Central de Controle e Atalhos da Siri: "Qual é a fonte mais próxima?" sem abrir o app.
@@ -42,15 +42,15 @@ Gratuito, sem anúncios, sem rastreamento. A sua localização fica no aparelho.
 ## English (U.S.)
 
 **Name (30):** Toret · Turin Drinking Water
-**Subtitle (30):** Public fountains, on a compass
-**Promotional text (170):** Nearly 700 public drinking fountains in Turin in your pocket: the needle points, the distance counts, and the widget answers without opening the app.
+**Subtitle (30):** A compass to the nearest water
+**Promotional text (170):** Over 700 public drinking fountains in Turin in your pocket: the needle points, the distance counts, and the widget answers without opening the app.
 
 **Description:**
 
-Turin has public drinking water on almost every corner, from the famous cast-iron *toret* bull-head fountains that have served the city since the 19th century to bubblers and bottle fillers. Toret finds the nearest one and walks you there.
+Turin has free drinking water on almost every corner, from the famous cast-iron *toret*, the bull’s-head fountains that have quenched the city since the 19th century, to drinking jets and bottle-refill points. Toret finds the nearest one and walks you there.
 
 • A real compass: the needle points to the fountain and turns with you. Instead of "296°", it says "look between the Mole and Superga".
-• A map of every public fountain in Turin, searchable by street, square or neighbourhood.
+• A map of Turin’s public fountains, searchable by street, square or neighbourhood.
 • Near me: fountains sorted by the only thing that matters on foot, distance.
 • Walking directions, one instruction at a time, large enough to read while moving.
 • Home and Lock Screen widgets, Control Center controls and Siri Shortcuts: "What is the nearest fountain?" without opening the app.
@@ -62,34 +62,34 @@ Honest by design: Toret does not measure the water. Positions come from OpenStre
 
 Free, no ads, no tracking. Your location stays on your device.
 
-**Keywords (100):** Turin,Torino,fountain,drinking water,fontanella,toret,potable,Italy,compass,map,travel
+**Keywords (100):** Turin,Torino,fountain,drinking water,fontanella,toret,potable,Italy,compass,refill,map
 
 **What's New (1.0):** First release.
 
 ## Italiano
 
 **Nome (30):** Toret · Acqua a Torino
-**Sottotitolo (30):** Fontanelle pubbliche, in bussola
-**Testo promozionale (170):** Quasi 700 fontanelle pubbliche di Torino in tasca: l'ago indica, la distanza conta e il widget risponde senza aprire l'app.
+**Sottotitolo (30):** Trova la fontanella più vicina
+**Testo promozionale (170):** Oltre 700 fontanelle pubbliche di Torino in tasca: l’ago indica la strada, la distanza conta e il widget risponde senza aprire l’app.
 
 **Descrizione:**
 
-Torino ha acqua pubblica a ogni angolo, dai celebri *toret* di ghisa, i tori che dissetano la città dall'Ottocento, ai bevitori e ai punti di ricarica. Toret trova la fontanella più vicina e ti ci accompagna.
+Torino è piena di acqua pubblica: dai celebri *toret* in ghisa, le fontanelle con la testa di toro che dissetano la città dall’Ottocento, alle fontanelle a getto e ai punti di ricarica per le borracce. Toret trova la più vicina e ti ci accompagna.
 
-• Una vera bussola: l'ago indica la fontanella e gira con te. Invece di "296°" dice "guarda tra la Mole e Superga".
-• Una mappa di tutte le fontanelle pubbliche di Torino, con ricerca per via, piazza o quartiere.
-• Vicino a me: le fontanelle in ordine di distanza.
-• Percorso a piedi, un'indicazione alla volta, leggibile mentre cammini.
-• Widget per Home e schermata di blocco, controlli del Centro di Controllo e Comandi Siri: «Qual è la fontanella più vicina?» senza aprire l'app.
-• Attività in tempo reale sulla schermata di blocco e nella Dynamic Island durante il percorso.
-• Avviso facoltativo quando passi a meno di 100 m da una fontanella.
-• Comunità: valuta le fontanelle, indica se l'acqua scorreva e leggi cosa hanno segnalato altri. Senza account, senza nome.
+• Una vera bussola: l’ago indica la fontanella e gira con te. Invece di «296°» ti dice «guarda tra la Mole e Superga».
+• Una mappa delle fontanelle pubbliche di Torino, con ricerca per via, piazza o quartiere.
+• Vicino a me: le fontanelle in ordine di distanza, perché a piedi conta solo quella.
+• Percorso a piedi, un’indicazione alla volta, leggibile mentre cammini.
+• Widget per la schermata Home e per quella di blocco, controlli nel Centro di Controllo e Comandi rapidi con Siri: «Qual è la fontanella più vicina?», senza aprire l’app.
+• Attività live sulla schermata di blocco e nella Dynamic Island mentre cammini.
+• Un avviso facoltativo quando passi a meno di 100 m da una fontanella.
+• Comunità: valuta le fontanelle, indica se l’acqua scorreva e leggi cosa hanno segnalato gli altri. Senza account e senza nome.
 
-Onesto per scelta: Toret non misura l'acqua. Le posizioni vengono da OpenStreetMap; lo stato dell'acqua solo dalle segnalazioni della comunità, con data. Se nessuno ha segnalato nulla, l'app lo dice invece di inventare.
+Onesta per scelta: Toret non misura l’acqua. Le posizioni vengono da OpenStreetMap; lo stato dell’acqua solo dalle segnalazioni della comunità, con data. Se nessuno ha segnalato nulla, l’app lo dice invece di inventare.
 
 Gratuita, senza pubblicità, senza tracciamento. La tua posizione resta sul dispositivo.
 
-**Parole chiave (100):** Torino,fontanella,acqua,potabile,toret,bevitore,Italia,bussola,mappa,viaggio,fontana
+**Parole chiave (100):** Torino,fontanella,acqua,potabile,toret,borraccia,Italia,bussola,mappa,viaggio,fontana
 
 **Novità (1.0):** Prima versione.
 

@@ -80,6 +80,46 @@ struct Landmark: Identifiable, Hashable, Sendable {
         all(from: origin).filter(\.onMap)
     }
 
+    /// How far out a landmark stands on the compass rim.
+    enum Tier: Int, Sendable { case inner = 0, outer = 1 }
+
+    /// Steps colliding landmarks apart on the rim.
+    ///
+    /// The bearings are real, and from the middle of town the Mole and Superga are
+    /// only ten degrees apart. A mark that lands within `minimumSeparation` of the
+    /// last one placed on its tier moves out to the other tier instead of printing
+    /// over it. With two tiers the third of a tight cluster has nowhere to go and
+    /// is left where it falls — at six landmarks that does not happen in Turin.
+    static func tiers(
+        for landmarks: [Landmark], minimumSeparation: Double = 14
+    ) -> [(landmark: Landmark, tier: Tier)] {
+        var lastOnTier: [Tier: Double] = [:]
+        var placed: [(landmark: Landmark, tier: Tier)] = []
+        for mark in landmarks.sorted(by: { $0.bearing < $1.bearing }) {
+            let preferred: Tier = .inner
+            let tier: Tier
+            if let last = lastOnTier[preferred],
+               Bearing.separation(mark.bearing, last) < minimumSeparation {
+                tier = .outer
+            } else {
+                tier = preferred
+            }
+            lastOnTier[tier] = mark.bearing
+            placed.append((mark, tier))
+        }
+        return placed
+    }
+
+    /// The landmark within `tolerance` degrees of `bearing`, if any.
+    static func facing(
+        _ bearing: Double, from origin: CLLocationCoordinate2D, tolerance: Double = 12
+    ) -> Landmark? {
+        ring(from: origin)
+            .map { ($0, Bearing.separation($0.bearing, bearing)) }
+            .filter { $0.1 <= tolerance }
+            .min { $0.1 < $1.1 }?.0
+    }
+
     /// Phrases a bearing as something you can do with your body.
     ///
     /// Within 15° of a landmark you are told to line up with it; otherwise you
@@ -97,6 +137,28 @@ struct Landmark: Identifiable, Hashable, Sendable {
 
 /// Arithmetic on compass bearings.
 enum Bearing {
+    /// Folds any angle into 0..<360.
+    static func normalized(_ degrees: Double) -> Double {
+        let wrapped = degrees.truncatingRemainder(dividingBy: 360)
+        return wrapped < 0 ? wrapped + 360 : wrapped
+    }
+
+    /// Where something is relative to the way you face, in a sentence: "à sua
+    /// esquerda", "atrás de você, à direita". `relative` is bearing minus heading.
+    static func relativePhrase(_ relative: Double) -> String {
+        let phrases = [
+            String(localized: "à sua frente"),
+            String(localized: "à sua frente, à direita"),
+            String(localized: "à sua direita"),
+            String(localized: "atrás de você, à direita"),
+            String(localized: "atrás de você"),
+            String(localized: "atrás de você, à esquerda"),
+            String(localized: "à sua esquerda"),
+            String(localized: "à sua frente, à esquerda"),
+        ]
+        return phrases[Int((normalized(relative) + 22.5) / 45) % 8]
+    }
+
     /// Initial great-circle bearing from one coordinate to another, 0..<360°
     /// clockwise from true north.
     static func forwardAzimuth(

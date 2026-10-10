@@ -1,4 +1,4 @@
-import ActivityKit
+@preconcurrency import ActivityKit
 import CoreLocation
 import UIKit
 
@@ -79,7 +79,7 @@ final class WalkActivityController: NSObject {
     /// The route screen reports every recalculation, so "metres left" follows the
     /// streets rather than the crow.
     func routeDidChange(
-        remaining: Int, toNextTurn: Int, instruction: String,
+        remaining: Int?, toNextTurn: Int, instruction: String,
         routedFrom origin: CLLocationCoordinate2D
     ) {
         guard destination != nil else { return }

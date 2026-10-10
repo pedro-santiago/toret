@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Toret</string>
 	<key>CFBundleExecutable</key>
@@ -12,6 +12,12 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>it</string>
+		<string>pt-BR</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -26,7 +32,7 @@
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>O Toret usa a sua localização para mostrar, no widget, a distância até a fonte mais próxima.</string>
+	<string>Toret uses your location to show, in the widget, the distance to the nearest fountain.</string>
 	<key>NSWidgetWantsLocation</key>
 	<true/>
 	<key>UIAppFonts</key>

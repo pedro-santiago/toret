@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSLocationAlwaysAndWhenInUseUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With location always on, the Toret compass stays visible on the Lock Screen and in the widget, and you get a heads-up when you pass a fountain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con la posizione sempre attiva, la bussola di Toret resta visibile nella schermata di blocco e nel widget, e ricevi un avviso quando passi vicino a una fontanella."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com a localização sempre ativa, a bússola do Toret continua visível na tela bloqueada e no widget, e você é avisado quando passa perto de uma fonte."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toret uses your location to point the needle at the nearest fountain and work out the walking distance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toret usa la tua posizione per puntare l’ago verso la fontanella più vicina e calcolare la distanza a piedi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Toret usa a sua localização para apontar a agulha para a fonte mais próxima e calcular a distância a pé."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

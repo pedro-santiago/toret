@@ -2,6 +2,60 @@ import CoreText
 import SwiftUI
 import UIKit
 
+/// Follows the user's text size so type scales for everyone.
+///
+/// `UIFontMetrics` does the arithmetic, but the fonts here are built in view
+/// bodies from plain point sizes, and a body only re-runs when something it read
+/// changes. Reading ``generation`` inside every `Typo` call makes each of them a
+/// dependency (Observation tracks any access made while a body evaluates), and the
+/// system's size-change notification bumps it — so changing Settings > Display &
+/// Brightness > Text Size redraws the open screen instead of the next launch.
+///
+/// The widget extension is opted out: a widget's layout is fixed by its family,
+/// and the system scales widget text itself where it should.
+@MainActor
+@Observable
+final class TypeScale {
+    static let shared = TypeScale()
+
+    enum Role {
+        /// Reading text and controls: scales fully.
+        case text
+        /// Small labels: scales, but less, so a caption never outgrows its row.
+        case label
+        /// Poster type: scales a little, never past about a third. A 120 pt figure
+        /// that doubled would leave the disc it sits on.
+        case display
+    }
+
+    private(set) var generation = 0
+    @ObservationIgnored private var observer: NSObjectProtocol?
+
+    private init() {
+        guard isEnabled else { return }
+        observer = NotificationCenter.default.addObserver(
+            forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.generation += 1 }
+        }
+    }
+
+    var isEnabled: Bool { !Bundle.main.bundlePath.hasSuffix(".appex") }
+
+    func scale(_ size: CGFloat, _ role: Role) -> CGFloat {
+        _ = generation
+        guard isEnabled else { return size }
+        switch role {
+        case .text:
+            return UIFontMetrics(forTextStyle: .body).scaledValue(for: size)
+        case .label:
+            return min(UIFontMetrics(forTextStyle: .footnote).scaledValue(for: size), size * 2.2)
+        case .display:
+            return min(UIFontMetrics(forTextStyle: .largeTitle).scaledValue(for: size), size * 1.35)
+        }
+    }
+}
+
 /// Two voices, and they never trade jobs:
 ///
 /// - **League Spartan**, set at the Black end of its weight axis, is the poster:
@@ -24,7 +78,7 @@ enum Typo {
     static func uiInterface(_ size: CGFloat, _ weight: CGFloat = 400) -> UIFont {
         VariableFont.font(
             family: VariableFont.Family.archivo,
-            size: size,
+            size: TypeScale.shared.scale(size, size <= 13.5 ? .label : .text),
             axes: [VariableFont.Axis.weight: weight, VariableFont.Axis.width: 100]
         )
     }
@@ -38,7 +92,7 @@ enum Typo {
     static func uiNarrow(_ size: CGFloat, _ weight: CGFloat = 600) -> UIFont {
         VariableFont.font(
             family: VariableFont.Family.archivo,
-            size: size,
+            size: TypeScale.shared.scale(size, .label),
             axes: [VariableFont.Axis.weight: weight, VariableFont.Axis.width: 62]
         )
     }
@@ -54,7 +108,7 @@ enum Typo {
     static func uiDisplay(_ size: CGFloat, _ weight: CGFloat = 800, italic: Bool = false) -> UIFont {
         VariableFont.font(
             family: VariableFont.Family.spartan,
-            size: size,
+            size: TypeScale.shared.scale(size, .display),
             axes: [VariableFont.Axis.weight: min(900, max(700, weight))]
         )
     }
@@ -129,7 +183,7 @@ struct DisplayText: View {
 
     var body: some View {
         let font = Typo.uiDisplay(size, weight)
-        VStack(alignment: alignment, spacing: size * leading - font.lineHeight) {
+        VStack(alignment: alignment, spacing: font.pointSize * leading - font.lineHeight) {
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                 Text(line)
                     .font(Font(font))

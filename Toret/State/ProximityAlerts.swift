@@ -134,11 +134,19 @@ final class ProximityAlerts {
         guard let fountain = armed[identifier] else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Fonte a \(Int(Self.radius)) m"
+        content.title = String(localized: "Fonte a \(Int(Self.radius)) m")
         // The app does not know whether the water is running; it says what the
-        // community last reported, and nothing when nobody has.
-        let report = fountain.state == .unknown ? "" : " Relato recente: \(fountain.state.label.lowercased())."
-        content.body = "\(fountain.plateTitle) · \(fountain.place).\(report) Toque para traçar a rota."
+        // community last reported, and nothing when nobody has. Two whole
+        // sentences rather than one with a hole in it, so every language can
+        // order the words its own way.
+        let plate = fountain.plateTitle
+        let place = fountain.place
+        if fountain.state == .unknown {
+            content.body = String(localized: "\(plate) · \(place). Toque para traçar a rota.")
+        } else {
+            let state = fountain.state.label.lowercased(with: .autoupdatingCurrent)
+            content.body = String(localized: "\(plate) · \(place). Relato recente: \(state). Toque para traçar a rota.")
+        }
         content.categoryIdentifier = Self.categoryIdentifier
         content.userInfo = ["fountain": fountain.id]
         content.sound = .default

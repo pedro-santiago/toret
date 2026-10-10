@@ -151,6 +151,96 @@ enum Icon {
             return path
         }
     }
+
+    // MARK: Poster glyphs
+    //
+    // Drawn for a stroke of 2.5 pt at about 22 pt, and equally good filled. They
+    // are the same shapes the poster is made of — square, circle, diamond,
+    // half-disc — so the tab bar and the artwork speak one alphabet.
+
+    /// A cross, for clearing a field.
+    struct Cross: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path()
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            return path
+        }
+    }
+
+    /// Mapa: a square with one diagonal street through it.
+    struct TabMap: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path(rect)
+            path.move(to: CGPoint(x: rect.minX + rect.width * 0.16, y: rect.maxY - rect.height * 0.16))
+            path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.16, y: rect.minY + rect.height * 0.16))
+            return path
+        }
+    }
+
+    /// Perto: a circle inside a circle.
+    struct TabNearby: Shape {
+        func path(in rect: CGRect) -> Path {
+            let c = CGPoint(x: rect.midX, y: rect.midY)
+            let r = min(rect.width, rect.height) / 2
+            var path = Path()
+            path.addEllipse(in: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2))
+            path.addEllipse(in: CGRect(x: c.x - r * 0.42, y: c.y - r * 0.42, width: r * 0.84, height: r * 0.84))
+            return path
+        }
+    }
+
+    /// Salvas: a diamond.
+    struct TabSaved: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path()
+            path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
+            path.closeSubpath()
+            return path
+        }
+    }
+
+    /// Relatos: a half-disc with a tail — someone saying something.
+    struct TabFeed: Shape {
+        func path(in rect: CGRect) -> Path {
+            let w = rect.width, h = rect.height
+            let base = rect.minY + h * 0.7
+            var path = Path()
+            path.move(to: CGPoint(x: rect.minX, y: base))
+            path.addArc(
+                center: CGPoint(x: rect.midX, y: base), radius: w / 2,
+                startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false
+            )
+            path.addLine(to: CGPoint(x: rect.minX + w * 0.66, y: base))
+            path.addLine(to: CGPoint(x: rect.minX + w * 0.3, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.minX + w * 0.38, y: base))
+            path.closeSubpath()
+            return path
+        }
+    }
+
+    /// Ajustes: three bars, each with a square stop.
+    struct TabSettings: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path()
+            let rows: [CGFloat] = [0.14, 0.5, 0.86]
+            let stops: [CGFloat] = [0.68, 0.3, 0.56]
+            let knob = rect.width * 0.26
+            for (row, stop) in zip(rows, stops) {
+                let y = rect.minY + rect.height * row
+                path.move(to: CGPoint(x: rect.minX, y: y))
+                path.addLine(to: CGPoint(x: rect.maxX, y: y))
+                let x = rect.minX + rect.width * stop
+                path.addRect(CGRect(x: x - knob / 2, y: y - knob / 2, width: knob, height: knob))
+            }
+            return path
+        }
+    }
 }
 
 /// A drawn icon at a given size and stroke weight.

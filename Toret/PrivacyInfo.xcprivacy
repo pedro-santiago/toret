@@ -6,11 +6,43 @@
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
 	<array/>
-	<!-- Nothing leaves the device. The position is measured, used to sort the
+	<!-- The position never leaves the device: it is measured, used to sort the
 	     catalogue, written to the app group so the widgets can read it, and
-	     never sent anywhere. -->
+	     never sent anywhere. What does leave is a community report the user
+	     chooses to publish (rating, tags, a note, the date and an anonymous
+	     handle hashed from the iCloud account), stored in the app's public
+	     CloudKit database, where the developer can read it. Apple counts that as
+	     collected: the note and rating are "Other User Content", and the handle
+	     is a "User ID" because it is the same on each of one person's reports.
+	     Linked to the user because of that handle; used for app functionality
+	     only; never for tracking. -->
 	<key>NSPrivacyCollectedDataTypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeUserID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
 		<dict>

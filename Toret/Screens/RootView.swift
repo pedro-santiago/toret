@@ -26,10 +26,14 @@ struct RootView: View {
                 model.popToRoot(tab)
             }
         }
+        // Inside the environment calls: the modifier reads the model and the
+        // community from it, and sees only what is injected *outside* it.
+        .modifier(CommunityHooks())
         .environment(model)
         .environment(location)
         .environment(community)
         .background(Palette.paper)
+        .overlay { LaunchOverlay() }
         .fullScreenCover(isPresented: $model.showingCompass) {
             CompassScreen()
                 .environment(model)
@@ -45,12 +49,7 @@ struct RootView: View {
             // Publishes the last known fix to the widgets and arms the geofences,
             // both of which have to survive the app being closed.
             model.start()
-            // What the community said while the app was closed reaches the pins
-            // before the first refresh does.
-            model.apply(summaries: community.summaries)
             openScreenFromLaunchArguments()
-            community.startMonitoring()
-            await community.refresh()
         }
         // Every distance and bearing in the app is measured from here, so one
         // fix re-derives the whole catalogue.
@@ -59,12 +58,12 @@ struct RootView: View {
         // Tapping the proximity alert lands on the route to the fountain it
         // fired for, which is what its own copy promises.
         .onChange(of: router.pendingID) { openTappedNotification() }
-        .onChange(of: community.summaries) { model.apply(summaries: community.summaries) }
-        // A report's state expires with time and nothing else tells the pins.
+        // Widgets, controls, Siri and the Live Activity all arrive as `toret://`.
+        .onOpenURL { url in open(url) }
         .onChange(of: scenePhase) {
             guard scenePhase == .active else { return }
-            community.recompute()
-            Task { await community.refresh() }
+            // Siri and Shortcuts may have saved a fountain while the app slept.
+            model.reloadExternalPreferences()
         }
     }
 
@@ -75,6 +74,54 @@ struct RootView: View {
         model.tab = .map
         model.select(fountain)
         model.walkingTo = fountain
+    }
+
+    /// Where a `toret://` link from a widget, control, shortcut or Live Activity goes.
+    private func open(_ url: URL) {
+        guard let link = DeepLink(url: url) else { return }
+        Task {
+            switch link {
+            case let .fountain(id):
+                guard let fountain = model.fountains.first(where: { $0.id == id }) else { return }
+                model.showingCompass = false
+                model.walkingTo = nil
+                model.tab = .map
+                model.popToRoot(.map)
+                model.select(fountain)
+                model.push(.detail(fountain), in: .map)
+            case let .route(id):
+                guard let fountain = model.fountains.first(where: { $0.id == id }) else { return }
+                model.showingCompass = false
+                model.select(fountain)
+                model.walkingTo = fountain
+            case .routeToNearest:
+                // "Nearest" has to be measured from the user, not from wherever
+                // the model was standing when the app was cold-launched.
+                await waitForFix()
+                guard let fountain = model.nearestUsable(1).first else { return }
+                model.showingCompass = false
+                model.select(fountain)
+                model.walkingTo = fountain
+            case let .compass(nearest):
+                if nearest {
+                    await waitForFix()
+                    if let fountain = model.nearestUsable(1).first { model.select(fountain) }
+                }
+                model.walkingTo = nil
+                model.showingCompass = true
+            }
+        }
+    }
+
+    /// Gives a cold launch up to three seconds to get its first fix, and no time
+    /// at all when there is no fix coming (denied, or outside Turin).
+    private func waitForFix() async {
+        for _ in 0 ..< 30 {
+            guard location.status == .searching else { break }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        // One more tick for the fix to reach the model's distances.
+        try? await Task.sleep(for: .milliseconds(60))
     }
 
     /// Jumps straight to a screen when the app is launched with

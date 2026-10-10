@@ -16,7 +16,9 @@ struct NeedleHead: Shape {
 ///
 /// It is the one element on every screen: a pill on the map, the whole of the
 /// compass screen, a row marker in the lists, a dial in the widgets. Same
-/// geometry throughout — head, stem, pivot — scaled and re-tinted.
+/// geometry throughout — a flat triangle, an optional stem, an optional pivot —
+/// scaled and re-inked. On the poster's moon it is a bold black wedge; on a dark
+/// pill it is cream.
 struct Needle: View {
     /// Degrees clockwise from north. Pass the model's *accumulated* angle, not a
     /// value reduced to 0..<360, or the needle will take the long way round.
@@ -26,16 +28,16 @@ struct Needle: View {
     var headHeight: CGFloat
     /// Gap between the top of the dial and the apex of the head.
     var headInset: CGFloat = 0
-    var tint: Color = Palette.sage
+    var tint: Color = Palette.inchiostro
     /// Length of the tail below the head, if this size carries one.
     var stemLength: CGFloat = 0
-    var stemColor: Color = Palette.sage.opacity(0.5)
+    var stemColor: Color = Palette.inchiostro.opacity(0.5)
     /// Whether the tail fades out rather than ending flat.
     var stemFades: Bool = false
     /// The counterweight dot opposite the head, on the largest dial only.
     var pivotDiameter: CGFloat = 0
     var pivotInset: CGFloat = 0
-    var pivotColor: Color = Palette.paper.opacity(0.3)
+    var pivotColor: Color = Palette.inchiostro.opacity(0.3)
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -77,28 +79,37 @@ struct Needle: View {
     }
 }
 
-// MARK: - The sizes the design actually uses
+// MARK: - The sizes the app actually uses
 
 extension Needle {
-    /// 28 pt — inside the compass pill on the map.
+    /// 28 pt — inside the compass pill on the map. The pill is a black plate, so
+    /// the needle is cream.
     static func pill(angle: Double) -> Needle {
-        Needle(angle: angle, diameter: 28, headWidth: 8, headHeight: 9, headInset: 2)
+        Needle(
+            angle: angle, diameter: 28, headWidth: 9, headHeight: 11, headInset: 2,
+            tint: Palette.carta
+        )
     }
 
     /// 20–22 pt — the direction marker at the head of a list row.
     static func row(angle: Double, tint: Color, stem: Color, diameter: CGFloat = 22) -> Needle {
         Needle(
-            angle: angle, diameter: diameter, headWidth: 8, headHeight: 9,
+            angle: angle, diameter: diameter, headWidth: 9, headHeight: 10,
             tint: tint, stemLength: diameter - 11, stemColor: stem
         )
     }
 
-    /// 260 pt — the compass screen itself.
-    static func dial(angle: Double) -> Needle {
-        Needle(
-            angle: angle, diameter: 260, headWidth: 18, headHeight: 20, headInset: 6,
-            tint: Palette.sage, stemLength: 40, stemColor: Palette.sage, stemFades: true,
-            pivotDiameter: 5, pivotInset: 16
+    /// The compass screen: a bold black wedge that rides the moon's inner rim.
+    ///
+    /// `diameter` is the dial's own (twice its radius); the apex stops short of
+    /// the tick band and the base stays clear of the figure in the middle.
+    static func dial(angle: Double, diameter: CGFloat = 312) -> Needle {
+        let radius = diameter / 2
+        let height = radius * 0.3
+        return Needle(
+            angle: angle, diameter: diameter,
+            headWidth: radius * 0.3, headHeight: height,
+            headInset: radius * 0.12
         )
     }
 }
@@ -115,12 +126,7 @@ struct NeedleRing: View {
             .strokeBorder(stroke, lineWidth: lineWidth)
             .background {
                 if wash {
-                    Circle().fill(
-                        RadialGradient(
-                            colors: [Palette.sage.opacity(0.16), Palette.sage.opacity(0)],
-                            center: .center, startRadius: 0, endRadius: diameter * 0.36
-                        )
-                    )
+                    Circle().fill(stroke.opacity(0.12))
                 }
             }
             .frame(width: diameter, height: diameter)

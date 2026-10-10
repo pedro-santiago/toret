@@ -40,7 +40,7 @@ final class BackgroundLocation: NSObject {
     }
 
     /// Whether this configuration should be watching for significant changes.
-    static func shouldMonitor(
+    nonisolated static func shouldMonitor(
         compassAlwaysVisible: Bool, authorization: CLAuthorizationStatus
     ) -> Bool {
         compassAlwaysVisible && authorization == .authorizedAlways

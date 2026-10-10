@@ -105,6 +105,15 @@ make help     # everything else
   `.p8` file in `~/.appstoreconnect/private_keys/`. Never commit either.
   `make testflight UPLOAD=NO` rehearses the export without uploading.
 
+## Languages
+
+Toret speaks Brazilian Portuguese, English and Italian, and follows the device:
+the system picks the language from your preferred-languages list, and iOS Settings
+→ Toret → Language switches it per app. Any other language (German, Spanish...) falls
+back to English; Portuguese from Portugal gets Portuguese; Swiss Italian gets Italian.
+Distances are metric everywhere, since the fountains are in Italy. How it is built,
+how to add a string and how to check the translations: [`docs/localization.md`](docs/localization.md).
+
 ## Privacy
 
 Your location stays on your device: it orders the list, points the needle and

@@ -1,0 +1,137 @@
+{
+  "sourceLanguage" : "pt-BR",
+  "strings" : {
+    "Abrir a bússola do ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Open the ${applicationName} compass",
+              "${applicationName} compass"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Apri la bussola di ${applicationName}",
+              "Bussola di ${applicationName}"
+            ]
+          }
+        },
+        "pt-BR" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Abrir a bússola do ${applicationName}",
+              "Bússola do ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Me leve até a fonte mais próxima com o ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Take me to the nearest fountain with ${applicationName}",
+              "Route to the nearest fountain in ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Portami alla fontanella più vicina con ${applicationName}",
+              "Percorso verso la fontanella su ${applicationName}"
+            ]
+          }
+        },
+        "pt-BR" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Me leve até a fonte mais próxima com o ${applicationName}",
+              "Traçar rota até a fonte no ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Qual a fonte mais próxima no ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Nearest fountain in ${applicationName}",
+              "Find the nearest fountain in ${applicationName}",
+              "Where can I get water in ${applicationName}",
+              "Fountain near me in ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Fontanella più vicina su ${applicationName}",
+              "Qual è la fontanella più vicina su ${applicationName}",
+              "Dove trovo acqua su ${applicationName}",
+              "Fontanella vicino a me su ${applicationName}"
+            ]
+          }
+        },
+        "pt-BR" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Qual a fonte mais próxima no ${applicationName}",
+              "Onde tem água no ${applicationName}",
+              "Fonte de água perto de mim no ${applicationName}",
+              "Fonte mais próxima no ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Salvar a fonte mais próxima no ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Save the nearest fountain in ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Salva la fontanella più vicina su ${applicationName}"
+            ]
+          }
+        },
+        "pt-BR" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Salvar a fonte mais próxima no ${applicationName}"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

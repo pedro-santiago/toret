@@ -319,6 +319,32 @@ final class Community {
         rebuild()
     }
 
+    #if DEBUG
+    /// Fills the feed with a few invented reports, for screenshots
+    /// (`-toret-seed-reports`). Debug builds only, and never uploaded.
+    func seedSamples(fountains: [Fountain]) {
+        guard state.known.isEmpty, fountains.count > 4 else { return }
+        let now = clock()
+        let samples: [(Int, WaterState, Int?, [ReportTag], String, TimeInterval, String)] = [
+            (0, .running, 5, [.cold, .clean], "Água gelada, sem fila.", 2 * 3600, "Visitante 4F2A91"),
+            (1, .weak, 3, [.hardToFind], "Fio de água, demora para encher a garrafa.", 5 * 3600, "Visitante 9C1D07"),
+            (0, .running, 4, [.easyToReach, .shade], "Fica à sombra dos pórticos.", 26 * 3600, "Visitante B3E580"),
+            (2, .dry, nil, [], "Torneira travada hoje cedo.", 30 * 3600, "Visitante 77AA10"),
+            (3, .running, 5, [.cold], "Melhor da rua.", 3 * 86400, "Visitante 2D44C9"),
+            (0, .running, 4, [.strongFlow], "", 5 * 86400, "Visitante 6E0F32"),
+        ]
+        for (index, state, rating, tags, note, ago, author) in samples {
+            let fountain = fountains[index]
+            self.state.known.append(Report(
+                id: "seed-\(self.state.known.count)", fountainID: fountain.id, state: state,
+                rating: rating, tags: tags, note: note, date: now.addingTimeInterval(-ago),
+                author: author, isMine: false
+            ))
+        }
+        commit()
+    }
+    #endif
+
     // MARK: Internals
 
     private var installHandle: String { AuthorHandle.make(from: state.installID) }

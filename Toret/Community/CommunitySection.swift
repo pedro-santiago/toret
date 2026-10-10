@@ -10,10 +10,20 @@ struct CommunitySection: View {
     let fountain: Fountain
 
     @Environment(Community.self) private var community
-    @State private var composing = false
+    @State private var composing: Bool
     @State private var showingAll = false
 
     private static let preview = 3
+
+    init(fountain: Fountain) {
+        self.fountain = fountain
+        #if DEBUG
+        // `-toret-compose` opens the review sheet, which the simulator cannot tap.
+        _composing = State(initialValue: ProcessInfo.processInfo.arguments.contains("-toret-compose"))
+        #else
+        _composing = State(initialValue: false)
+        #endif
+    }
 
     var body: some View {
         let reports = community.reports(for: fountain.id)
@@ -25,18 +35,18 @@ struct CommunitySection: View {
 
             let tags = community.topTags(for: fountain.id)
             if !tags.isEmpty {
-                FlowLayout(spacing: 7) {
+                FlowLayout(spacing: 8) {
                     ForEach(tags) { TagChip(label: $0.localizedLabel) }
                 }
-                .padding(.top, 14)
+                .padding(.top, 16)
             }
 
             if reports.isEmpty {
                 Text("Seja o primeiro a avaliar esta fonte: como está a água, e se vale a caminhada.")
-                    .font(Typo.ui(14))
-                    .foregroundStyle(Palette.ink.opacity(0.6))
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.inchiostro)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 14)
+                    .padding(.top, 16)
             } else {
                 VStack(spacing: 0) {
                     ForEach(shown) { ReportRow(report: $0) }
@@ -48,20 +58,20 @@ struct CommunitySection: View {
                         ? String(localized: "Ver menos")
                         : String(localized: "Ver todos os \(reports.count) relatos")
                     ) { showingAll.toggle() }
-                    .font(Typo.ui(13.5, 600))
-                    .foregroundStyle(Palette.green)
-                    .padding(.top, 10)
+                    .font(Typo.ui(15, 700))
+                    .foregroundStyle(Palette.blu)
+                    .padding(.top, 12)
                 }
             }
 
             SecondaryButton(
-                title: String(localized: "Avaliar esta fonte"), height: 46,
-                tint: Palette.green, icon: Icon.Drop()
+                title: String(localized: "Avaliar esta fonte"), height: 52,
+                tint: Palette.inchiostro, icon: Diamond()
             ) { composing = true }
-            .padding(.top, 16)
+            .padding(.top, 18)
 
             footnote
-                .padding(.top, 10)
+                .padding(.top, 12)
         }
         .animation(Motion.ui, value: showingAll)
         .task { await community.refresh(fountainID: fountain.id) }
@@ -73,29 +83,29 @@ struct CommunitySection: View {
     @ViewBuilder
     private func header(_ summary: CommunitySummary) -> some View {
         if let average = summary.average {
-            HStack(alignment: .lastTextBaseline, spacing: 12) {
+            HStack(alignment: .center, spacing: 16) {
                 Text(average.formatted(.number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))))
-                    .font(Typo.display(40))
-                    .foregroundStyle(Palette.ink)
-                VStack(alignment: .leading, spacing: 4) {
-                    LozengeRating(value: average, size: 15)
+                    .font(Typo.display(56))
+                    .foregroundStyle(Palette.inchiostro)
+                VStack(alignment: .leading, spacing: 6) {
+                    DiamondRating(value: average, size: 18)
                     Text(summary.ratingCount == 1
                         ? String(localized: "1 avaliação")
                         : String(localized: "\(summary.ratingCount) avaliações"))
-                        .font(Typo.ui(12.5))
-                        .foregroundStyle(Palette.ink.opacity(0.55))
+                        .font(Typo.ui(14))
+                        .foregroundStyle(Palette.inchiostro.opacity(0.7))
                 }
                 Spacer(minLength: 0)
             }
-            .padding(.top, 6)
+            .padding(.top, 8)
         } else {
-            HStack(spacing: 10) {
-                LozengeRating(value: 0, size: 15)
+            HStack(spacing: 12) {
+                DiamondRating(value: 0, size: 18)
                 Text("Sem avaliações")
-                    .font(Typo.ui(12.5))
-                    .foregroundStyle(Palette.ink.opacity(0.55))
+                    .font(Typo.ui(14))
+                    .foregroundStyle(Palette.inchiostro.opacity(0.7))
             }
-            .padding(.top, 6)
+            .padding(.top, 8)
         }
     }
 
@@ -107,12 +117,12 @@ struct CommunitySection: View {
                 Text(community.pendingCount == 1
                     ? String(localized: "1 relato aguardando envio")
                     : String(localized: "\(community.pendingCount) relatos aguardando envio"))
-                    .font(Typo.ui(12, 600))
-                    .foregroundStyle(Palette.ink.opacity(0.7))
+                    .font(Typo.ui(13, 700))
+                    .foregroundStyle(Palette.inchiostro)
             }
             Text(CommunityNotice.text(for: community.availability, failed: community.lastRefreshFailed))
-                .font(Typo.ui(11.5))
-                .foregroundStyle(Palette.ink.opacity(0.5))
+                .font(Typo.ui(13))
+                .foregroundStyle(Palette.inchiostro.opacity(0.7))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

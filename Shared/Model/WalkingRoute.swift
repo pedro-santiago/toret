@@ -43,13 +43,13 @@ struct WalkingRoute: Hashable {
         let lastLeg = max(10, total - firstLeg)
 
         steps = [
-            Step(instruction: "Siga na direção da fonte", distance: firstLeg, kind: .turn),
-            Step(instruction: "Chegada à fonte", distance: lastLeg, kind: .arrive),
+            Step(instruction: String(localized: "Siga na direção da fonte"), distance: firstLeg, kind: .turn),
+            Step(instruction: String(localized: "Chegada à fonte"), distance: lastLeg, kind: .arrive),
         ]
         remaining = total
         toNextTurn = firstLeg
-        headline = "Siga na direção da fonte"
-        subhead = "\(fountain.place), a \(total) m"
+        headline = String(localized: "Siga na direção da fonte")
+        subhead = String(localized: "\(fountain.place), a \(Formatting.distance(metres: total))")
         minutes = fountain.walkingMinutes
         polyline = nil
     }
@@ -64,32 +64,28 @@ struct WalkingRoute: Hashable {
         // MapKit's last step is the arrival; mark it rather than adding another.
         var built = usable.enumerated().map { index, step in
             Step(
-                instruction: index == usable.count - 1 ? "Chegada à fonte" : step.instructions,
+                instruction: index == usable.count - 1 ? String(localized: "Chegada à fonte") : step.instructions,
                 distance: Int(step.distance.rounded()),
                 kind: index == usable.count - 1 ? .arrive : .turn
             )
         }
         if built.isEmpty {
-            built = [Step(instruction: "Chegada à fonte", distance: 0, kind: .arrive)]
+            built = [Step(instruction: String(localized: "Chegada à fonte"), distance: 0, kind: .arrive)]
         }
         steps = Array(built.prefix(4))
 
         remaining = Int(route.distance.rounded())
         toNextTurn = built.first.map(\.distance) ?? remaining
-        headline = built.first?.instruction ?? "Siga em frente"
-        subhead = built.dropFirst().first.map { "Depois: \($0.instruction)" }
-            ?? "\(fountain.place)"
+        headline = built.first?.instruction ?? String(localized: "Siga em frente")
+        subhead = built.dropFirst().first.map { String(localized: "Depois: \($0.instruction)") }
+            ?? fountain.place
         minutes = max(1, Int((route.expectedTravelTime / 60).rounded()))
         polyline = route.polyline
     }
 
     /// Clock time you get there.
     func arrival(from now: Date = .now) -> String {
-        let eta = now.addingTimeInterval(Double(minutes) * 60)
-        return eta.formatted(
-            .dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
-                .locale(Locale(identifier: "pt_BR"))
-        )
+        Formatting.clock(now.addingTimeInterval(Double(minutes) * 60))
     }
 
     /// Asks MapKit to walk it properly.

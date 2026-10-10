@@ -97,6 +97,17 @@ final class LocationProvider: NSObject {
             manager.requestWhenInUseAuthorization()
         }
         manager.startUpdatingLocation()
+        #if DEBUG
+        // `-toret-heading 40` pins the heading, because the simulator has no
+        // magnetometer and the turning dial could otherwise never be looked at.
+        let arguments = ProcessInfo.processInfo.arguments
+        if let flag = arguments.firstIndex(of: "-toret-heading"),
+           arguments.indices.contains(flag + 1), let degrees = Double(arguments[flag + 1]) {
+            heading = degrees
+            headingAccuracy = 5
+            return
+        }
+        #endif
         if CLLocationManager.headingAvailable() {
             manager.startUpdatingHeading()
         }
@@ -166,5 +177,29 @@ extension LocationProvider: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // A failed one-shot request or a lost fix leaves the previous position in
         // place; `status` already says "searching" until the first one arrives.
+    }
+}
+
+extension LocationStatus {
+    /// Why the distances on screen are what they are, in one sentence — nil when
+    /// they are measured from the user and nothing needs saying.
+    ///
+    /// The same words the map's banner uses, so the compass and the map never
+    /// explain the one fact two ways.
+    var explanation: String? {
+        switch self {
+        case .asking, .live:
+            nil
+        case .searching:
+            String(localized: "Procurando a sua posição…")
+        case .denied:
+            String(localized: "Localização desligada. Distâncias medidas a partir da Piazza San Carlo.")
+        case .restricted:
+            String(localized: "Localização bloqueada neste aparelho. Distâncias medidas a partir da Piazza San Carlo.")
+        case .approximate:
+            String(localized: "Localização aproximada. Ative a posição precisa para distâncias exatas.")
+        case let .outsideTurin(kilometres):
+            String(localized: "Você está a \(kilometres.formatted(.number.locale(Locale(identifier: "pt_BR")))) km de Turim. Distâncias medidas a partir da Piazza San Carlo.")
+        }
     }
 }

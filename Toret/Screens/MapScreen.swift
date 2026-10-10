@@ -1,67 +1,92 @@
 import MapKit
 import SwiftUI
 
-/// The map: Turin as Apple draws it, the fountains on it, and the needle that
-/// never leaves the screen.
+/// The map: Turin as Apple draws it, printed on cream, with the fountains marked
+/// in the poster's shapes and a black plate that says what you are looking at.
 ///
-/// The basemap is MapKit — real streets, real squares, real scale, and it keeps
-/// working when you walk off the edge of the twelve fountains in this build.
-/// Points of interest are turned off: every café pin the system would add is a
-/// pin competing with the only three colours this app has anything to say with.
+/// The basemap is MapKit — real streets, real squares, real scale — pulled onto the
+/// stock with a flat wash so the roads print in the same light as the rest of the
+/// app. Points of interest are off: every café pin the system would add competes
+/// with the only marks this app has anything to say with.
+///
+/// What is drawn depends on how far out you are (see ``PinDensity``): full state
+/// marks at street level, small ones across a neighbourhood, and across the whole
+/// city dots with numbered badges where dots would touch.
 struct MapScreen: View {
     @Environment(ToretModel.self) private var model
     @Environment(LocationProvider.self) private var location
-
-    /// Lets the search field and its chips behave as one body of glass.
-    @Namespace private var glass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        @Bindable var model = model
+        // A catalogue that did not load leaves nothing to select; say so plainly
+        // rather than indexing into an empty list.
+        if model.fountains.isEmpty {
+            CatalogueMissing()
+        } else {
+            content
+        }
+    }
 
-        // The map bleeds under the status bar and the tab bar; the glass is
+    // MARK: Layout
+
+    private var content: some View {
+        @Bindable var model = model
+        let span = model.visibleRegion?.span.latitudeDelta ?? 0.011
+        let density = PinDensity(latitudeSpan: span)
+        let items = pinItems(span: span)
+
+        // The map bleeds under the status bar and the tab bar; the plates are
         // positioned against the display's real edges, read from the window.
         // See ``Screen`` for why the insets are not taken from the hierarchy.
-        ZStack(alignment: .top) {
+        return ZStack(alignment: .top) {
             Map(position: $model.camera) {
-                UserAnnotation()
+                UserAnnotation { UserMark() }
 
-                ForEach(model.mapLandmarks) { landmark in
-                    Annotation(landmark.name, coordinate: landmark.coordinate, anchor: .center) {
-                        LandmarkMarker(landmark: landmark)
+                if density != .dot {
+                    ForEach(model.mapLandmarks) { landmark in
+                        Annotation(landmark.name, coordinate: landmark.coordinate, anchor: .center) {
+                            LandmarkMarker(landmark: landmark)
+                        }
+                        .annotationTitles(.hidden)
                     }
-                    .annotationTitles(.hidden)
                 }
 
-                ForEach(model.mapPins) { fountain in
-                    Annotation(fountain.place, coordinate: fountain.coordinate, anchor: .center) {
-                        FountainPin(
-                            fountain: fountain,
-                            isSelected: fountain == model.selected,
-                            isDimmed: !model.matchesFilters(fountain),
-                            token: model.selectionToken
-                        ) {
-                            model.select(fountain)
+                ForEach(items) { item in
+                    switch item {
+                    case let .fountain(fountain):
+                        Annotation(fountain.place, coordinate: fountain.coordinate, anchor: .center) {
+                            FountainPin(
+                                fountain: fountain,
+                                isSelected: fountain == model.selected,
+                                isDimmed: !model.matchesFilters(fountain),
+                                density: density,
+                                token: model.selectionToken
+                            ) {
+                                model.select(fountain)
+                            }
                         }
+                        .annotationTitles(.hidden)
+                    case let .cluster(cluster):
+                        Annotation("", coordinate: cluster.coordinate, anchor: .center) {
+                            ClusterBadge(cluster: cluster) { zoom(into: cluster) }
+                        }
+                        .annotationTitles(.hidden)
                     }
-                    .annotationTitles(.hidden)
                 }
             }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+            .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
             .onMapCameraChange(frequency: .onEnd) { context in
                 model.visibleRegion = context.region
             }
-            .mapControls {
-                MapCompass()
-                MapScaleView()
-            }
-            // A plaster cast over Apple's map, so it sits in the same light as
-            // the rest of the app instead of next to it.
+            .mapControlVisibility(.hidden)
+            // Stock over Apple's map, so it sits in the same light as the rest of
+            // the app instead of next to it.
             .colorMultiply(Palette.mapWash)
 
             topControls(searchText: $model.searchText)
                 .padding(.top, Screen.safeArea.top + 8)
 
-            bottomControls()
+            bottomControls(isEmpty: items.isEmpty)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, Screen.tabBarClearance + 10)
         }
@@ -71,145 +96,297 @@ struct MapScreen: View {
         .ignoresSafeArea()
     }
 
-    // MARK: Glass floating over it
+    /// What to draw for the current view: the fountains in it, folded into
+    /// badges when the map is wide, with the selected one always present.
+    private func pinItems(span: Double) -> [PinItem] {
+        var visible = PinLayout.visible(model.fountains, in: model.visibleRegion)
+        let selected = model.selected
+        if !visible.contains(selected) { visible.append(selected) }
+        let pinned = Set(model.savedIDs).union([selected.id])
+        return PinLayout.items(for: visible, latitudeSpan: span, pinned: pinned)
+    }
+
+    private func zoom(into cluster: PinCluster) {
+        withAnimation(reduceMotion ? nil : Motion.ui) {
+            model.camera = .region(cluster.zoomRegion)
+        }
+    }
+
+    // MARK: Plates over the map
 
     private func topControls(searchText: Binding<String>) -> some View {
-        ToretGlassGroup(spacing: 14) {
-            VStack(alignment: .leading, spacing: 9) {
-                SearchPill(text: searchText)
-                    .glassEffectID("search", in: glass)
-                FilterChips(active: model.activeFilters) { model.toggle($0) }
-                if model.searchText.count >= 2 {
-                    SearchResults()
-                } else {
-                    LocationBanner(status: location.status)
-                }
+        VStack(alignment: .leading, spacing: 9) {
+            SearchPill(text: searchText)
+            FilterChips(active: model.activeFilters) { model.toggle($0) }
+            if model.searchText.count >= 2 {
+                SearchResults()
+            } else {
+                LocationBanner(status: location.status)
             }
         }
         .padding(.horizontal, 14)
-        .animation(Motion.ui, value: location.status)
+        .animation(reduceMotion ? nil : Motion.ui, value: location.status)
     }
 
-    private func bottomControls() -> some View {
-        VStack(spacing: 12) {
-            CompassPill(
-                fountain: model.selected,
-                needleAngle: model.needleAngle,
-                token: model.selectionToken,
-                isNearest: model.selectedIsNearest
-            ) {
-                model.showingCompass = true
+    private func bottomControls(isEmpty: Bool) -> some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .bottom) {
+                MapCompassButton(
+                    fountain: model.selected,
+                    needleAngle: model.needleAngle,
+                    token: model.selectionToken,
+                    isNearest: model.selectedIsNearest
+                ) {
+                    model.showingCompass = true
+                }
+                Spacer(minLength: 0)
+                MapRoundButton(label: String(localized: "Voltar para onde estou")) {
+                    TargetGlyph()
+                } action: {
+                    recentre()
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 2)
+
+            if isEmpty { NoFountainsHere(onNearest: showNearest) }
 
             SelectedFountainCard()
         }
         .padding(.horizontal, 12)
     }
+
+    /// Back to where the user is — or, when the app is not measuring from them
+    /// (no permission, outside Turin), to the nearest fountain, which is the
+    /// closest honest answer.
+    private func recentre() {
+        if location.status.isMeasuringFromUser {
+            withAnimation(reduceMotion ? nil : Motion.ui) {
+                model.camera = .region(
+                    MKCoordinateRegion(
+                        center: location.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+                    )
+                )
+            }
+        } else {
+            showNearest()
+        }
+    }
+
+    private func showNearest() {
+        guard let nearest = model.nearestUsable(1).first ?? model.fountains.first else { return }
+        if nearest == model.selected {
+            withAnimation(reduceMotion ? nil : Motion.ui) {
+                model.camera = .region(
+                    MKCoordinateRegion(
+                        center: nearest.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.009, longitudeDelta: 0.009)
+                    )
+                )
+            }
+        } else {
+            withAnimation(reduceMotion ? nil : Motion.ui) { model.select(nearest) }
+        }
+    }
 }
 
-// MARK: - The sheet
+// MARK: - You are here
 
-/// What the map says about the fountain you have chosen: the two numbers that
-/// decide whether you walk, and the state of the water when someone last looked.
+/// The user's own position: a black disc ringed in stock, with a second ring round
+/// it. Deliberately not the system's blue dot — blue is running water here.
+struct UserMark: View {
+    var body: some View {
+        ZStack {
+            Circle().strokeBorder(Palette.inchiostro, lineWidth: 2).frame(width: 30, height: 30)
+            Circle().fill(Palette.inchiostro).frame(width: 14, height: 14)
+            Circle().strokeBorder(Palette.carta, lineWidth: 3).frame(width: 14, height: 14)
+        }
+        .accessibilityLabel("Você está aqui")
+    }
+}
+
+// MARK: - Edge cases
+
+/// The map's empty moment: nothing in view, and one way out of it.
+struct NoFountainsHere: View {
+    let onNearest: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            StateMark(state: .unknown, size: 22)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Nenhuma fonte aqui")
+                    .font(Typo.ui(15, 700))
+                    .foregroundStyle(Palette.inchiostro)
+                Text("Afaste o mapa para ver as mais próximas.")
+                    .font(Typo.ui(13))
+                    .foregroundStyle(Palette.ink(0.75))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+            Button(action: onNearest) {
+                Text("Ir")
+                    .font(Typo.display(16, 800))
+                    .foregroundStyle(Palette.carta)
+                    .padding(.horizontal, 14)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .background(Palette.inchiostro)
+            }
+            .buttonStyle(.pressable)
+            .accessibilityLabel("Ir para a fonte mais próxima")
+        }
+        .padding(12)
+        .plate()
+    }
+}
+
+/// What the map shows when the bundled catalogue could not be read — a build
+/// fault, not something the user can fix, so it says what happened and stops.
+struct CatalogueMissing: View {
+    var body: some View {
+        ZStack {
+            Palette.carta.ignoresSafeArea()
+            VStack(alignment: .leading, spacing: 14) {
+                StateMark(state: .dry, size: 44, outlined: false)
+                Text("As fontes não carregaram")
+                    .font(Typo.display(30, 900))
+                    .foregroundStyle(Palette.inchiostro)
+                Text("A lista de fontes que vem com o app não pôde ser lida. Feche e abra o Toret de novo; se continuar, reinstale o app.")
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.ink(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .plate()
+            .padding(.horizontal, 20)
+        }
+    }
+}
+
+// MARK: - The plate
+
+/// What the map says about the fountain you have chosen: its name, how far it is,
+/// and what the community last said about the water — set as one printed plate.
 struct SelectedFountainCard: View {
     @Environment(ToretModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .largeTitle) private var figureSize: CGFloat = 56
 
     private var fountain: Fountain { model.selected }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Capsule()
-                .fill(Palette.ink.opacity(0.18))
-                .frame(width: 38, height: 4)
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 12)
+        let lines = StateSentence.lines(for: fountain.community)
+        let saved = model.isSaved(fountain)
 
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Eyebrow(text: "Selecionada")
-                Spacer()
+                Text(model.selectedIsNearest ? "Fonte mais próxima" : "Fonte selecionada")
+                    .font(Typo.ui(12.5, 600))
+                    .foregroundStyle(Palette.ink(0.75))
+                Spacer(minLength: 8)
                 Text("\(model.withinHalfKilometre) fontes em 500 m")
-                    .font(Typo.ui(11, 500))
-                    .foregroundStyle(Palette.ink.opacity(0.5))
+                    .font(Typo.ui(12.5, 500))
+                    .foregroundStyle(Palette.ink(0.75))
             }
-            .padding(.bottom, 4)
+            .padding(.bottom, 8)
 
             Button {
                 model.push(.detail(fountain), in: .map)
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    DisplayText(
-                        fountain.place, size: 27, leading: 1.15,
-                        tracking: Typo.tracking(-0.01, at: 27)
-                    )
-                    Text("\(fountain.plateTitle) · \(fountain.zone)")
-                        .font(Typo.displayItalic(13))
-                        .foregroundStyle(Palette.ink.opacity(0.62))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(fountain.place)
+                        .font(Typo.display(28, 800))
+                        .foregroundStyle(Palette.inchiostro)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .multilineTextAlignment(.leading)
+                    Text("\(fountain.plateTitle), \(fountain.zone)")
+                        .font(Typo.ui(14, 500))
+                        .foregroundStyle(Palette.ink(0.75))
+                        .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(.rect)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityHint("Abre o detalhe da fonte")
 
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        CountingMetres(
-                            metres: fountain.distance, token: model.selectionToken,
-                            size: 20, color: Palette.green
-                        )
-                        Text("m").font(Typo.display(20)).foregroundStyle(Palette.green)
-                    }
-                    Text("DISTÂNCIA")
-                        .font(Typo.narrow(8.5))
-                        .tracking(Typo.tracking(0.12, at: 8.5))
-                        .foregroundStyle(Palette.ink.opacity(0.5))
-                }
+            PosterRule()
+                .padding(.vertical, 12)
 
-                StatDivider()
-                StatBlock(value: "\(fountain.walkingMinutes) min", caption: "A PÉ")
-                StatDivider()
-                StatBlock(
-                    value: fountain.state.label,
-                    caption: fountain.community.provenance,
-                    valueColor: fountain.state.color,
-                    isProse: true
-                )
+            ViewThatFits(in: .horizontal) {
+                figures(lines: lines, stacked: false)
+                figures(lines: lines, stacked: true)
             }
-            .padding(.vertical, 11)
-            .overlay(alignment: .top) { hairline }
-            .overlay(alignment: .bottom) { hairline }
-            .padding(.top, 13)
-            .padding(.bottom, 15)
+            .padding(.bottom, 14)
 
-            HStack(spacing: 9) {
-                PrimaryButton(title: "Traçar rota", height: 50, fontSize: 15) {
+            HStack(spacing: 10) {
+                PosterActionButton(title: String(localized: "Traçar rota")) {
                     model.walkingTo = fountain
                 }
-                GlyphButton(
-                    diameter: 50,
-                    accessibilityText: model.isSaved(fountain)
-                        ? "Remover das salvas" : "Salvar fonte"
-                ) {
+                Button { model.toggleSaved(fountain) } label: {
                     IconView(
-                        shape: Icon.Lozenge(), size: 17,
-                        tint: model.isSaved(fountain) ? Palette.green : Palette.ink,
-                        filled: model.isSaved(fountain)
+                        shape: Icon.Lozenge(), size: 20, weight: 2.4,
+                        tint: Palette.inchiostro, filled: saved
                     )
-                } action: {
-                    model.toggleSaved(fountain)
+                    .frame(width: 56, height: 56)
+                    .overlay { Rectangle().strokeBorder(Palette.inchiostro, lineWidth: 2.5) }
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.pressable)
+                .sensoryFeedback(.success, trigger: saved)
+                .accessibilityLabel(saved ? "Remover das salvas" : "Salvar fonte")
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 16)
-        .padding(.bottom, 18)
-        .glassPane(cornerRadius: 28, tone: .paper)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
+        .plate()
+        .animation(reduceMotion ? nil : Motion.ui, value: fountain.id)
     }
 
-    private var hairline: some View {
-        Rectangle().fill(Palette.ink.opacity(0.1)).frame(height: 1)
+    /// The big figure and, beside it, what is known about the water. Falls back
+    /// to a stack when Dynamic Type makes the row too wide.
+    @ViewBuilder
+    private func figures(lines: (headline: String, detail: String), stacked: Bool) -> some View {
+        let distance = VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                CountingMetres(
+                    metres: fountain.distance, token: model.selectionToken,
+                    size: min(figureSize, 84), weight: 900, color: Palette.inchiostro,
+                    tracking: Typo.tracking(-0.02, at: 56)
+                )
+                Text("m")
+                    .font(Typo.ui(18, 700))
+                    .foregroundStyle(Palette.inchiostro)
+            }
+            Text("\(fountain.walkingMinutes) min a pé")
+                .font(Typo.ui(14, 600))
+                .foregroundStyle(Palette.ink(0.8))
+        }
+        let water = VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 8) {
+                StateMark(state: fountain.state, size: 22)
+                Text(lines.headline)
+                    .font(Typo.ui(15, 700))
+                    .foregroundStyle(Palette.inchiostro)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Text(lines.detail)
+                .font(Typo.ui(13))
+                .foregroundStyle(Palette.ink(0.75))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        if stacked {
+            VStack(alignment: .leading, spacing: 10) { distance; water }
+        } else {
+            HStack(alignment: .center, spacing: 14) {
+                distance
+                Rectangle().fill(Palette.inchiostro).frame(width: 3, height: 52)
+                water
+                Spacer(minLength: 0)
+            }
+        }
     }
 }

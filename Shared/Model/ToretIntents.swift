@@ -29,3 +29,22 @@ struct RouteToNearestIntent: AppIntent {
         .result(opensIntent: OpenURLIntent(DeepLink.routeToNearest.url))
     }
 }
+
+/// The button on the widget: steps to the next-nearest fountain without opening
+/// the app. Runs in the widget's own process.
+struct CycleFountainIntent: AppIntent {
+    static let title: LocalizedStringResource = "Próxima fonte"
+    static let isDiscoverable = false
+
+    @Parameter(title: "Quantas")
+    var count: Int
+
+    init() { count = 1 }
+
+    init(count: Int) { self.count = count }
+
+    func perform() async throws -> some IntentResult {
+        CycleStore.advance(count: count)
+        return .result()
+    }
+}

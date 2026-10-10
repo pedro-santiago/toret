@@ -1,6 +1,9 @@
 name: Toret
 options:
   bundleIdPrefix: br.tec.nuance
+  # English is the fallback: a device set to German or Spanish gets English, not
+  # the Portuguese the source strings happen to be written in. See docs/localization.md.
+  developmentLanguage: en
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
@@ -16,6 +19,10 @@ settings:
     GCC_WARN_INHIBIT_ALL_WARNINGS: NO
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
+    # String catalogs: the compiler writes every localizable literal it sees to a
+    # .stringsdata file, and tools/l10n.py sync folds those into the catalog.
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
 
 targets:
   Toret:
@@ -57,12 +64,14 @@ targets:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        # The values below are the English fallback; pt-BR and Italian live in
+        # Toret/Resources/InfoPlist.xcstrings.
         NSLocationWhenInUseUsageDescription: >-
-          O Toret usa a sua localização para apontar a agulha para a fonte mais
-          próxima e calcular a distância a pé.
+          Toret uses your location to point the needle at the nearest fountain and
+          work out the walking distance.
         NSLocationAlwaysAndWhenInUseUsageDescription: >-
-          Com a localização sempre ativa, a bússola do Toret continua visível na
-          tela bloqueada e no widget, e você é avisado quando passa perto de uma fonte.
+          With location always on, the Toret compass stays visible on the Lock
+          Screen and in the widget, and you get a heads-up when you pass a fountain.
         UIBackgroundModes:
           - location
         NSSupportsLiveActivities: true
@@ -75,8 +84,10 @@ targets:
           - Archivo.ttf
           - LeagueSpartan.ttf
         CFBundleLocalizations:
+          - en
+          - it
           - pt-BR
-        CFBundleDevelopmentRegion: pt-BR
+        CFBundleDevelopmentRegion: en
         ITSAppUsesNonExemptEncryption: false
     dependencies:
       - target: ToretWidgetsExtension
@@ -114,9 +125,15 @@ targets:
           - Archivo.ttf
           - LeagueSpartan.ttf
         NSWidgetWantsLocation: true
+        CFBundleLocalizations:
+          - en
+          - it
+          - pt-BR
+        CFBundleDevelopmentRegion: en
+        # English fallback; the translations are in ToretWidgets/InfoPlist.xcstrings.
         NSLocationWhenInUseUsageDescription: >-
-          O Toret usa a sua localização para mostrar, no widget, a distância até a
-          fonte mais próxima.
+          Toret uses your location to show, in the widget, the distance to the
+          nearest fountain.
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
 

@@ -1,52 +1,13 @@
 import SwiftUI
 
-// MARK: - Water-state glyph
-
-/// The state of the water as a shape, so it does not rest on colour alone.
-///
-/// A drop, full for running, half for weak, struck through for dry, dashed for
-/// unknown — readable in greyscale and to anyone who cannot tell the green from
-/// the terracotta.
-struct StateGlyph: View {
-    let state: WaterState
-    var size: CGFloat = 18
-    var night = false
-
-    var body: some View {
-        let tint = state.color(night: night)
-        ZStack {
-            switch state {
-            case .running:
-                Icon.Drop().fill(tint)
-            case .weak:
-                Icon.Drop().stroke(tint, style: stroke)
-                Icon.Drop().fill(tint)
-                    .mask(alignment: .bottom) { Rectangle().frame(height: size * 0.5) }
-            case .dry:
-                Icon.Drop().stroke(tint, style: stroke)
-                Path { path in
-                    path.move(to: CGPoint(x: size * 0.1, y: size * 0.9))
-                    path.addLine(to: CGPoint(x: size * 0.9, y: size * 0.1))
-                }
-                .stroke(tint, style: stroke)
-            case .unknown:
-                Icon.Drop().stroke(tint, style: StrokeStyle(lineWidth: 1.4, lineCap: .round, dash: [2, 2.5]))
-            }
-        }
-        .frame(width: size, height: size)
-        .accessibilityHidden(true)
-    }
-
-    private var stroke: StrokeStyle { StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round) }
-}
-
 // MARK: - Rating
 
-/// Five lozenges, filled in proportion to a rating. Stars would be a different
-/// app's mark; the lozenge is this one's.
-struct LozengeRating: View {
+/// Five diamonds, filled in proportion to a rating. Stars would be a different
+/// app's mark; the diamond is this one's, and it prints in one ink so a rating
+/// never competes with the water state's three.
+struct DiamondRating: View {
     var value: Double
-    var size: CGFloat = 14
+    var size: CGFloat = 16
     var spacing: CGFloat = 5
 
     var body: some View {
@@ -54,14 +15,9 @@ struct LozengeRating: View {
             ForEach(0 ..< 5, id: \.self) { index in
                 let fill = min(1, max(0, value - Double(index)))
                 ZStack {
-                    Icon.Lozenge().stroke(
-                        Palette.ink.opacity(0.28),
-                        style: StrokeStyle(lineWidth: 1.2, lineJoin: .round)
-                    )
-                    Icon.Lozenge().fill(Palette.brass)
-                        .mask(alignment: .leading) {
-                            Rectangle().frame(width: size * fill)
-                        }
+                    Diamond().fill(Palette.inchiostro)
+                        .mask(alignment: .leading) { Rectangle().frame(width: size * fill) }
+                    Diamond().stroke(Palette.inchiostro, lineWidth: 1.5)
                 }
                 .frame(width: size, height: size)
             }
@@ -71,10 +27,10 @@ struct LozengeRating: View {
     }
 }
 
-/// The same five lozenges, tappable: the control the review sheet rates with.
-struct LozengeRatingInput: View {
+/// The same five diamonds, tappable: what the review sheet rates with.
+struct DiamondRatingInput: View {
     @Binding var rating: Int
-    var size: CGFloat = 32
+    var size: CGFloat = 36
 
     var body: some View {
         HStack(spacing: 10) {
@@ -83,17 +39,12 @@ struct LozengeRatingInput: View {
                     // Tapping the current rating clears it: rating is optional.
                     rating = rating == value ? 0 : value
                 } label: {
-                    Icon.Lozenge()
-                        .fill(value <= rating ? Palette.brass : Color.clear)
-                        .overlay {
-                            Icon.Lozenge().stroke(
-                                value <= rating ? Palette.brass : Palette.ink.opacity(0.35),
-                                style: StrokeStyle(lineWidth: 1.5, lineJoin: .round)
-                            )
-                        }
+                    Diamond()
+                        .fill(value <= rating ? Palette.inchiostro : Color.clear)
+                        .overlay { Diamond().stroke(Palette.inchiostro, lineWidth: 2.5) }
                         .frame(width: size, height: size)
-                        .scaleEffect(value <= rating ? 1 : 0.92)
-                        .animation(.spring(duration: 0.25, bounce: 0.3), value: rating)
+                        .scaleEffect(value <= rating ? 1 : 0.9)
+                        .animation(Motion.ui, value: rating)
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
@@ -116,22 +67,20 @@ struct LozengeRatingInput: View {
 
 // MARK: - Tags
 
-/// A short label in a pill. `isOn` fills it; used both to display a fountain's
-/// tags and to pick them.
+/// A short label in a square frame. `isOn` fills it; used both to show a
+/// fountain's tags and to pick them.
 struct TagChip: View {
     let label: String
     var isOn = false
 
     var body: some View {
         Text(label)
-            .font(Typo.ui(12.5, 500))
-            .foregroundStyle(isOn ? Palette.paperRaised : Palette.ink)
+            .font(Typo.ui(14, 600))
+            .foregroundStyle(isOn ? Palette.carta : Palette.inchiostro)
             .padding(.horizontal, 12)
-            .frame(height: 30)
-            .background {
-                Capsule().fill(isOn ? Palette.ink : Color.clear)
-                Capsule().strokeBorder(Palette.ink.opacity(isOn ? 0 : 0.25), lineWidth: 1.2)
-            }
+            .frame(height: 36)
+            .background(isOn ? Palette.inchiostro : Color.clear)
+            .overlay { Rectangle().strokeBorder(Palette.inchiostro, lineWidth: 2) }
     }
 }
 
@@ -179,7 +128,7 @@ extension Icon {
         func path(in rect: CGRect) -> Path {
             var path = Path()
             let body = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height * 0.74)
-            path.addRoundedRect(in: body, cornerSize: CGSize(width: 4, height: 4))
+            path.addRect(body)
             path.move(to: CGPoint(x: rect.minX + rect.width * 0.2, y: body.maxY))
             path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.2, y: rect.maxY))
             path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.42, y: body.maxY))

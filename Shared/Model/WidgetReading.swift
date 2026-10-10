@@ -26,18 +26,18 @@ enum FixProvenance: Equatable, Sendable {
         }
     }
 
-    /// The small capitals above the figure.
+    /// The line above the figure, in sentence case like the rest of the poster.
     func eyebrow(for source: FountainSource) -> String {
         switch self {
         case .live:
             source == .saved
-                ? String(localized: "MINHA SALVA MAIS PRÓXIMA") : String(localized: "FONTE MAIS PRÓXIMA")
+                ? String(localized: "Sua salva mais próxima") : String(localized: "Fonte mais próxima")
         case .approximate:
-            String(localized: "FONTE MAIS PRÓXIMA · APROX.")
+            String(localized: "Fonte mais próxima, posição aproximada")
         case .centre:
-            String(localized: "NO CENTRO DE TORINO")
+            String(localized: "A partir do centro de Torino")
         case .outsideTurin:
-            String(localized: "LONGE DE TURIM")
+            String(localized: "Longe de Turim")
         }
     }
 
@@ -195,9 +195,10 @@ struct WidgetReading: Sendable {
         saved: Set<String>,
         resolution: FixResolver.Resolution,
         cycle: CycleState = .initial,
+        community: [String: CommunitySummary] = [:],
         now: Date = .now
     ) -> WidgetReading {
-        let everything = Catalogue.fountains(from: resolution.origin)
+        let everything = Catalogue.fountains(from: resolution.origin, community: community)
         let pool = source == .saved ? everything.filter { saved.contains($0.id) } : everything
         let ranked = pool
             .filter { $0.state.isUsable }

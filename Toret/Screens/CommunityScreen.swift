@@ -34,7 +34,8 @@ struct CommunityScreen: View {
                             }
                         }
                     }
-                    .padding(.top, 14)
+                    .padding(.top, 18)
+                    .overlay(alignment: .top) { PosterRule().padding(.horizontal, 22) }
                 }
 
                 footer
@@ -45,7 +46,7 @@ struct CommunityScreen: View {
         }
         .scrollIndicators(.hidden)
         .ignoresSafeArea(edges: .bottom)
-        .background(Palette.paper)
+        .background(Palette.carta)
         .refreshable { await community.refresh() }
         .task { await community.refresh() }
         .animation(Motion.ui, value: community.feed)
@@ -54,61 +55,59 @@ struct CommunityScreen: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Eyebrow(text: String(localized: "Comunidade"))
-            DisplayText("Relatos", size: 40, leading: 1, tracking: Typo.tracking(-0.015, at: 40))
-                .padding(.top, 8)
+            PosterTitle("RELA", "TOS")
             Text(subtitle)
-                .font(Typo.ui(13.5))
-                .foregroundStyle(Palette.ink.opacity(0.6))
-                .padding(.top, 8)
-            LozengeTicks().padding(.top, 16)
+                .font(Typo.ui(16))
+                .foregroundStyle(Palette.inchiostro)
+                .padding(.top, 14)
         }
         .padding(.top, 12)
     }
 
     private var subtitle: String {
-        if community.feed.isEmpty { return String(localized: "Nada por aqui ainda") }
+        if community.feed.isEmpty { return String(localized: "Nada por aqui ainda.") }
         return community.feed.count == 1
-            ? String(localized: "1 relato nos últimos 30 dias")
-            : String(localized: "\(community.feed.count) relatos nos últimos 30 dias")
+            ? String(localized: "1 relato nos últimos 30 dias.")
+            : String(localized: "\(community.feed.count) relatos nos últimos 30 dias.")
     }
 
     private var emptyState: some View {
-        VStack(spacing: 14) {
-            StateGlyph(state: .unknown, size: 30)
+        VStack(spacing: 16) {
+            Diamond()
+                .stroke(Palette.inchiostro.opacity(0.55), lineWidth: 3)
+                .frame(width: 44, height: 44)
             Text("Ainda não há relatos. Abra uma fonte e conte como está a água.")
-                .font(Typo.ui(14))
-                .foregroundStyle(Palette.ink.opacity(0.55))
+                .font(Typo.ui(16))
+                .foregroundStyle(Palette.inchiostro)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: 260)
+                .frame(maxWidth: 280)
             if community.lastRefreshFailed {
                 Text("Sem conexão no momento.")
-                    .font(Typo.ui(12.5, 600))
-                    .foregroundStyle(Palette.ink.opacity(0.6))
+                    .font(Typo.ui(14, 700))
+                    .foregroundStyle(Palette.inchiostro)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 70)
+        .padding(.top, 64)
     }
 
     private var footer: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            PosterRule()
             Text(CommunityNotice.text(for: community.availability, failed: community.lastRefreshFailed))
-                .font(Typo.ui(12))
-                .lineHeight(1.5, font: Typo.uiInterface(12))
-                .foregroundStyle(Palette.ink.opacity(0.55))
+                .font(Typo.ui(14))
+                .foregroundStyle(Palette.inchiostro.opacity(0.7))
 
-            Text("Para denunciar um relato, use o menu ⋯ dele. Para qualquer outra coisa: contato@pedrosantiago.com.br")
-                .font(Typo.ui(12))
-                .lineHeight(1.5, font: Typo.uiInterface(12))
-                .foregroundStyle(Palette.ink.opacity(0.55))
+            Text("Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para contato@pedrosantiago.com.br.")
+                .font(Typo.ui(14))
+                .foregroundStyle(Palette.inchiostro.opacity(0.7))
 
             if !community.blockedAuthors.isEmpty {
                 Button(String(localized: "Autores bloqueados (\(community.blockedAuthors.count))")) {
                     showingBlocked = true
                 }
-                .font(Typo.ui(13, 600))
-                .foregroundStyle(Palette.green)
+                .font(Typo.ui(15, 700))
+                .foregroundStyle(Palette.blu)
             }
         }
     }
@@ -117,43 +116,40 @@ struct CommunityScreen: View {
 /// The people the user blocked, each with a way back.
 struct BlockedAuthorsSheet: View {
     @Environment(Community.self) private var community
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Eyebrow(text: String(localized: "Comunidade"))
-            DisplayText("Bloqueados", size: 30, leading: 1.05)
-                .padding(.top, 6)
+            PosterTitle("BLO", "QUEIOS", size: 56)
 
             if community.blockedAuthors.isEmpty {
                 Text("Ninguém bloqueado.")
-                    .font(Typo.ui(14))
-                    .foregroundStyle(Palette.ink.opacity(0.55))
-                    .padding(.top, 20)
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.inchiostro)
+                    .padding(.top, 22)
             } else {
-                ForEach(community.blockedAuthors, id: \.self) { author in
-                    HStack {
-                        Text(author)
-                            .font(Typo.ui(15, 500))
-                            .foregroundStyle(Palette.ink)
-                        Spacer()
-                        Button(String(localized: "Desbloquear")) { community.unblock(author: author) }
-                            .font(Typo.ui(13.5, 600))
-                            .foregroundStyle(Palette.green)
-                    }
-                    .padding(.vertical, 12)
-                    .overlay(alignment: .bottom) {
-                        Rectangle().fill(Palette.ink.opacity(0.08)).frame(height: 1)
+                VStack(spacing: 0) {
+                    ForEach(community.blockedAuthors, id: \.self) { author in
+                        HStack {
+                            Text(author)
+                                .font(Typo.ui(17, 700))
+                                .foregroundStyle(Palette.inchiostro)
+                            Spacer()
+                            Button(String(localized: "Desbloquear")) { community.unblock(author: author) }
+                                .font(Typo.ui(15, 700))
+                                .foregroundStyle(Palette.blu)
+                        }
+                        .padding(.vertical, 14)
+                        .overlay(alignment: .bottom) { PosterRule(weight: .light) }
                     }
                 }
-                .padding(.top, 14)
+                .padding(.top, 22)
             }
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 22)
-        .padding(.top, 28)
+        .padding(.top, 32)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.paper)
+        .background(Palette.carta)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }

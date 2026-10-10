@@ -11,13 +11,13 @@ enum ReportTag: String, Codable, Sendable, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .cold: "Água gelada"
-        case .clean: "Limpa"
-        case .strongFlow: "Bom fluxo"
-        case .easyToReach: "Fácil de alcançar"
-        case .shade: "À sombra"
-        case .dirty: "Suja"
-        case .hardToFind: "Difícil de achar"
+        case .cold: String(localized: "Água gelada")
+        case .clean: String(localized: "Limpa")
+        case .strongFlow: String(localized: "Bom fluxo")
+        case .easyToReach: String(localized: "Fácil de alcançar")
+        case .shade: String(localized: "À sombra")
+        case .dirty: String(localized: "Suja")
+        case .hardToFind: String(localized: "Difícil de achar")
         }
     }
 
@@ -113,26 +113,35 @@ struct CommunitySummary: Hashable, Sendable {
 }
 
 extension CommunitySummary {
-    /// Where the figure above it comes from, in the narrow capitals the stat
-    /// blocks use: "RELATO HÁ 2 H", "ÚLTIMO RELATO HÁ 3 DIAS", "SEM RELATOS".
+    /// Where the figure above it comes from, in a plain sentence: "Relato há 2 h",
+    /// "Último relato há 3 dias", "Sem relatos". Sentence case: callers that set it
+    /// in capitals do that themselves.
     ///
     /// A state without a provenance is a rumour, so the pin never says more than
     /// this line can back up.
     var provenance: String {
-        guard let latestDate else { return "SEM RELATOS" }
-        let ago = latestDate.formatted(
-            .relative(presentation: .numeric, unitsStyle: .abbreviated)
-                .locale(Locale(identifier: "pt_BR"))
-        )
-        return (state == .unknown ? "ÚLTIMO RELATO \(ago)" : "RELATO \(ago)").uppercased()
+        guard let latestDate else { return String(localized: "Sem relatos") }
+        let ago = Formatting.relative(latestDate)
+        return state == .unknown
+            ? String(localized: "Último relato \(ago)")
+            : String(localized: "Relato \(ago)")
+    }
+
+    /// "4,6", or nothing when nobody has rated it.
+    var ratingValue: String? {
+        guard let average, ratingCount > 0 else { return nil }
+        return Formatting.rating(average)
+    }
+
+    /// "1 avaliação" / "12 avaliações": the plural is the catalog's, so Italian and
+    /// English get their own rules.
+    static func ratingCountLabel(_ count: Int) -> String {
+        String(localized: "\(count) avaliações")
     }
 
     /// "4,6 · 12 avaliações", or nothing when nobody has rated it.
     var ratingLine: String? {
-        guard let average, ratingCount > 0 else { return nil }
-        let value = average.formatted(
-            .number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))
-        )
-        return ratingCount == 1 ? "\(value) · 1 avaliação" : "\(value) · \(ratingCount) avaliações"
+        guard let ratingValue else { return nil }
+        return "\(ratingValue) · \(Self.ratingCountLabel(ratingCount))"
     }
 }

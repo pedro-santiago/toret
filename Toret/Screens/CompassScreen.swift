@@ -1,42 +1,100 @@
 import SwiftUI
 
-/// The compass, full screen.
+/// The compass, full screen: the poster's moon, with a needle on it.
 ///
 /// A bearing in degrees is useless to someone who has just come up out of Porta
-/// Nuova. So the dial is ringed with things you can actually see from the street
-/// — the Duomo, the Mole, Superga, the Alps — and the panel underneath says the
-/// bearing as an instruction: *look between the Mole and Superga*. You raise your
-/// eyes, find the dome, and start walking. The phone is the last thing you need.
+/// Nuova. So the disc carries the one figure that answers the question — how far —
+/// at 120 pt, the city's landmarks stand on its rim like the skyline on the
+/// poster's horizon, and the plate underneath says the bearing as an instruction:
+/// *olhe entre a Mole e Superga*. You raise your eyes, find the spire, and start
+/// walking. The phone is the last thing you need.
+///
+/// With a trustworthy heading the whole dial turns with the phone, so the needle
+/// points where the fountain really is and the top of the screen is the way you
+/// are facing. Without one — the simulator, a denied permission, a magnetometer
+/// the bus has disturbed — it stays a chart with north up and says so.
 struct CompassScreen: View {
     @Environment(ToretModel.self) private var model
+    @Environment(LocationProvider.self) private var location
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
 
-    @State private var pulse: Double = 0
+    /// Smooths the magnetometer and keeps an unwrapped dial angle.
+    @State private var filter = HeadingFilter()
+    @State private var alignment = AlignmentTracker()
+    @State private var dialAngle: Double = 0
+    @State private var isAligned = false
+
+    /// Radius of the moon. 156 pt leaves the rim's landmarks inside a 402 pt screen.
+    private static let radius: CGFloat = 156
+
+    private var fountain: Fountain { model.selected }
+
+    /// The dial turns only when the heading is believable *and* the distances are
+    /// measured from the user — from the anchor, the bearing to a fountain says
+    /// nothing about where this phone is pointing.
+    private var followsHeading: Bool {
+        location.hasUsableHeading && location.status.isMeasuringFromUser
+    }
+
+    private var arrived: Bool {
+        location.status.isMeasuringFromUser && fountain.distance < 20
+    }
+
+    private var currentHeading: Double? { filter.smoothed ?? location.heading }
+
+    /// The fountain's bearing relative to the way the phone faces.
+    private var relativeBearing: Double? {
+        guard followsHeading, let heading = currentHeading else { return nil }
+        return fountain.bearing - heading
+    }
 
     var body: some View {
-        @Bindable var model = model
-
         ZStack(alignment: .top) {
-            Palette.night.ignoresSafeArea()
+            Palette.notte.ignoresSafeArea()
 
-            GeometryReader { proxy in
-                dial
-                    .position(x: proxy.size.width / 2, y: proxy.size.height * 0.34)
-            }
-
-            header
-
-            VStack {
-                Spacer()
-                panel(compassAlwaysVisible: $model.compassAlwaysVisible)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
+            VStack(spacing: 0) {
+                header
+                dialArea
+                plate
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear {
-            withAnimation(.linear(duration: 3.6).repeatForever(autoreverses: false)) {
-                pulse = 1
+        .onAppear { refresh() }
+        .onChange(of: location.heading) { refresh() }
+        .onChange(of: location.headingAccuracy) { refresh() }
+        .onChange(of: followsHeading) { refresh() }
+        .onChange(of: model.selected.bearing) { refresh() }
+        .onChange(of: model.selectedID) { refresh() }
+        .haptic(.tick, on: isAligned) { _, now in now }
+        .haptic(.arrival, on: arrived) { _, now in now }
+        .haptic(.selection, on: model.selectedID)
+        .onChange(of: isAligned) { _, now in
+            if now {
+                AccessibilityNotification.Announcement(String(localized: "Alinhado com a fonte")).post()
+            }
+        }
+    }
+
+    // MARK: Heading
+
+    /// Feeds the filter and turns the dial. Called whenever anything the angle
+    /// depends on may have moved.
+    private func refresh() {
+        guard followsHeading, let raw = location.heading else {
+            filter.reset()
+            alignment.reset()
+            isAligned = false
+            // Back to north-up by the short way: the nearest whole turn.
+            withAnimation(Motion.heading) { dialAngle = (dialAngle / 360).rounded() * 360 }
+            return
+        }
+        let angle = filter.update(heading: raw)
+        withAnimation(Motion.heading) { dialAngle = angle }
+        if let relative = relativeBearing {
+            alignment.update(relative: relative)
+            if alignment.isAligned != isAligned {
+                withAnimation(Motion.snap) { isAligned = alignment.isAligned }
             }
         }
     }
@@ -45,235 +103,390 @@ struct CompassScreen: View {
 
     private var header: some View {
         ZStack {
-            Text(model.selectedIsNearest
-                ? "BÚSSOLA · FONTE MAIS PRÓXIMA"
-                : "BÚSSOLA · FONTE SELECIONADA")
-                .font(Typo.narrow(9.5))
-                .tracking(Typo.tracking(0.22, at: 9.5))
-                .foregroundStyle(Palette.paper.opacity(0.45))
+            Text(headerText)
+                .font(Typo.ui(16, 700))
+                .foregroundStyle(Palette.carta)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 64)
 
             HStack {
-                GlyphButton(diameter: 44, tone: .night, accessibilityText: "Voltar") {
+                Button { dismiss() } label: {
                     Chevron()
                         .stroke(
-                            Palette.paper.opacity(0.75),
-                            style: .init(lineWidth: 2.2, lineCap: .round, lineJoin: .round)
+                            Palette.carta,
+                            style: .init(lineWidth: 3, lineCap: .square, lineJoin: .miter)
                         )
-                        .frame(width: 9, height: 16)
-                } action: { dismiss() }
+                        .frame(width: 10, height: 18)
+                        .frame(width: 46, height: 46)
+                        .overlay { Circle().strokeBorder(Palette.carta, lineWidth: 2.5) }
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.pressable)
+                .accessibilityLabel("Voltar")
                 Spacer()
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 8)
+        .padding(.top, 6)
+    }
+
+    /// Says which landmark you are facing when you are facing one; otherwise the
+    /// name of the screen.
+    private var headerText: String {
+        if followsHeading, let heading = currentHeading,
+           let facing = Landmark.facing(heading, from: model.origin, tolerance: 10) {
+            return String(localized: "De frente para \(facing.spoken)")
+        }
+        return String(localized: "Bússola")
     }
 
     // MARK: The dial
 
-    private var dial: some View {
-        ZStack {
-            Circle().strokeBorder(Palette.sage.opacity(0.14), lineWidth: 1).frame(width: 456, height: 456)
-            Circle().strokeBorder(Palette.sage.opacity(0.22), lineWidth: 1).frame(width: 318, height: 318)
+    private var dialScale: CGFloat { typeSize.isAccessibilitySize ? 0.78 : 1 }
 
-            landmarkRing
-
-            TickRing().stroke(Palette.paper.opacity(0.45), lineWidth: 1).frame(width: 260, height: 260)
-
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Palette.sage.opacity(0.13), Palette.sage.opacity(0)],
-                        center: .center, startRadius: 0, endRadius: 84
-                    )
-                )
-                .overlay { Circle().strokeBorder(Palette.sage.opacity(0.4), lineWidth: 1.5) }
-                .frame(width: 228, height: 228)
-
-            AccuracyRing(progress: pulse, diameter: 228, tint: Palette.sage)
-
-            // A vignette that lets the reading sit clear of the ticks behind it.
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Palette.night.opacity(0.9), Palette.night.opacity(0)],
-                        center: .center, startRadius: 36, endRadius: 52
-                    )
-                )
-                .frame(width: 140, height: 140)
-
-            Circle().strokeBorder(Palette.sage.opacity(0.2), lineWidth: 1).frame(width: 106, height: 106)
-
-            crosshair
-            cardinals
-
-            Needle.dial(angle: model.needleAngle)
-                .animation(Motion.needle, value: model.selectionToken)
-
-            reading
-        }
-        .frame(width: 456, height: 456)
-    }
-
-    /// The ring labels, with colliding ones stepped inwards.
-    ///
-    /// The bearings are real, and from the middle of town the Mole and Superga
-    /// are only ten degrees apart. Rather than let two labels overprint, each one
-    /// that lands close to the previous is pushed a line further down the radius.
-    private var ringLabels: [(landmark: Landmark, inset: CGFloat)] {
-        let sorted = model.landmarks.sorted { $0.bearing < $1.bearing }
-        var placed: [(Landmark, CGFloat)] = []
-        var lastBearing = -1000.0
-        var depth = 0
-        for mark in sorted {
-            depth = Bearing.separation(mark.bearing, lastBearing) < 22 ? depth + 1 : 0
-            placed.append((mark, CGFloat(depth) * 21))
-            lastBearing = mark.bearing
-        }
-        return placed.map { (landmark: $0.0, inset: $0.1) }
-    }
-
-    private var landmarkRing: some View {
-        ZStack {
-            ForEach(ringLabels, id: \.landmark.id) { entry in
-                ZStack(alignment: .top) {
-                    Color.clear
-                    VStack(spacing: 8) {
-                        Rectangle()
-                            .fill(Palette.paper.opacity(0.5))
-                            .frame(width: 1, height: 11)
-                        Text(entry.landmark.name)
-                            .font(Typo.narrow(11))
-                            .tracking(Typo.tracking(0.1, at: 11))
-                            .foregroundStyle(Palette.paper.opacity(0.85))
-                            .fixedSize()
-                            .rotationEffect(.degrees(-entry.landmark.bearing))
-                            .padding(.top, entry.inset)
-                        Spacer(minLength: 0)
-                    }
-                    .offset(y: -5)
-                }
-                .frame(width: 318, height: 318)
-                .rotationEffect(.degrees(entry.landmark.bearing))
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    private var crosshair: some View {
-        ZStack {
-            Rectangle().fill(Palette.sage.opacity(0.14)).frame(width: 200, height: 1)
-            Rectangle().fill(Palette.sage.opacity(0.14)).frame(width: 1, height: 200)
-        }
-    }
-
-    private var cardinals: some View {
-        ZStack {
-            cardinal("N", opacity: 0.8).offset(y: -108)
-            cardinal("L", opacity: 0.62).offset(x: 108)
-            cardinal("S", opacity: 0.62).offset(y: 108)
-            cardinal("O", opacity: 0.62).offset(x: -108)
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func cardinal(_ letter: String, opacity: Double) -> some View {
-        Text(letter)
-            .font(Typo.narrow(11))
-            .tracking(Typo.tracking(0.16, at: 11))
-            .foregroundStyle(Palette.paper.opacity(opacity))
-    }
-
-    private var reading: some View {
-        VStack(spacing: 9) {
-            CountingMetres(
-                metres: model.selected.distance,
+    private var dialArea: some View {
+        let side = (Self.radius + 40) * 2
+        return VStack(spacing: 2) {
+            lubberLine
+            CompassDial(
+                radius: Self.radius,
+                dialAngle: dialAngle,
+                needleAngle: model.needleAngle,
+                distance: fountain.distance,
                 token: model.selectionToken,
-                size: 70,
-                color: Palette.paper,
-                tracking: Typo.tracking(-0.02, at: 70)
+                landmarks: Landmark.tiers(for: model.landmarks),
+                isAligned: isAligned
             )
-            Text("METROS DAQUI")
-                .font(Typo.narrow(10.5))
-                .tracking(Typo.tracking(0.24, at: 10.5))
-                .foregroundStyle(Palette.paper.opacity(0.5))
+            .scaleEffect(dialScale)
+            .frame(width: side * dialScale, height: side * dialScale)
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(model.selected.distance) metros daqui")
+        .padding(.top, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Bússola. \(fountain.place)"))
+        .accessibilityValue(Text(spokenDirection))
+        .accessibilityAddTraits(.updatesFrequently)
     }
 
-    // MARK: Panel
+    /// The fixed mark at the top of the dial: the way you are facing.
+    private var lubberLine: some View {
+        Triangle()
+            .fill(isAligned ? Palette.carta : Palette.luna)
+            .frame(width: 18, height: 14)
+            .rotationEffect(.degrees(180))
+            .scaleEffect(isAligned ? 1.4 : 1)
+            .opacity(followsHeading ? 1 : 0)
+            .animation(Motion.snap, value: isAligned)
+            .accessibilityHidden(true)
+    }
 
-    private func panel(compassAlwaysVisible: Binding<Bool>) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ArcadeCornice(height: 7, stroke: Palette.sage.opacity(0.6), spacing: 3)
-                .opacity(0.55)
-                .padding(.bottom, 8)
-
-            VStack(spacing: 8) {
-                DisplayText(
-                    model.selected.place, size: 27, leading: 1.05,
-                    color: Palette.paper, alignment: .center
-                )
-                // The plate number rides with the state here: on a screen with no
-                // map, the number is the only way to tell two fountains apart.
-                StatusChip(
-                    state: model.selected.state,
-                    night: true,
-                    text: "\(model.selected.plateTitle) · \(model.selected.state.label)",
-                    breathes: true
-                )
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, 12)
-            .overlay(alignment: .bottom) {
-                Rectangle().fill(Palette.paper.opacity(0.12)).frame(height: 1)
-            }
-            .padding(.bottom, 11)
-
-            Text(model.orientation)
-                .font(Typo.ui(13))
-                .lineHeight(1.45, font: Typo.uiInterface(13))
-                .foregroundStyle(Palette.sage.opacity(0.95))
-                .padding(.bottom, 11)
-
-            Text("FONTES POR PERTO")
-                .font(Typo.narrow(9.5))
-                .tracking(Typo.tracking(0.14, at: 9.5))
-                .foregroundStyle(Palette.paper.opacity(0.5))
-                .padding(.bottom, 4)
-
-            ForEach(model.nearest3) { fountain in
-                FountainRow(
-                    fountain: fountain,
-                    needleAngle: fountain.bearing,
-                    token: model.selectionToken,
-                    isSelected: fountain == model.selected,
-                    night: true,
-                    compact: true
-                ) {
-                    model.select(fountain)
-                }
-            }
-
-            Toggle(isOn: compassAlwaysVisible) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Bússola sempre visível")
-                        .font(Typo.ui(15, 500))
-                        .foregroundStyle(Palette.paper)
-                    Text(compassAlwaysVisible.wrappedValue
-                        ? "Na tela bloqueada e no widget"
-                        : "Só dentro do app")
-                        .font(Typo.ui(12))
-                        .foregroundStyle(Palette.paper.opacity(0.5))
-                }
-            }
-            .tint(Palette.sage)
-            .padding(.top, 15)
+    private var spokenDirection: String {
+        let distance = DistanceFormat.spoken(fountain.distance)
+        if let relative = relativeBearing {
+            return "\(distance), \(Bearing.relativePhrase(relative))"
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 15)
-        .padding(.bottom, 16)
-        .glassPane(cornerRadius: 28, tone: .night)
+        return String(localized: "\(distance), para \(Bearing.spokenCardinal(fountain.bearing))")
+    }
+
+    // MARK: The plate
+
+    private var plate: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                plateTitle
+
+                HStack(spacing: 10) {
+                    StateMark(state: fountain.state, size: 18, night: true)
+                    Text(stateLine)
+                        .font(Typo.ui(15, 500))
+                        .foregroundStyle(Palette.carta)
+                }
+                .padding(.top, 12)
+
+                Text(arrived ? String(localized: "Você chegou") : model.orientation)
+                    .font(Typo.ui(17, 700))
+                    .foregroundStyle(Palette.luna)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 8)
+
+                ForEach(statusLines, id: \.self) { line in
+                    Text(line)
+                        .font(Typo.ui(13))
+                        .foregroundStyle(Palette.carta.opacity(0.78))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 6)
+                }
+
+                nearest
+                    .padding(.top, 18)
+
+                alwaysVisible
+                    .padding(.top, 6)
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollIndicators(.hidden)
+        .frame(maxWidth: .infinity)
+        .background(Palette.notteChiara.ignoresSafeArea(edges: .bottom))
+        .overlay(alignment: .top) {
+            Rectangle().fill(Palette.carta).frame(height: 3)
+        }
+    }
+
+    @ViewBuilder
+    private var plateTitle: some View {
+        let lines = fountain.titleLines.components(separatedBy: "\n")
+        if lines.count > 1 {
+            PosterTitle(lines[0], lines[1], size: 36, color: Palette.carta, ruleColor: Palette.carta)
+        } else {
+            PosterTitle(lines[0], size: 36, color: Palette.carta, ruleColor: Palette.carta)
+        }
+    }
+
+    /// "Água corrente, relato há 2 h" — or, when nobody has said, just that.
+    private var stateLine: String {
+        guard fountain.state != .unknown, fountain.community.latestDate != nil else {
+            return fountain.state.label
+        }
+        return "\(fountain.state.label), \(fountain.community.provenance.lowercased())"
+    }
+
+    /// What the compass cannot be sure of, said once, quietly.
+    private var statusLines: [String] {
+        var lines: [String] = []
+        if let explanation = location.status.explanation { lines.append(explanation) }
+        if location.status.isMeasuringFromUser {
+            if location.heading == nil {
+                lines.append(String(localized: "Sem bússola neste aparelho: mostrando o norte para cima."))
+            } else if !location.hasUsableHeading {
+                lines.append(String(localized: "Bússola imprecisa. Gire o celular desenhando um oito para calibrar."))
+            }
+        } else if location.status != .asking {
+            lines.append(String(localized: "Mostrando o norte para cima."))
+        }
+        return lines
+    }
+
+    private var nearest: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(model.nearest3.enumerated()), id: \.element.id) { index, other in
+                Button { model.select(other) } label: {
+                    HStack(spacing: 14) {
+                        StateMark(state: other.state, size: 20, night: true)
+                        Text(other.place)
+                            .font(Typo.ui(16, other.id == fountain.id ? 700 : 500))
+                            .foregroundStyle(Palette.carta)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(alignment: .firstTextBaseline, spacing: 3) {
+                            Text(DistanceFormat.figure(other.distance, unit: DistanceFormat.unit(for: other.distance)))
+                                .font(Typo.display(24, 800))
+                            Text(DistanceFormat.unit(for: other.distance))
+                                .font(Typo.ui(13, 600))
+                        }
+                        .foregroundStyle(Palette.carta)
+                    }
+                    .padding(.vertical, 11)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .overlay(alignment: .top) {
+                    if index > 0 {
+                        Rectangle().fill(Palette.carta.opacity(0.22)).frame(height: 1.5)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text("\(other.place), \(DistanceFormat.spoken(other.distance))"))
+                .accessibilityAddTraits(other.id == fountain.id ? [.isSelected, .isButton] : .isButton)
+            }
+        }
+        .overlay(alignment: .top) { Rectangle().fill(Palette.carta).frame(height: 3) }
+    }
+
+    private var alwaysVisible: some View {
+        @Bindable var model = model
+        return Toggle(isOn: $model.compassAlwaysVisible) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Bússola sempre visível")
+                    .font(Typo.ui(15, 600))
+                    .foregroundStyle(Palette.carta)
+                Text(model.compassAlwaysVisible
+                    ? "Na tela bloqueada e no widget"
+                    : "Só dentro do app")
+                    .font(Typo.ui(12.5))
+                    .foregroundStyle(Palette.carta.opacity(0.7))
+            }
+        }
+        .tint(Palette.luna)
+        .padding(.vertical, 10)
+        .overlay(alignment: .top) { Rectangle().fill(Palette.carta.opacity(0.22)).frame(height: 1.5) }
+    }
+}
+
+// MARK: - The moon
+
+/// The moon, its rim, and everything standing on it.
+///
+/// Three layers with three different relationships to the phone. The disc and the
+/// figure never move. The ring — ticks, N, landmarks, needle — turns with the
+/// heading. And the needle turns inside the ring on its own spring, because the
+/// fountain's bearing changes when you pick another one or walk, not only when you
+/// turn.
+private struct CompassDial: View {
+    let radius: CGFloat
+    let dialAngle: Double
+    let needleAngle: Double
+    let distance: Int
+    let token: Int
+    let landmarks: [(landmark: Landmark, tier: Landmark.Tier)]
+    let isAligned: Bool
+
+    /// Room outside the rim for what stands on it.
+    private let reach: CGFloat = 40
+
+    var body: some View {
+        let side = (radius + reach) * 2
+        ZStack {
+            Circle().fill(Palette.luna).frame(width: radius * 2, height: radius * 2)
+            // The horizon the landmarks stand on.
+            Circle()
+                .strokeBorder(Palette.carta.opacity(0.55), lineWidth: 2)
+                .frame(width: radius * 2 + 8, height: radius * 2 + 8)
+
+            ZStack {
+                DialTicks(long: false).stroke(Palette.inchiostro.opacity(0.7), lineWidth: 1.5)
+                DialTicks(long: true).stroke(Palette.inchiostro, lineWidth: 3)
+
+                northMark
+
+                ForEach(landmarks, id: \.landmark.id) { entry in
+                    RimMark(landmark: entry.landmark, radius: radius, reach: reach, tier: entry.tier)
+                }
+
+                Needle.dial(angle: needleAngle, diameter: radius * 2)
+                    .animation(Motion.needle, value: needleAngle)
+            }
+            .frame(width: side, height: side)
+            .rotationEffect(.degrees(dialAngle))
+
+            // The ring around the figure that engages when you are lined up.
+            Circle()
+                .strokeBorder(Palette.inchiostro, lineWidth: 3)
+                .frame(width: radius * 1.12, height: radius * 1.12)
+                .opacity(isAligned ? 1 : 0)
+                .scaleEffect(isAligned ? 1 : 0.9)
+                .animation(Motion.snap, value: isAligned)
+
+            figure
+        }
+        .frame(width: side, height: side)
+    }
+
+    private var figure: some View {
+        VStack(spacing: -10) {
+            CountingDistance(
+                metres: distance, token: token, size: 120,
+                width: radius * 1.1, color: Palette.inchiostro
+            )
+            Text(DistanceFormat.unit(for: distance))
+                .font(Typo.ui(22, 700))
+                .foregroundStyle(Palette.inchiostro)
+        }
+        .offset(y: 2)
+    }
+
+    /// An N standing on the rim at north, so the chart is legible when it turns.
+    private var northMark: some View {
+        ZStack(alignment: .top) {
+            Color.clear
+            Text("N")
+                .font(Typo.display(17, 900))
+                .foregroundStyle(Palette.carta)
+                .offset(y: reach - 24)
+        }
+        .frame(width: (radius + reach) * 2, height: (radius + reach) * 2)
+        .accessibilityHidden(true)
+    }
+}
+
+/// One landmark, standing upright on the rim at its real bearing.
+private struct RimMark: View {
+    let landmark: Landmark
+    let radius: CGFloat
+    let reach: CGFloat
+    let tier: Landmark.Tier
+
+    private var size: CGSize {
+        switch landmark.glyph {
+        case .lozenge: CGSize(width: 20, height: 40)
+        case .dome: CGSize(width: 24, height: 20)
+        case .square: CGSize(width: 20, height: 15)
+        case .range: CGSize(width: 38, height: 20)
+        case .arch: CGSize(width: 14, height: 16)
+        }
+    }
+
+    var body: some View {
+        let outward: CGFloat = tier == .outer ? 22 : 0
+        let side = (radius + reach) * 2
+        ZStack(alignment: .top) {
+            Color.clear
+            glyph
+                .frame(width: size.width, height: size.height)
+                // Bottom of the glyph on the horizon, 4 pt clear of the disc.
+                .offset(y: reach - 4 - size.height - outward)
+        }
+        .frame(width: side, height: side)
+        .rotationEffect(.degrees(landmark.bearing))
+        .accessibilityHidden(true)
+    }
+
+    @ViewBuilder private var glyph: some View {
+        switch landmark.glyph {
+        case .lozenge:
+            // The Mole, drawn in cream on the night plate: its spire is the one
+            // thing in Turin you can find from anywhere in it.
+            MoleSilhouette(
+                dome: Palette.salvia, domeShade: Palette.salviaScura,
+                stone: Palette.facciata, ink: Palette.carta
+            )
+        case .dome:
+            VStack(spacing: 0) {
+                HalfDisc().fill(Palette.salvia)
+                Rectangle().fill(Palette.facciata).frame(height: 5)
+            }
+        case .square:
+            Rectangle().fill(Palette.facciata)
+                .overlay(alignment: .top) { Rectangle().fill(Palette.rosso).frame(height: 4) }
+        case .range:
+            MountainRange()
+        case .arch:
+            ArchGlyph().stroke(Palette.carta, lineWidth: 2)
+        }
+    }
+}
+
+/// Ticks on the moon's rim, every 5°, with a longer one every 30°.
+private struct DialTicks: Shape {
+    var long: Bool
+
+    func path(in rect: CGRect) -> Path {
+        let centre = CGPoint(x: rect.midX, y: rect.midY)
+        let outer = min(rect.width, rect.height) / 2
+        var path = Path()
+        for degrees in stride(from: 0, to: 360, by: 5) {
+            let isLong = degrees % 30 == 0
+            guard isLong == long else { continue }
+            let inner = outer * (isLong ? 0.9 : 0.935)
+            let radians = (Double(degrees) - 90) * .pi / 180
+            let dx = CGFloat(cos(radians)), dy = CGFloat(sin(radians))
+            path.move(to: CGPoint(x: centre.x + inner * dx, y: centre.y + inner * dy))
+            path.addLine(to: CGPoint(x: centre.x + outer * dx, y: centre.y + outer * dy))
+        }
+        return path
     }
 }
 
@@ -291,26 +504,6 @@ struct Chevron: Shape {
             path.move(to: CGPoint(x: rect.minX, y: rect.minY))
             path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
             path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        }
-        return path
-    }
-}
-
-/// The fine tick ring between the landmark labels and the dial — 48 marks, one
-/// every seven and a half degrees.
-struct TickRing: Shape {
-    var ticks = 48
-    var inner: CGFloat = 118
-    var outer: CGFloat = 128
-
-    func path(in rect: CGRect) -> Path {
-        let c = CGPoint(x: rect.midX, y: rect.midY)
-        var path = Path()
-        for index in 0 ..< ticks {
-            let radians = Double(index) / Double(ticks) * 2 * .pi
-            let dx = cos(radians), dy = sin(radians)
-            path.move(to: CGPoint(x: c.x + inner * dx, y: c.y + inner * dy))
-            path.addLine(to: CGPoint(x: c.x + outer * dx, y: c.y + outer * dy))
         }
         return path
     }

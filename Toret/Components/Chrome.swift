@@ -1,82 +1,128 @@
 import SwiftUI
+import UIKit
+
+private extension String {
+    /// "DISTÂNCIA" becomes "Distância". Captions used to be set in tracked
+    /// capitals; the poster keeps its capitals for the display words, so the
+    /// existing call sites are folded to sentence case here.
+    var sentenceCased: String {
+        guard !isEmpty else { return self }
+        let lower = lowercased()
+        return lower.prefix(1).uppercased() + lower.dropFirst()
+    }
+}
 
 // MARK: - Search
 
-/// The search field, as a pane of glass floating over the map.
+/// The search field: a plate with a heavy frame, a magnifier, and a cross to clear it.
 struct SearchPill: View {
     @Binding var text: String
-    var placeholder = "Buscar fonte, praça ou endereço"
+    var placeholder = String(localized: "Buscar rua, praça ou bairro")
 
     var body: some View {
-        HStack(spacing: 10) {
-            IconView(
-                shape: Icon.Magnifier(), size: 15, weight: 1.9,
-                tint: Palette.ink.opacity(0.45)
-            )
+        HStack(spacing: 12) {
+            IconView(shape: Icon.Magnifier(), size: 18, weight: 2.4, tint: Palette.inchiostro)
 
             TextField(text: $text) {
                 Text(placeholder)
-                    .font(Typo.ui(15))
-                    .foregroundStyle(Palette.ink.opacity(0.5))
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.ink(0.62))
             }
-            .font(Typo.ui(15))
-            .foregroundStyle(Palette.ink)
+            .font(Typo.ui(16, 500))
+            .foregroundStyle(Palette.inchiostro)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .submitLabel(.search)
+
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Icon.Cross()
+                        .stroke(Palette.inchiostro, style: StrokeStyle(lineWidth: 2.4))
+                        .frame(width: 12, height: 12)
+                        .frame(width: 44, height: 44)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Limpar a busca"))
+                .transition(.opacity)
+            }
         }
-        .padding(.horizontal, 16)
-        .frame(height: 46)
+        .padding(.leading, 16)
+        .padding(.trailing, text.isEmpty ? 16 : 2)
+        .frame(minHeight: 52)
         .glassCapsule(tone: .paper)
+        .animation(ScreenMotion.snap, value: text.isEmpty)
     }
 }
 
 // MARK: - Filters
 
-/// The chips under the search field.
+/// The chips under the search field: frames that fill with ink when they are on.
+///
+/// They scroll sideways rather than shrink, because four honest labels do not fit
+/// in one row at any size worth reading. Each shows how many fountains it would
+/// keep, so a chip that matches nothing says so before it is pressed.
 struct FilterChips: View {
     let active: Set<MapFilter>
     let toggle: (MapFilter) -> Void
 
+    @Environment(ToretModel.self) private var model: ToretModel?
+
     var body: some View {
-        HStack(spacing: 7) {
-            ForEach(MapFilter.allCases) { filter in
-                let isOn = active.contains(filter)
-                Button { toggle(filter) } label: {
-                    HStack(spacing: 6) {
-                        if isOn {
-                            Circle()
-                                .fill(Palette.paperRaised)
-                                .frame(width: 7, height: 7)
-                        }
-                        Text(filter.rawValue)
-                            .font(Typo.ui(12.5, 500))
-                            .foregroundStyle(isOn ? Palette.paperRaised : Palette.ink)
-                    }
-                    .padding(.horizontal, 13)
-                    .frame(height: 32)
-                    .background {
-                        if isOn {
-                            Capsule()
-                                .fill(Palette.green)
-                                .shadow(color: Palette.ink.opacity(0.16), radius: 6, y: 4)
-                        }
-                    }
-                    .glassCapsule(tone: .paper, interactive: true)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(MapFilter.allCases) { filter in
+                    chip(filter)
                 }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
             }
-            Spacer(minLength: 0)
+            .padding(.horizontal, 2)
         }
-        .animation(Motion.ui, value: active)
+        .scrollClipDisabled()
+        .sensoryFeedback(.selection, trigger: active)
+        .animation(ScreenMotion.snap, value: active)
+    }
+
+    private func count(_ filter: MapFilter) -> Int? {
+        // "Sem relato de seca" keeps nearly everything; a count there is noise.
+        guard filter != .notDry, let model else { return nil }
+        return model.fountains.count { filter.matches($0) }
+    }
+
+    private func chip(_ filter: MapFilter) -> some View {
+        let isOn = active.contains(filter)
+        let matches = count(filter)
+        return Button { toggle(filter) } label: {
+            HStack(spacing: 8) {
+                Text(filter.rawValue)
+                    .font(Typo.ui(14, 700))
+                if let matches {
+                    Text("\(matches)")
+                        .font(Typo.ui(13, 500))
+                        .opacity(0.75)
+                }
+            }
+            .foregroundStyle(isOn ? Palette.carta : Palette.inchiostro)
+            .padding(.horizontal, 14)
+            .frame(height: 36)
+            .background(isOn ? Palette.inchiostro : Palette.carta)
+            .overlay { Rectangle().strokeBorder(Palette.inchiostro, lineWidth: 2) }
+            // A 44 pt target around a 36 pt chip.
+            .padding(.vertical, 4)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(filter.rawValue)
+        .accessibilityValue(matches.map { String(localized: "\($0) fontes") } ?? "")
+        .accessibilityAddTraits(isOn ? [.isSelected, .isButton] : .isButton)
     }
 }
 
 // MARK: - The compass, in miniature
 
-/// The pill that keeps the needle on screen while you are looking at something
-/// else. Tapping it opens the compass full screen.
+/// The black plate that keeps the needle on screen while you are looking at
+/// something else. The sun is the dial; tapping the plate opens the compass.
 struct CompassPill: View {
     let fountain: Fountain
     let needleAngle: Double
@@ -86,166 +132,230 @@ struct CompassPill: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 11) {
+            HStack(spacing: 12) {
                 ZStack {
-                    Circle().strokeBorder(Palette.sage.opacity(0.45), lineWidth: 1.5)
-                    Needle.pill(angle: needleAngle)
-                        .animation(Motion.needle, value: token)
+                    Circle().fill(Palette.sole)
+                    Needle(
+                        angle: needleAngle, diameter: 34,
+                        headWidth: 10, headHeight: 13, headInset: 4,
+                        tint: Palette.inchiostro
+                    )
+                    .animation(Motion.needle, value: token)
                 }
-                .frame(width: 28, height: 28)
+                .frame(width: 34, height: 34)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        CountingMetres(
-                            metres: fountain.distance, token: token,
-                            size: 13, weight: 600, color: Palette.paperRaised
-                        )
-                        Text("m · \(fountain.place)")
-                            .font(Typo.ui(12.5, 600))
-                            .foregroundStyle(Palette.paperRaised)
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        distance
+                        Text(fountain.place)
+                            .font(Typo.ui(14, 700))
+                            .foregroundStyle(Palette.carta)
+                            .lineLimit(1)
                     }
-                    Text(isNearest ? "FONTE MAIS PRÓXIMA" : "FONTE SELECIONADA")
-                        .font(Typo.narrow(8.5))
-                        .tracking(Typo.tracking(0.14, at: 8.5))
-                        .foregroundStyle(Palette.paperRaised.opacity(0.5))
+                    Text(isNearest ? String(localized: "Fonte mais próxima") : String(localized: "Fonte selecionada"))
+                        .font(Typo.ui(12, 500))
+                        .foregroundStyle(Palette.carta.opacity(0.8))
                 }
             }
             .padding(.leading, 10)
             .padding(.trailing, 16)
-            .frame(height: 46)
+            .frame(minHeight: 56)
             .glassCapsule(tone: .ink)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Bússola. \(fountain.place), \(fountain.distance) metros")
-        .accessibilityHint("Abre a bússola em tela cheia")
+        .buttonStyle(.pressable)
+        .accessibilityLabel(String(localized: "Bússola. \(fountain.place), \(Distance.spoken(fountain.distance))"))
+        .accessibilityHint(String(localized: "Abre a bússola em tela cheia"))
+    }
+
+    @ViewBuilder private var distance: some View {
+        if fountain.distance < 1000 {
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                CountingMetres(
+                    metres: fountain.distance, token: token,
+                    size: 22, weight: 800, color: Palette.carta
+                )
+                Text("m").font(Typo.ui(13, 600)).foregroundStyle(Palette.carta.opacity(0.8))
+            }
+            .fixedSize()
+        } else {
+            Text(Distance.text(fountain.distance))
+                .font(Typo.display(22, 800))
+                .foregroundStyle(Palette.carta)
+                .fixedSize()
+        }
     }
 }
 
 // MARK: - Statistics
 
 /// A figure and its caption — the unit of measurement everywhere in the app.
+///
+/// The figure is poster type; the caption is a plain sentence under it. Callers
+/// still pass the old capitals ("DISTÂNCIA"); they are folded to sentence case.
 struct StatBlock: View {
     let value: String
     let caption: String
-    var valueColor: Color = Palette.ink
+    var valueColor: Color = Palette.inchiostro
     var size: CGFloat = 20
-    var captionColor: Color = Palette.ink.opacity(0.5)
+    var captionColor: Color = Palette.ink(0.72)
     /// Interface-face values (a water state) rather than poster figures.
     var isProse: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(value)
-                .font(isProse ? Typo.ui(14, 500) : Typo.display(size))
+                .font(isProse ? Typo.ui(15, 700) : Typo.display(size, 800))
                 .foregroundStyle(valueColor)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(caption)
-                .font(Typo.narrow(8.5))
-                .tracking(Typo.tracking(0.12, at: 8.5))
+            Text(caption.sentenceCased)
+                .font(Typo.ui(13, 500))
                 .foregroundStyle(captionColor)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
     }
 }
 
-/// The hairline between two statistics.
+/// The heavy vertical rule between two statistics.
 struct StatDivider: View {
-    var color: Color = Palette.ink.opacity(0.12)
+    var color: Color = Palette.inchiostro
     var height: CGFloat = 30
 
     var body: some View {
-        Rectangle().fill(color).frame(width: 1, height: height)
+        Rectangle().fill(color).frame(width: 3, height: height)
+            .accessibilityHidden(true)
     }
 }
 
 // MARK: - Specification rows
 
-/// A label and its value on one line, with a hairline under it.
-///
-/// The whole lower half of the fountain page is built from these: the water, the
-/// iron, the settings. Right-aligned values give the column of facts an edge to
-/// be read down.
+/// A label and its value on one line, with a light rule under it.
 struct SpecRow: View {
     let label: String
     let value: String
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 16) {
-            Text(label)
-                .font(Typo.ui(14))
-                .foregroundStyle(Palette.ink.opacity(0.62))
-            Spacer(minLength: 0)
-            Text(value)
-                .font(Typo.ui(14, 500))
-                .foregroundStyle(Palette.ink)
-                .multilineTextAlignment(.trailing)
-                .fixedSize(horizontal: false, vertical: true)
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 4) { labelText; valueText }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 16) {
+                    labelText
+                    Spacer(minLength: 0)
+                    valueText.multilineTextAlignment(.trailing)
+                }
+            }
         }
-        .padding(.vertical, 13)
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Palette.ink.opacity(0.08)).frame(height: 1)
-        }
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .bottom) { PosterRule(weight: .light) }
         .accessibilityElement(children: .combine)
+    }
+
+    private var labelText: some View {
+        Text(label)
+            .font(Typo.ui(15))
+            .foregroundStyle(Palette.ink(0.72))
+    }
+
+    private var valueText: some View {
+        Text(value)
+            .font(Typo.ui(15, 700))
+            .foregroundStyle(Palette.inchiostro)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
 // MARK: - Buttons
 
-/// The green pill that commits you to walking somewhere.
+/// The black bar that commits you to walking somewhere, with the sun at its end.
+///
+/// Attention actions pass `background: Palette.rosso`. Pressed, it slips two
+/// points down and to the right, like a plate printed slightly out of register.
 struct PrimaryButton: View {
     let title: String
-    var height: CGFloat = 54
-    var fontSize: CGFloat = 16
-    var background: Color = Palette.green
-    var foreground: Color = Palette.paperRaised
+    var height: CGFloat = 56
+    var fontSize: CGFloat = 20
+    var background: Color = Palette.inchiostro
+    var foreground: Color = Palette.carta
     var leadingDot: Color?
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 9) {
+            HStack(spacing: 12) {
                 if let leadingDot {
-                    Circle().fill(leadingDot).frame(width: 9, height: 9)
+                    Circle().fill(leadingDot).frame(width: 10, height: 10)
                 }
                 Text(title)
-                    .font(Typo.ui(fontSize, 600))
+                    .textCase(.uppercase)
+                    .font(Typo.display(max(fontSize, 17), 800))
                     .foregroundStyle(foreground)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Circle().fill(Palette.sole).frame(width: 26, height: 26)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .background(Capsule().fill(background))
+            .padding(.horizontal, 20)
+            .frame(minHeight: height)
+            .background(background)
+            .contentShape(.rect)
         }
         .buttonStyle(.pressable)
     }
 }
 
-/// The outlined pill for the action you should be able to take but rarely do.
+/// The framed bar for the action you could take but need not.
 struct SecondaryButton<Glyph: Shape>: View {
     let title: String
-    var height: CGFloat = 48
-    var tint: Color = Palette.terracotta
+    var height: CGFloat = 52
+    var tint: Color = Palette.inchiostro
     var icon: Glyph?
     let action: () -> Void
 
+    init(
+        title: String, height: CGFloat = 52, tint: Color = Palette.inchiostro,
+        icon: Glyph? = nil, action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.height = height
+        self.tint = tint
+        self.icon = icon
+        self.action = action
+    }
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 if let icon {
-                    IconView(shape: icon, size: 14, weight: 1.6, tint: tint)
+                    IconView(shape: icon, size: 16, weight: 2.2, tint: tint)
                 }
                 Text(title)
-                    .font(Typo.ui(14.5, 500))
+                    .textCase(.uppercase)
+                    .font(Typo.display(16, 800))
                     .foregroundStyle(tint)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .background(Capsule().strokeBorder(tint.opacity(0.4), lineWidth: 1.5))
+            .frame(minHeight: height)
+            .overlay { Rectangle().strokeBorder(tint, lineWidth: 2.5) }
+            .contentShape(.rect)
         }
         .buttonStyle(.pressable)
     }
 }
 
-/// A round icon button — save, share, close.
+extension SecondaryButton where Glyph == Icon.Cross {
+    /// A framed button with no glyph.
+    init(title: String, height: CGFloat = 52, tint: Color = Palette.inchiostro, action: @escaping () -> Void) {
+        self.init(title: title, height: height, tint: tint, icon: nil, action: action)
+    }
+}
+
+/// A round icon button — save, share, close. A circle is the one curve the poster allows.
 struct GlyphButton<Glyph: View>: View {
     var diameter: CGFloat = 50
     var tone: GlassTone = .paper
@@ -254,22 +364,30 @@ struct GlyphButton<Glyph: View>: View {
     let action: () -> Void
 
     var body: some View {
+        // A target of at least 44 pt without changing the layout: the extra is
+        // padded in and taken out again.
+        let extra = max(0, (44 - diameter) / 2)
         Button(action: action) {
             glyph()
                 .frame(width: diameter, height: diameter)
                 .glassPane(Circle(), tone: tone, interactive: true)
+                .padding(extra)
+                .contentShape(.rect)
         }
         .buttonStyle(.pressable)
+        .padding(-extra)
         .accessibilityLabel(accessibilityText)
     }
 }
 
-/// Buttons in this app dip rather than fade — the glass has to feel solid.
+/// Buttons in this app are pressed, not lit: the label slips two points down and
+/// to the right and comes back when you let go. Under Reduce Motion it still
+/// slips, it just does not travel there.
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(duration: 0.25, bounce: 0.2), value: configuration.isPressed)
+            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 2 : 0)
+            .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
     }
 }
 
@@ -277,68 +395,168 @@ extension ButtonStyle where Self == PressableButtonStyle {
     static var pressable: PressableButtonStyle { PressableButtonStyle() }
 }
 
-// MARK: - Location banner
+/// A square switch: a framed track with a square stop. Off, the stop is black and
+/// sits left; on, the track fills black and the stop turns yellow and slides right.
+struct PosterToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        let isOn = configuration.isOn
+        return Button { configuration.isOn.toggle() } label: {
+            HStack(alignment: .center, spacing: 16) {
+                configuration.label
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                ZStack {
+                    Rectangle().fill(isOn ? Palette.inchiostro : Palette.carta)
+                    Rectangle().strokeBorder(Palette.inchiostro, lineWidth: 2.5)
+                    Rectangle()
+                        .fill(isOn ? Palette.sole : Palette.inchiostro)
+                        .frame(width: 22, height: 22)
+                        .offset(x: isOn ? 14 : -14)
+                }
+                .frame(width: 58, height: 34)
+            }
+            .frame(minHeight: 44)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: isOn)
+        .animation(ScreenMotion.snap, value: isOn)
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(isOn ? String(localized: "Ligado") : String(localized: "Desligado"))
+        .accessibilityAddTraits(.isToggle)
+    }
+}
 
-/// Says, in one line, why the distances on screen are what they are.
-///
-/// Shown whenever they are *not* measured from the user. The alternative — a
-/// quiet fallback to the old town — would put a plausible, wrong number on the
-/// one thing the app exists to tell you.
-struct LocationBanner: View {
-    let status: LocationStatus
-    @Environment(\.openURL) private var openURL
+// MARK: - Legend
+
+/// What the four shapes mean, in one line. Colour is never the only channel, but a
+/// shape still has to be learned once; this is where it is taught.
+struct StateLegend: View {
+    var night = false
+
+    private let states: [WaterState] = [.running, .weak, .dry, .unknown]
 
     var body: some View {
-        if let message {
-            HStack(spacing: 10) {
-                IconView(shape: Icon.Rings(), size: 15, weight: 1.7, tint: Palette.ocre)
-                Text(message)
-                    .font(Typo.ui(12.5, 500))
-                    .foregroundStyle(Palette.ink.opacity(0.78))
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 0)
-                if needsSettings {
-                    Button("Ajustes") {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 16) { items }
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), alignment: .leading),
+                    GridItem(.flexible(), alignment: .leading),
+                ],
+                alignment: .leading, spacing: 8
+            ) { items }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Legenda das marcas: círculo, água corrente; meio disco, fluxo fraco; triângulo, sem água; anel vazio, sem relato recente"))
+    }
+
+    @ViewBuilder private var items: some View {
+        ForEach(states, id: \.self) { state in
+            HStack(spacing: 6) {
+                StateMark(state: state, size: 14, night: night)
+                Text(state.shortLabel)
+                    .font(Typo.ui(13, 500))
+                    .foregroundStyle(night ? Palette.carta.opacity(0.85) : Palette.ink(0.8))
+                    .fixedSize()
+            }
+        }
+    }
+}
+
+// MARK: - Location banner
+
+/// Says, in one plate, why the distances on screen are what they are.
+///
+/// Shown whenever they are *not* measured from the user. A quiet fallback to the
+/// old town would put a plausible, wrong number on the one thing the app exists
+/// to tell you. The mark is a diamond — never a water-state shape — and the frame
+/// is red when something is wrong and black when it is only worth knowing.
+struct LocationBanner: View {
+    let status: LocationStatus
+
+    @Environment(\.openURL) private var openURL
+
+    /// What to say, whether the fix is the user's to repair, and how loud to be.
+    struct Message: Equatable {
+        enum Tone { case warning, note }
+        let text: String
+        let opensSettings: Bool
+        let settingsTitle: String
+        let tone: Tone
+    }
+
+    /// Nil when there is nothing to say: the answer to "where am I measured from?"
+    /// is "you", or the system is about to ask.
+    static func message(for status: LocationStatus) -> Message? {
+        let anchor = String(localized: "Piazza San Carlo")
+        switch status {
+        case .asking, .live:
+            return nil
+        case .searching:
+            return Message(
+                text: String(localized: "Procurando a sua posição."),
+                opensSettings: false, settingsTitle: "", tone: .note
+            )
+        case .denied:
+            return Message(
+                text: String(localized: "A localização está desligada. As distâncias são medidas a partir da \(anchor)."),
+                opensSettings: true, settingsTitle: String(localized: "Abrir Ajustes"), tone: .warning
+            )
+        case .restricted:
+            return Message(
+                text: String(localized: "A localização está bloqueada neste aparelho. As distâncias são medidas a partir da \(anchor)."),
+                opensSettings: false, settingsTitle: "", tone: .warning
+            )
+        case .approximate:
+            return Message(
+                text: String(localized: "A localização é aproximada, então as distâncias podem errar por centenas de metros."),
+                opensSettings: true, settingsTitle: String(localized: "Ativar posição precisa"), tone: .note
+            )
+        case let .outsideTurin(kilometres):
+            let far = kilometres.formatted(.number)
+            return Message(
+                text: String(localized: "Você está a \(far) km de Turim. As distâncias são medidas a partir da \(anchor)."),
+                opensSettings: false, settingsTitle: "", tone: .note
+            )
+        }
+    }
+
+    var body: some View {
+        if let message = Self.message(for: status) {
+            let frame = message.tone == .warning ? Palette.rosso : Palette.inchiostro
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top, spacing: 12) {
+                    Diamond()
+                        .fill(message.tone == .warning ? Palette.rosso : Palette.sole)
+                        .overlay { Diamond().stroke(Palette.inchiostro, lineWidth: 2) }
+                        .frame(width: 20, height: 20)
+                        .padding(.top, 1)
+                    Text(message.text)
+                        .font(Typo.ui(14, 500))
+                        .foregroundStyle(Palette.inchiostro)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if message.opensSettings {
+                    SecondaryButton(title: message.settingsTitle, height: 44) {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             openURL(url)
                         }
                     }
-                    .font(Typo.ui(12.5, 600))
-                    .foregroundStyle(Palette.green)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .glassPane(cornerRadius: 18, tone: .paper)
-            .transition(.move(edge: .top).combined(with: .opacity))
-            .accessibilityElement(children: .combine)
-        }
-    }
-
-    private var needsSettings: Bool {
-        switch status {
-        case .denied, .approximate: true
-        default: false
-        }
-    }
-
-    private var message: String? {
-        switch status {
-        case .asking, .live: nil
-        case .searching: "Procurando a sua posição…"
-        case .denied: "Localização desligada. Distâncias medidas a partir da Piazza San Carlo."
-        case .restricted: "Localização bloqueada neste aparelho. Distâncias medidas a partir da Piazza San Carlo."
-        case .approximate: "Localização aproximada. Ative a posição precisa para distâncias exatas."
-        case let .outsideTurin(kilometres):
-            "Você está a \(kilometres.formatted(.number.locale(Locale(identifier: "pt_BR")))) km de Turim. Distâncias medidas a partir da Piazza San Carlo."
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .plate(fill: Palette.cartaChiara, border: frame, lineWidth: 2.5)
+            .transition(.opacity.combined(with: .offset(y: -8)))
+            .accessibilityElement(children: .contain)
         }
     }
 }
 
 // MARK: - Search results
 
-/// What the search field found, as a pane under it. Tapping one flies the map
-/// there and clears the field.
+/// What the search field found, as a plate under it. Tapping one flies the map
+/// there, clears the field and puts the keyboard away.
 struct SearchResults: View {
     @Environment(ToretModel.self) private var model
 
@@ -346,46 +564,32 @@ struct SearchResults: View {
         let results = model.searchResults
         VStack(spacing: 0) {
             if results.isEmpty {
-                Text("Nenhuma fonte encontrada")
-                    .font(Typo.ui(14))
-                    .foregroundStyle(Palette.ink.opacity(0.55))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(String(localized: "Nenhuma fonte encontrada"))
+                        .font(Typo.display(20, 800))
+                        .foregroundStyle(Palette.inchiostro)
+                    Text(String(localized: "Procure pelo nome de uma rua, de uma praça ou de um bairro."))
+                        .font(Typo.ui(14))
+                        .foregroundStyle(Palette.ink(0.72))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
             } else {
                 ForEach(results) { fountain in
-                    Button {
+                    FountainRow(fountain: fountain, compact: true) {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+                        )
                         model.select(fountain)
                         model.searchText = ""
-                    } label: {
-                        HStack(spacing: 12) {
-                            Needle.row(
-                                angle: fountain.bearing, tint: fountain.state.color,
-                                stem: Palette.ink.opacity(0.2), diameter: 20
-                            )
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(fountain.place)
-                                    .font(Typo.ui(14.5, 500))
-                                    .foregroundStyle(Palette.ink)
-                                    .lineLimit(1)
-                                Text("\(fountain.plateTitle) · \(fountain.zone)")
-                                    .font(Typo.ui(12))
-                                    .foregroundStyle(Palette.ink.opacity(0.5))
-                                    .lineLimit(1)
-                            }
-                            Spacer(minLength: 0)
-                            Text("\(fountain.distance) m")
-                                .font(Typo.display(16))
-                                .foregroundStyle(Palette.ink.opacity(0.75))
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityElement(children: .combine)
+                    .padding(.horizontal, 14)
                 }
             }
         }
-        .glassPane(cornerRadius: 22, tone: .paper)
+        .glassPane(cornerRadius: 0, tone: .paper)
+        .animation(ScreenMotion.morph, value: results.map(\.id))
     }
 }

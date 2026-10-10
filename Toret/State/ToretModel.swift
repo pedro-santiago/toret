@@ -128,7 +128,7 @@ final class ToretModel {
         fountains = all
         selectedID = all.first?.id ?? ""
         savedIDs = preferences.savedIDs
-        activeFilters = Set(preferences.filters.compactMap(MapFilter.init(rawValue:)))
+        activeFilters = Set(preferences.filters.compactMap(MapFilter.init(stored:)))
         compassAlwaysVisible = preferences.compassAlwaysVisible
         proximityAlerts = preferences.proximityAlerts
 
@@ -147,6 +147,13 @@ final class ToretModel {
             )
         )
         isRestoring = false
+    }
+
+    /// Picks up what something else wrote to the shared preferences — a Siri
+    /// shortcut that saved a fountain — before the next write overwrites it.
+    func reloadExternalPreferences() {
+        let stored = Preferences.load(from: defaults)
+        if stored.savedIDs != savedIDs { savedIDs = stored.savedIDs }
     }
 
     /// Arms everything that reaches outside the app. Called once, from the root.
