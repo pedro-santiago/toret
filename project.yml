@@ -159,6 +159,11 @@ schemes:
       config: Debug
     test:
       config: Debug
+      # The unit tests assert the app's own wording, so they run in the catalogue's
+      # source language rather than in whatever language the simulator is set to.
+      # LocalizationTests covers the other languages explicitly.
+      language: pt-BR
+      region: BR
       targets:
         - ToretTests
     archive:

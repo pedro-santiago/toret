@@ -1,127 +1,151 @@
 {
-  "sourceLanguage" : "pt-BR",
-  "strings" : {
-    "%@ n. %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ no. %@"
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "%@ n. %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ no. %@"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ n. %@"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n. %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ n. %@"
           }
         }
       }
     },
-    "%@ · %@. Relato recente: %@. Toque para traçar a rota." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@. Recent report: %3$@. Tap for walking directions."
+    "%@ · %@. Relato recente: %@. Toque para traçar a rota.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@. Recent report: %3$@. Tap for walking directions."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@. Segnalazione recente: %3$@. Tocca per il percorso a piedi."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@. Segnalazione recente: %3$@. Tocca per il percorso a piedi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@. Relato recente: %@. Toque para traçar a rota."
           }
         }
       }
     },
-    "%@ · %@. Toque para traçar a rota." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@. Tap for walking directions."
+    "%@ · %@. Toque para traçar a rota.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@. Tap for walking directions."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@. Tocca per il percorso a piedi."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@. Tocca per il percorso a piedi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@. Toque para traçar a rota."
           }
         }
       }
     },
-    "%@, a %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, %@ away"
+    "%@, a %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ away"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, a %@"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, a %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, a %@"
           }
         }
       }
     },
-    "%lld avaliações" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld rating"
+    "%lld avaliações": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rating"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld ratings"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ratings"
                 }
               }
             }
           }
         },
-        "it" : {
-          "variations" : {
-            "plural" : {
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld di valutazioni"
+        "it": {
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld di valutazioni"
                 }
               },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld valutazione"
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld valutazione"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld valutazioni"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld valutazioni"
                 }
               }
             }
           }
         },
-        "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld avaliação"
+        "pt-BR": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld avaliação"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld avaliações"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld avaliações"
                 }
               }
             }
@@ -129,550 +153,754 @@
         }
       }
     },
-    "Acesso parcial" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Partly accessible"
+    "Acesso parcial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partly accessible"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accesso parziale"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso parziale"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesso parcial"
           }
         }
       }
     },
-    "Acessível" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accessible"
+    "Acessível": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessible"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accessibile"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibile"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acessível"
           }
         }
       }
     },
-    "Bebedouro" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drinking jet"
+    "Bebedouro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drinking jet"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fontanella a getto"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fontanella a getto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bebedouro"
           }
         }
       }
     },
-    "Bom fluxo" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Good flow"
+    "Bom fluxo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good flow"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buon flusso"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buon flusso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bom fluxo"
           }
         }
       }
     },
-    "Chegada à fonte" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arrive at the fountain"
+    "Chegada à fonte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrive at the fountain"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arrivo alla fontanella"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivo alla fontanella"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chegada à fonte"
           }
         }
       }
     },
-    "Corrente" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Running"
+    "Corrente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scorre"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrente"
           }
         }
       }
     },
-    "Depois: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Then: %@"
+    "Depois: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Then: %@"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poi: %@"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poi: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois: %@"
           }
         }
       }
     },
-    "Difícil de achar" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hard to find"
+    "Difícil de achar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hard to find"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Difficile da trovare"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difficile da trovare"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difícil de achar"
           }
         }
       }
     },
-    "Fluxo fraco" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weak flow"
+    "Fluxo fraco": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak flow"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flusso debole"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flusso debole"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fluxo fraco"
           }
         }
       }
     },
-    "Fonte a %lld m" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drinking fountain %lld m away"
+    "Fonte a %lld m": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drinking fountain %lld m away"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fontanella a %lld m"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fontanella a %lld m"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonte a %lld m"
           }
         }
       }
     },
-    "Fonte pública" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Public fountain"
+    "Fonte pública": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public fountain"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fontanella"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fontanella"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonte pública"
           }
         }
       }
     },
-    "Fraca" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weak"
+    "Fraca": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Debole"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debole"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fraca"
           }
         }
       }
     },
-    "Fácil de alcançar" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Easy to reach"
+    "Fácil de alcançar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Easy to reach"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Facile da raggiungere"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facile da raggiungere"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fácil de alcançar"
           }
         }
       }
     },
-    "Limpa" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clean"
+    "Limpa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pulita"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulita"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpa"
           }
         }
       }
     },
-    "Para cães" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dog-friendly"
+    "Para cães": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dog-friendly"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per cani"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per cani"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para cães"
           }
         }
       }
     },
-    "Para garrafa" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For bottles"
+    "Para garrafa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For bottles"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per borracce"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per borracce"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para garrafa"
           }
         }
       }
     },
-    "Recarga de garrafa" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bottle refill"
+    "Recarga de garrafa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottle refill"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ricarica borracce"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricarica borracce"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recarga de garrafa"
           }
         }
       }
     },
-    "Relato %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reported %@"
+    "Relato %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reported %@"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Segnalato %@"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segnalato %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relato %@"
           }
         }
       }
     },
-    "Seca" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dry"
+    "Seca": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dry"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Asciutta"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asciutta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seca"
           }
         }
       }
     },
-    "Sem acesso" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not accessible"
+    "Sem acesso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not accessible"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non accessibile"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non accessibile"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem acesso"
           }
         }
       }
     },
-    "Sem relato" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No report"
+    "Sem relato": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No report"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non segnalata"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non segnalata"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem relato"
           }
         }
       }
     },
-    "Sem relato de seca" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No dry reports"
+    "Sem relato de seca": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No dry reports"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senza segnalazioni di secca"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senza segnalazioni di secca"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem relato de seca"
           }
         }
       }
     },
-    "Sem relato recente" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No recent report"
+    "Sem relato recente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No recent report"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessuna segnalazione recente"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna segnalazione recente"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem relato recente"
           }
         }
       }
     },
-    "Sem relatos" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No reports"
+    "Sem relatos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No reports"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessuna segnalazione"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna segnalazione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem relatos"
           }
         }
       }
     },
-    "Sem água" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No water"
+    "Sem água": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No water"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senz’acqua"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senz’acqua"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem água"
           }
         }
       }
     },
-    "Siga em frente" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Continue straight"
+    "Siga em frente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue straight"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prosegui dritto"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prosegui dritto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siga em frente"
           }
         }
       }
     },
-    "Siga na direção da fonte" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Head towards the fountain"
+    "Siga na direção da fonte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Head towards the fountain"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai verso la fontanella"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vai verso la fontanella"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siga na direção da fonte"
           }
         }
       }
     },
-    "Suja" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dirty"
+    "Suja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirty"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sporca"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sporca"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suja"
           }
         }
       }
     },
-    "Toret" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toret"
+    "Toret": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toret"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toret"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toret"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toret"
           }
         }
       }
     },
-    "Turim" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Turin"
+    "Turim": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turin"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Torino"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torino"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turim"
           }
         }
       }
     },
-    "À sombra" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In the shade"
+    "À sombra": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the shade"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All’ombra"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All’ombra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À sombra"
           }
         }
       }
     },
-    "Água corrente" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Water running"
+    "Água corrente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water running"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acqua che scorre"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acqua che scorre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Água corrente"
           }
         }
       }
     },
-    "Água gelada" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cold water"
+    "Água gelada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cold water"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acqua fredda"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acqua fredda"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Água gelada"
           }
         }
       }
     },
-    "Último relato %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last report %@"
+    "Último relato %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last report %@"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultima segnalazione %@"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultima segnalazione %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Último relato %@"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
