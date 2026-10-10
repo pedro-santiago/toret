@@ -292,7 +292,11 @@ struct WordingTests {
     @Test("A measurement from somewhere else says so")
     func provenanceSpoken() {
         #expect(SpokenAnswer.nearest(reading(.centre(denied: true))).contains("Sem a sua localização"))
-        #expect(SpokenAnswer.nearest(reading(.outsideTurin(kilometres: 9400))).contains("9400 quilômetros"))
+        // The number is grouped by the locale ("9.400"), so compare the digits.
+        let far = SpokenAnswer.nearest(reading(.outsideTurin(kilometres: 9400)))
+        let separators = CharacterSet(charactersIn: ".,\u{00A0}\u{202F}\u{2009}")
+        let digitsOnly = String(far.unicodeScalars.filter { !separators.contains($0) })
+        #expect(digitsOnly.contains("9400 quilômetros"))
         #expect(SpokenAnswer.nearest(reading(.approximate)).contains("aproximada"))
         #expect(!SpokenAnswer.nearest(reading(.live)).contains("Sem a sua localização"))
     }

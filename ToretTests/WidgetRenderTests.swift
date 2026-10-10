@@ -79,16 +79,34 @@ struct WidgetRenderTests {
         try render("large", size: .init(width: 364, height: 382), background: Palette.carta) {
             LargeFountainView(reading: reported)
         }
+        let outside = reading(.init(origin: Catalogue.anchor, provenance: .outsideTurin(kilometres: 9400)))
+        let centre = reading(.init(origin: Catalogue.anchor, provenance: .centre(denied: false)))
+        try render("small-outside", size: .init(width: 170, height: 170), background: Palette.carta) {
+            SmallFountainView(reading: outside)
+        }
+        try render("large-centre", size: .init(width: 364, height: 382), background: Palette.carta) {
+            LargeFountainView(reading: centre)
+        }
+        try render("medium-approx", size: .init(width: 364, height: 170), background: Palette.carta) {
+            MediumFountainView(reading: reading(.init(origin: Catalogue.anchor, provenance: .approximate)))
+        }
     }
 
     @Test("Lock Screen")
     func lock() throws {
         let nearest = reading()
+        let outside = reading(.init(origin: Catalogue.anchor, provenance: .outsideTurin(kilometres: 9400)))
         try render("lock-circular", size: .init(width: 76, height: 76), background: Color(white: 0.25)) {
-            LockCircularView(reading: nearest).foregroundStyle(.white)
+            LockCircularView(reading: nearest).foregroundStyle(.white).padding(8)
         }
         try render("lock-rectangular", size: .init(width: 172, height: 76), background: Color(white: 0.25)) {
-            LockRectangularView(reading: nearest).foregroundStyle(.white)
+            LockRectangularView(reading: nearest).foregroundStyle(.white).padding(.horizontal, 10)
+        }
+        try render("lock-circular-outside", size: .init(width: 76, height: 76), background: Color(white: 0.25)) {
+            LockCircularView(reading: outside).foregroundStyle(.white).padding(8)
+        }
+        try render("lock-rectangular-outside", size: .init(width: 172, height: 76), background: Color(white: 0.25)) {
+            LockRectangularView(reading: outside).foregroundStyle(.white).padding(.horizontal, 10)
         }
     }
 

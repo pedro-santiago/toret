@@ -13,7 +13,7 @@ struct WalkLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    WalkDisc(state: context.state, diameter: 54) { EmptyView() }
+                    WalkDisc(state: context.state, diameter: 54)
                         .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
@@ -36,14 +36,14 @@ struct WalkLiveActivity: Widget {
                         .lineLimit(1)
                 }
             } compactLeading: {
-                WalkDisc(state: context.state, diameter: 22) { EmptyView() }
+                WalkDisc(state: context.state, diameter: 22)
             } compactTrailing: {
                 Text(DistanceFormat.short(context.state.remaining))
                     .font(Typo.display(15, 800))
                     .foregroundStyle(Palette.carta)
                     .monospacedDigit()
             } minimal: {
-                WalkDisc(state: context.state, diameter: 22) { EmptyView() }
+                WalkDisc(state: context.state, diameter: 22)
             }
             .widgetURL(DeepLink.route(context.attributes.fountainID).url)
             .keylineTint(Palette.luna)
