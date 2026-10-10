@@ -1,78 +1,65 @@
 # Distribuição
 
-O que falta para o Toret sair do simulador, em ordem de quem pode fazer o quê.
-
-## Bloqueio de conteúdo, antes de qualquer coisa técnica
-
-As leituras de água são inventadas. As posições e os números de placa são reais
-— o Comune di Torino os publica —, mas o estado da água, a temperatura na bica e
-a trilha de verificações foram escritos à mão como stand-in de um feed ao vivo.
-
-Publicar assim significa dizer a um desconhecido com sede que há água corrente
-num lugar onde talvez não haja. Duas saídas, e a escolha é de produto, não de
-engenharia:
-
-1. **Ligar a um feed real.** O Comune publica o cadastro dos toret em dados
-   abertos; o estado da água exigiria ou uma integração com a AMIAT/SMAT ou um
-   modelo de verificação comunitária de verdade (relatos datados, com autor).
-   `FountainDossier` e `Verification` já têm o formato certo para receber isso.
-2. **Assumir o que é.** Trocar toda a linguagem de estado por "última
-   verificação da comunidade" sem afirmação própria do app, e catalogar as ~800
-   fontes reais em vez de 12. O app deixa de responder "tem água?" e passa a
-   responder "onde ficam?", que é uma pergunta menor mas verdadeira.
-
-Enquanto uma das duas não estiver feita, o resto desta lista é preparação.
-
-## Só você pode fazer
-
-- Apple Developer Program ativo (US$ 99/ano) e aceite dos contratos.
-- Preencher `DEVELOPMENT_TEAM` no `project.yml` com o Team ID e rodar
-  `xcodegen generate`.
-- Registrar no portal os três identificadores e o grupo:
-  - `br.tec.nuance.toret`
-  - `br.tec.nuance.toret.widgets`
-  - `group.br.tec.nuance.toret` — habilitado **nos dois** App IDs, senão o
-    `Store` cai no defaults do próprio alvo e os widgets mostram o centro de
-    Turim em vez da sua posição.
-- Criar o registro no App Store Connect e conferir se o nome "Toret" está livre.
-- URL de política de privacidade e de suporte (obrigatórias por usar
-  localização).
-- Justificar o `UIBackgroundModes: location` e a autorização "sempre" na revisão:
-  a geocerca de 100 m em volta das fontes com água é o motivo, e é o único.
-- Fazer o upload e submeter — precisa do 2FA da sua Apple ID.
+O que falta para o Toret chegar à App Store, separado entre o que já está pronto e o que só você pode fazer.
 
 ## Já está pronto
 
-- `PrivacyInfo.xcprivacy` nos dois bundles, declarando `UserDefaults` com o
-  motivo `CA92.1` (acesso dentro do app e do seu grupo).
-- `ITSAppUsesNonExemptEncryption: false`, para o upload não parar na pergunta de
-  criptografia a cada envio.
-- Rótulo de privacidade: **Data Not Collected**. Nada sai do aparelho — a posição
-  é medida, usada para ordenar o catálogo, escrita no app group para os widgets
-  lerem, e nunca enviada a lugar nenhum.
-- Ícone 1024, `LaunchBackground`, orientação travada em retrato, `pt-BR` como
-  região de desenvolvimento.
-- Build limpo em Release, sem avisos. 22 testes no mesmo scheme.
+- **Dados reais.** 723 fontes públicas de Turim, vindas do OpenStreetMap, embutidas no app
+  (`Shared/Resources/fountains.json`, gerado por `tools/build-catalogue.py`). Nenhuma leitura de água
+  é inventada: sem relato da comunidade, a fonte aparece como "sem relato recente".
+- **Identidade visual** de cartaz de viagem, ícone (claro, escuro e monocromático), tela de abertura.
+- **Idiomas:** português (Brasil), inglês e italiano, escolhidos pelo idioma do aparelho; qualquer outro
+  idioma cai em inglês.
+- **Comunidade:** avaliação e relatos com denunciar, bloquear, apagar o próprio e contato (diretriz 1.2).
+- **Widgets, Atividade ao Vivo, controles, Siri e Atalhos.**
+- **Texto da loja** em três idiomas: `docs/appstore/metadata.md`.
+- **Capturas 6,9" (1320×2868)** em três idiomas: `docs/appstore/screenshots/<idioma>/` (não versionadas;
+  refazer com `tools/l10n-screenshots.sh`).
+- **Política de privacidade e suporte** em três idiomas: `docs/privacy/` e `docs/support/`.
+- **Build:** 176 testes passando; `make archive` gera o `.xcarchive` de Release (4,5 MB).
+- `PrivacyInfo.xcprivacy`, `ITSAppUsesNonExemptEncryption = NO`, orientação em retrato, só iPhone.
 
-## Ainda falta preparar
+## Só você pode fazer
 
-- Capturas para a App Store: 6,9" e 6,5" obrigatórias. As do simulador em
-  `/private/tmp/.../scratchpad/fin-*.png` servem de base, mas precisam do
-  enquadramento e dos textos da loja.
-- Classificação etária, categoria (Navegação ou Viagem) e preço.
-- Texto de "Novidades" e descrição — em pt-BR e, dado que o app é sobre Turim,
-  provavelmente também em italiano.
-- Decidir se as fontes salvas devem migrar para iCloud antes do primeiro
-  lançamento; depois disso, mudar o formato guardado quebra quem já salvou.
+1. **Registrar os identificadores na equipe Nuance** (`N859AT5MST`), com uma conta Admin, em
+   developer.apple.com. O app já está configurado com eles, e hoje o export falha por falta deles:
+   - `br.tec.nuance.toret`
+   - `br.tec.nuance.toret.widgets`
+   - App Group `group.br.tec.nuance.toret`, habilitado **nos dois** App IDs (senão os widgets não
+     enxergam a sua posição)
+   - Contêiner do iCloud `iCloud.br.tec.nuance.toret` (CloudKit), habilitado no App ID do app
+2. **CloudKit:** criar o esquema e implantar em Produção, com os índices e as funções de segurança
+   descritos em `docs/community-moderation.md`. Sem isso os relatos ficam só no aparelho.
+3. **App Store Connect:** criar o registro do app com o bundle `br.tec.nuance.toret` e conferir se o nome
+   "Toret" está livre (alternativas no `metadata.md`).
+4. **Hospedar as duas páginas** e trocar os endereços provisórios. Hoje o app aponta para
+   `https://toret.deepdive.dev/privacy` e `/support` (em `SettingsScreen.swift`), e o App Store Connect
+   também pede as duas URLs. Opção simples: ligar o GitHub Pages do repositório na pasta `docs/`.
+5. **Classificação etária e preço:** gratuito; 12+ por conteúdo gerado por usuários (respostas em
+   `metadata.md`).
+6. **Rótulo de privacidade:** responder como em `metadata.md` (localização só no aparelho; conteúdo do
+   usuário coletado, sem vínculo com identidade, sem rastreamento).
+7. **Justificar a localização "sempre"** na revisão: o aviso de proximidade (100 m, 8 regiões) e a
+   atualização dos widgets. Tudo funciona também só com "ao usar o app".
+8. **Enviar:** o upload precisa de uma conta com acesso; use o comando abaixo e envie para o TestFlight.
 
-## Arquivar, quando o Team ID estiver no lugar
+## Comandos
 
 ```sh
-xcodegen generate
-xcodebuild -project Toret.xcodeproj -scheme Toret \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -archivePath build/Toret.xcarchive archive
+make test                      # testes no simulador (idioma fixo em pt-BR)
+make archive                   # arquivo de Release local, nada é enviado
+make testflight UPLOAD=NO      # ensaio: assina e escreve o .ipa em build/testflight/export
+make testflight                # envia ao TestFlight (precisa dos itens 1 e 3)
 ```
 
-O upload sai do Organizer do Xcode, ou por `xcrun altool`/`notarytool` com uma
-chave de App Store Connect que também é sua.
+A chave da API do App Store Connect fica em `local.mk` (fora do Git); veja `local.mk.example`.
+
+## Ainda não verificado
+
+- **CloudKit de verdade.** Tudo passa por um protocolo e foi testado com um servidor falso; salvar,
+  consultar, denunciar e as regras de segurança só podem ser testados com o contêiner criado.
+- **Em aparelho:** a Dynamic Island, a tela bloqueada, o Centro de Controle, o Botão de Ação, as frases
+  da Siri, o widget buscando a localização sozinho, e a bússola com o magnetômetro real.
+- **A animação de abertura** (o sol subindo): a primeira imagem bate com o aplicativo, mas o movimento
+  não foi visto em captura.
+- **Assinatura de distribuição:** o export falha até o item 1 ser feito.
