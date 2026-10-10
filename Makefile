@@ -15,6 +15,8 @@ PROJECT   := Toret.xcodeproj
 SCHEME    := Toret
 BUNDLE_ID := br.tec.nuance.toret
 BUILD_DIR := build
+# Xcode 26 ships the simulator window as DeviceHub.app, not Simulator.app.
+DEVICE_HUB := $(shell xcode-select -p)/../Applications/DeviceHub.app
 
 # Per-machine settings that must not be committed (App Store Connect API key ids).
 -include local.mk
@@ -33,13 +35,14 @@ generate:
 
 run: generate
 	@xcrun simctl boot "$(SIM)" 2>/dev/null || true
-	@open -a Simulator 2>/dev/null || echo "note: Simulator.app not found; running headless"
+	@open "$(DEVICE_HUB)" 2>/dev/null || open -a Simulator 2>/dev/null || echo "note: no simulator window available; running headless"
 	@xcrun simctl bootstatus "$(SIM)" -b >/dev/null
 	@xcrun simctl location "$(SIM)" set $(LOCATION)
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
 		-destination 'platform=iOS Simulator,name=$(SIM)' \
 		-derivedDataPath $(BUILD_DIR)/sim -quiet build
 	xcrun simctl install "$(SIM)" $(BUILD_DIR)/sim/Build/Products/Debug-iphonesimulator/Toret.app
+	@xcrun simctl privacy "$(SIM)" grant location-always $(BUNDLE_ID) 2>/dev/null || true
 	xcrun simctl launch --terminate-running-process "$(SIM)" $(BUNDLE_ID)
 
 # Builds, signs and installs the app on a connected iPhone, then launches it.
