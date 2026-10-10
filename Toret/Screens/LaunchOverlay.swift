@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The one orchestrated moment: on a cold start the sun rises from the horizon
-/// into place and TORET is printed in, one line after the other.
+/// The one orchestrated moment: on a cold start the poster assembles itself from
+/// the bottom edge, the sun and the Alps first and the river last, and TORET is
+/// printed in over the sky, one line after the other.
 ///
 /// It is laid over the first screen, not instead of it, so the app is already
 /// loading underneath and is never kept waiting; it ignores touches and removes
@@ -10,14 +11,16 @@ import SwiftUI
 /// not at all when Reduce Motion is on: the launch screen simply gives way to the
 /// app.
 ///
-/// About 0.95 s in total: the sun rises over 0.55 s, the rule and the two lines
-/// follow at 0.12, 0.22 and 0.34 s, the plate holds, and it clears in 0.2 s.
+/// About 1.15 s in total: the layers slide up over 0.8 s, each on its own curve and
+/// the far ones first (see ``ParallaxMath/entranceOffset(depth:progress:)``); the rule
+/// and the two lines follow at 0.25, 0.33 and 0.43 s; the plate holds, and it clears
+/// in 0.2 s.
 struct LaunchOverlay: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @MainActor private static var hasPlayed = false
 
-    @State private var sunUp = false
+    @State private var arrival: CGFloat = 0
     @State private var ruleDrawn = false
     @State private var firstLine = false
     @State private var secondLine = false
@@ -62,24 +65,24 @@ struct LaunchOverlay: View {
 
     private var plate: some View {
         GeometryReader { proxy in
-            let w = proxy.size.width, h = proxy.size.height
-            let sun = w * 0.66
-            let titleSize = min(w * 0.31, 128)
+            let w = proxy.size.width
+            let titleSize = min(w * 0.26, 104)
 
             ZStack(alignment: .topLeading) {
                 Palette.carta
 
-                SunDisc()
-                    .frame(width: sun, height: sun)
-                    // Below the fold until it rises: the disc starts a full
-                    // diameter down, so its top edge crosses the horizon first.
-                    .position(x: w * 0.62, y: sunUp ? h * 0.40 : h + sun / 2)
+                // The poster, sitting on the bottom edge. Its layers start below the fold
+                // and are clipped by the scene's own frame, so they rise out of the screen.
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    ParallaxScene(scroll: nil, arrival: arrival, flowing: false)
+                }
 
                 wordmark(size: titleSize)
-                    .padding(.leading, 28)
-                    .padding(.top, h * 0.5)
+                    .padding(.leading, 22)
+                    .padding(.top, Screen.safeArea.top + 14)
             }
-            .frame(width: w, height: h)
+            .frame(width: w, height: proxy.size.height)
         }
         .ignoresSafeArea()
     }
@@ -119,16 +122,16 @@ struct LaunchOverlay: View {
         }
         Self.hasPlayed = true
         let t = Self.timeScale
-        let out = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.55 * t)
 
-        withAnimation(out) { sunUp = true }
-        await pause(0.12 * t)
-        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.3 * t)) { ruleDrawn = true }
+        // One linear run of `arrival`; each layer shapes it into its own ease-out and delay.
+        withAnimation(.linear(duration: 0.8 * t)) { arrival = 1 }
+        await pause(0.25 * t)
+        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.24 * t)) { ruleDrawn = true }
+        await pause(0.08 * t)
+        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.24 * t)) { firstLine = true }
         await pause(0.10 * t)
-        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.28 * t)) { firstLine = true }
-        await pause(0.12 * t)
-        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.28 * t)) { secondLine = true }
-        await pause(0.41 * t)
+        withAnimation(.timingCurve(0.23, 1, 0.32, 1, duration: 0.24 * t)) { secondLine = true }
+        await pause(0.28 * t)
         withAnimation(.easeOut(duration: 0.2 * t)) { cleared = true }
         await pause(0.2 * t)
         finished = true
