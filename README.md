@@ -1,5 +1,7 @@
 # Toret
 
+![Toret](docs/images/banner.png)
+
 Find Turin's public drinking fountains: a compass, a map, widgets and a
 community feed. iOS 26, SwiftUI. Free, no ads, no tracking.
 
@@ -11,7 +13,12 @@ Turin has public drinking water on almost every corner. The best known are the
 *toret*, the cast-iron bull's-head columns that have served the city since the
 19th century. Toret finds the nearest fountain and walks you to it.
 
-<!-- TODO: screenshots, once the poster redesign has landed. -->
+<p align="center">
+  <img src="docs/images/screen-mapa.png" width="200" alt="Map with the nearest fountain">
+  <img src="docs/images/screen-bussola.png" width="200" alt="Compass">
+  <img src="docs/images/screen-detalhe.png" width="200" alt="A fountain, with its community rating">
+  <img src="docs/images/screen-relatos.png" width="200" alt="The community feed">
+</p>
 
 ## Honest by design
 
