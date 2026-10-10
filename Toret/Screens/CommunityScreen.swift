@@ -54,12 +54,24 @@ struct CommunityScreen: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            PosterTitle(localized: "RELA\nTOS")
-            Text(subtitle)
-                .font(Typo.ui(16))
-                .foregroundStyle(Palette.inchiostro)
-                .padding(.top, 14)
+        ZStack(alignment: .topTrailing) {
+            // The Mole at the trailing edge, small, as a monument beside the title. It leans
+            // with the phone and nothing else about this screen moves.
+            TiltedParallaxScene(
+                layers: [.mole], flowing: false,
+                window: CGRect(x: 480, y: 0, width: 440, height: PosterSceneGeometry.moleBase)
+            )
+            .frame(width: 104)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 0) {
+                PosterTitle(localized: "RELA\nTOS")
+                    .containerRelativeFrame(.horizontal, alignment: .leading) { width, _ in width * 0.66 }
+                Text(subtitle)
+                    .font(Typo.ui(16))
+                    .foregroundStyle(Palette.inchiostro)
+                    .padding(.top, 14)
+            }
         }
         .padding(.top, 12)
     }
@@ -72,23 +84,21 @@ struct CommunityScreen: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Diamond()
-                .stroke(Palette.inchiostro.opacity(0.55), lineWidth: 3)
-                .frame(width: 44, height: 44)
-            Text("Ainda não há relatos. Abra uma fonte e conte como está a água.")
-                .font(Typo.ui(16))
-                .foregroundStyle(Palette.inchiostro)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 280)
+        VStack(alignment: .leading, spacing: 16) {
+            EmptyScene(
+                kind: .feed,
+                actionTitle: String(localized: "Encontrar fontes")
+            ) {
+                model.tab = .nearby
+            }
             if community.lastRefreshFailed {
                 Text("Sem conexão no momento.")
                     .font(Typo.ui(14, 700))
                     .foregroundStyle(Palette.inchiostro)
+                    .padding(.horizontal, 22)
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 64)
+        .padding(.top, 28)
     }
 
     private var footer: some View {

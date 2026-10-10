@@ -37,14 +37,19 @@ struct NearbyScreen: View {
     @Environment(LocationProvider.self) private var location
 
     @State private var visibleCount = NearbyCopy.pageSize
+    @State private var parallax = ParallaxScroll()
+    @State private var scrollPosition = ScrollPosition()
 
     private static let entranceKey = "nearby"
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                cover
+
                 header
                     .padding(.horizontal, 22)
+                    .padding(.top, 20)
 
                 LocationBanner(status: location.status)
                     .padding(.horizontal, 22)
@@ -69,6 +74,18 @@ struct NearbyScreen: View {
             .padding(.bottom, Screen.tabBarClearance + 120)
         }
         .scrollIndicators(.hidden)
+        .scrollPosition($scrollPosition)
+        .drivesParallax(parallax)
+        .task {
+            #if DEBUG
+            // `-toret-scroll 220`: a real scroll, so the parallax can be looked at part-way.
+            let arguments = ProcessInfo.processInfo.arguments
+            guard let flag = arguments.firstIndex(of: "-toret-scroll"), arguments.indices.contains(flag + 1),
+                  let points = Double(arguments[flag + 1]) else { return }
+            try? await Task.sleep(for: .seconds(1))
+            scrollPosition.scrollTo(y: points)
+            #endif
+        }
         .ignoresSafeArea(edges: .bottom)
         .overlay(alignment: .bottom) { seeOnMap }
         .background(Palette.carta)
@@ -78,28 +95,44 @@ struct NearbyScreen: View {
 
     // MARK: Header
 
-    private var header: some View {
+    /// The poster itself: the title at the top left, the Mole and the sun to its right, the
+    /// arcades under them and the river at the foot. It scrolls away with the list, and as it
+    /// goes the distant planes lag behind, so the Mole seems to stay while the city slides by.
+    ///
+    /// Shown wider than the poster, on the sideways padding every layer carries, which is what
+    /// makes it shorter: the whole height of the artwork at about half the screen, so the
+    /// sentence and the first fountains sit above the pinned button. It runs up under the
+    /// status bar, where there is only sky.
+    private var cover: some View {
         ZStack(alignment: .topLeading) {
-            // The poster's sun, half off the right edge. It sits behind the title
-            // and stays clear of the legend, where a yellow mark would vanish.
-            SunDisc()
-                .frame(width: 232, height: 232)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .offset(x: 110, y: -34)
-                .accessibilityHidden(true)
+            TiltedParallaxScene(
+                scroll: parallax,
+                window: CGRect(
+                    x: -ParallaxMath.coverReach, y: 0,
+                    width: PosterSceneGeometry.size.width + 2 * ParallaxMath.coverReach,
+                    height: PosterSceneGeometry.size.height
+                )
+            )
 
-            VStack(alignment: .leading, spacing: 18) {
-                PosterTitle(localized: "PER\nTO", size: 104)
-                    .padding(.top, 14)
+            // Capped short of the spire, as the poster's own title stops before it: a longer
+            // word in another language shrinks to fit rather than printing over the Mole.
+            PosterTitle(localized: "PER\nTO", size: 104)
+                .containerRelativeFrame(.horizontal, alignment: .leading) { width, _ in width * 0.445 }
+                .padding(.leading, 22)
+                .padding(.top, Screen.safeArea.top + 14)
+        }
+        .padding(.top, -Screen.safeArea.top)
+    }
 
-                Text(headline)
-                    .font(Typo.ui(17, 500))
-                    .lineHeight(1.35, font: Typo.uiInterface(17, 500))
-                    .foregroundStyle(Palette.inchiostro)
-                    .fixedSize(horizontal: false, vertical: true)
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text(headline)
+                .font(Typo.ui(17, 500))
+                .lineHeight(1.35, font: Typo.uiInterface(17, 500))
+                .foregroundStyle(Palette.inchiostro)
+                .fixedSize(horizontal: false, vertical: true)
 
-                StateLegend()
-            }
+            StateLegend()
         }
     }
 
@@ -115,6 +148,11 @@ struct NearbyScreen: View {
 
     private var list: some View {
         LazyVStack(spacing: 0) {
+            // A catalogue that did not load leaves nothing to list; say so, drawn.
+            if model.fountains.isEmpty {
+                EmptyScene(kind: .catalogueFailed)
+                    .padding(.top, 28)
+            }
             let shown = Array(model.fountains.prefix(visibleCount))
             ForEach(Array(shown.enumerated()), id: \.element.id) { index, fountain in
                 FountainRow(
@@ -242,22 +280,9 @@ struct SavedScreen: View {
 
     /// An empty list is an invitation: say what it is for, then give the way in.
     private var emptyState: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text(String(localized: "Salve as fontes do seu caminho"))
-                .font(Typo.display(30, 800))
-                .lineHeight(1.0, font: Typo.uiDisplay(30, 800))
-                .foregroundStyle(Palette.inchiostro)
-                .fixedSize(horizontal: false, vertical: true)
-            Text(String(localized: "Abra uma fonte e toque em salvar. Ela aparece aqui, com a distância de onde você está agora."))
-                .font(Typo.ui(16))
-                .lineHeight(1.4, font: Typo.uiInterface(16))
-                .foregroundStyle(Palette.ink(0.78))
-                .fixedSize(horizontal: false, vertical: true)
-            PrimaryButton(title: String(localized: "Encontrar fontes"), height: 56, fontSize: 18) {
-                model.tab = .nearby
-            }
+        EmptyScene(kind: .saved, actionTitle: String(localized: "Encontrar fontes")) {
+            model.tab = .nearby
         }
-        .padding(.horizontal, 22)
         .padding(.top, 28)
     }
 }
