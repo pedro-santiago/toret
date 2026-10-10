@@ -113,6 +113,8 @@ struct DetailScreen: View {
     /// the page seems to slide over it. Both are off with Reduce Motion.
     private func hero(for fountain: Fountain) -> some View {
         let base = Self.heroHeight + Screen.safeArea.top
+        // Read here, on the main actor: the geometry closure below is Sendable.
+        let barBottom = Screen.safeArea.top + 64
         return GeometryReader { proxy in
             let minY = proxy.frame(in: .named("detail")).minY
             let stretch = reduceMotion ? 0 : max(0, minY)
@@ -125,8 +127,8 @@ struct DetailScreen: View {
         .clipped()
         // True once the picture has scrolled up under the status bar: reported
         // from the first layout, so a screen that opens already scrolled agrees.
-        .onGeometryChange(for: Bool.self) { proxy in
-            proxy.frame(in: .named("detail")).maxY < Screen.safeArea.top + 64
+        .onGeometryChange(for: Bool.self) { [barBottom] proxy in
+            proxy.frame(in: .named("detail")).maxY < barBottom
         } action: { past in
             withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { pastHero = past }
         }
