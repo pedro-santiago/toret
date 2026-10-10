@@ -6,6 +6,7 @@ struct RootView: View {
     @State private var location = LocationProvider()
     @State private var router = NotificationRouter.shared
     @State private var community = Community.standard()
+    @State private var showingSkyline = false
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -34,6 +35,7 @@ struct RootView: View {
         .environment(community)
         .background(Palette.paper)
         .overlay { LaunchOverlay() }
+        .modifier(SkylineGalleryHook(isPresented: $showingSkyline))
         .fullScreenCover(isPresented: $model.showingCompass) {
             CompassScreen()
                 .environment(model)
@@ -144,6 +146,7 @@ struct RootView: View {
         case "bussola": model.showingCompass = true
         case "detalhe": model.push(.detail(model.selected), in: .map)
         case "rota": model.walkingTo = model.selected
+        case "skyline": showingSkyline = true
         default: model.tab = .map
         }
         #endif

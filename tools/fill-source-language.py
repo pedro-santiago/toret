@@ -29,6 +29,7 @@ for key, entry in catalog["strings"].items():
     localizations["pt-BR"] = {"stringUnit": {"state": "translated", "value": key}}
     added += 1
 with open(path, "w") as handle:
-    json.dump(catalog, handle, ensure_ascii=False, indent=2, sort_keys=True)
+    # Xcode's own style (a space before the colon), so a run changes only what it adds.
+    json.dump(catalog, handle, ensure_ascii=False, indent=2, sort_keys=True, separators=(",", " : "))
     handle.write("\n")
 print(f"added {added} pt-BR values; left {len(skipped)} with variations: {skipped}")

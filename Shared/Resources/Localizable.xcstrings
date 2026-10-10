@@ -1903,6 +1903,28 @@
         }
       }
     },
+    "Alpes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alpi"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alpes"
+          }
+        }
+      }
+    },
     "Ao usar o app" : {
       "localizations" : {
         "en" : {
@@ -2185,6 +2207,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "BLO\nQUEIOS"
+          }
+        }
+      }
+    },
+    "Basilica di Superga" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basilica of Superga"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basilica di Superga"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basílica de Superga"
           }
         }
       }
@@ -2537,6 +2581,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "Caval ëd Brons" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caval ëd Brons"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caval ëd Brons"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caval ëd Brons"
           }
         }
       }
@@ -3003,6 +3069,28 @@
         }
       }
     },
+    "Duomo e Cappella della Sindone" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cathedral and Chapel of the Shroud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duomo e Cappella della Sindone"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catedral e Capela do Sudário"
+          }
+        }
+      }
+    },
     "Encerrar rota" : {
       "localizations" : {
         "en" : {
@@ -3417,6 +3505,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fácil de alcançar"
+          }
+        }
+      }
+    },
+    "Gran Madre di Dio" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gran Madre di Dio"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gran Madre di Dio"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gran Madre di Dio"
           }
         }
       }
@@ -3945,6 +4055,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minhas salvas"
+          }
+        }
+      }
+    },
+    "Mole Antonelliana" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mole Antonelliana"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mole Antonelliana"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mole Antonelliana"
+          }
+        }
+      }
+    },
+    "Monte dei Cappuccini" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monte dei Cappuccini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monte dei Cappuccini"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monte dei Cappuccini"
           }
         }
       }
@@ -4719,6 +4873,28 @@
         }
       }
     },
+    "Palazzo Madama" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palazzo Madama"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palazzo Madama"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palazzo Madama"
+          }
+        }
+      }
+    },
     "Para cães" : {
       "localizations" : {
         "en" : {
@@ -4895,6 +5071,28 @@
         }
       }
     },
+    "Ponte Vittorio Emanuele I" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponte Vittorio Emanuele I"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponte Vittorio Emanuele I"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponte Vittorio Emanuele I"
+          }
+        }
+      }
+    },
     "Por que denunciar este relato?" : {
       "localizations" : {
         "en" : {
@@ -4935,6 +5133,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Porta Nuova"
+          }
+        }
+      }
+    },
+    "Porta Palatina" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta Palatina"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta Palatina"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta Palatina"
+          }
+        }
+      }
+    },
+    "Portici" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arcades"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portici"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pórticos"
           }
         }
       }
@@ -6519,6 +6761,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toret · nenhuma salva"
+          }
+        }
+      }
+    },
+    "Touro" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bull"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toro"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touro"
           }
         }
       }
