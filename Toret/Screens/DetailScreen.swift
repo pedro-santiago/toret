@@ -12,6 +12,8 @@ struct DetailScreen: View {
     @Environment(ToretModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pastHero = false
+    @State private var scrollPosition = ScrollPosition()
 
     let fountain: Fountain
 
@@ -69,14 +71,39 @@ struct DetailScreen: View {
             }
             .padding(.bottom, Screen.tabBarClearance + 56 + 14 + 36)
         }
+        .scrollPosition($scrollPosition)
         .coordinateSpace(.named("detail"))
         .scrollIndicators(.hidden)
         .defaultScrollAnchor(Debug.startsAtBottom ? .bottom : .top)
         .ignoresSafeArea()
-        .overlay(alignment: .top) { topButtons(for: fountain) }
+        // Once the picture has scrolled away the buttons need a ground of their
+        // own: a solid band with the heavy rule under it, so nothing reads through
+        // them and the status bar never prints over a heading.
+        .overlay(alignment: .top) {
+            ZStack(alignment: .top) {
+                if pastHero {
+                    // The overlay sits inside the safe area, so the band reaches up
+                    // under the status bar itself and down past the buttons.
+                    Palette.carta
+                        .frame(height: Screen.safeArea.top + 62)
+                        .overlay(alignment: .bottom) { PosterRule() }
+                        .ignoresSafeArea(edges: .top)
+                        .transition(.opacity)
+                }
+                topButtons(for: fountain)
+            }
+        }
         .overlay(alignment: .bottom) { routeBar(for: fountain) }
         .background(Palette.carta)
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .task {
+            #if DEBUG
+            // `-toret-scroll meio`: a real scroll, so the pinned bar can be seen working.
+            guard ProcessInfo.processInfo.arguments.contains("meio") else { return }
+            try? await Task.sleep(for: .seconds(1))
+            scrollPosition.scrollTo(y: 900)
+            #endif
+        }
     }
 
     // MARK: Hero
@@ -96,6 +123,13 @@ struct DetailScreen: View {
         }
         .frame(height: base)
         .clipped()
+        // True once the picture has scrolled up under the status bar: reported
+        // from the first layout, so a screen that opens already scrolled agrees.
+        .onGeometryChange(for: Bool.self) { proxy in
+            proxy.frame(in: .named("detail")).maxY < Screen.safeArea.top + 64
+        } action: { past in
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { pastHero = past }
+        }
     }
 
     /// Back and save, pinned to the screen: the way out never scrolls away. Framed
@@ -125,7 +159,8 @@ struct DetailScreen: View {
             .sensoryFeedback(.impact(flexibility: .rigid, intensity: 0.7), trigger: saved)
         }
         .padding(.horizontal, 18)
-        .padding(.top, Screen.safeArea.top + 6)
+        // The overlay already sits inside the safe area.
+        .padding(.top, 6)
     }
 
     private func circleButton<Glyph: View>(
