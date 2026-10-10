@@ -419,14 +419,17 @@ private struct RimMark: View {
     let reach: CGFloat
     let tier: Landmark.Tier
 
+    /// Tall things stand tall: the Mole is the one mark you can find from anywhere,
+    /// so it gets the most room; the Alps are wide and low.
     private var size: CGSize {
-        switch landmark.glyph {
-        case .lozenge: CGSize(width: 20, height: 40)
-        case .dome: CGSize(width: 24, height: 20)
-        case .square: CGSize(width: 20, height: 15)
-        case .range: CGSize(width: 38, height: 20)
-        case .arch: CGSize(width: 14, height: 16)
+        let drawn = landmark.drawn
+        let height: CGFloat = switch drawn {
+        case .mole: 58
+        case .alps: 26
+        case .superga, .duomo, .cappuccini: 36
+        default: 32
         }
+        return CGSize(width: height * drawn.aspect, height: height)
     }
 
     var body: some View {
@@ -444,28 +447,9 @@ private struct RimMark: View {
         .accessibilityHidden(true)
     }
 
-    @ViewBuilder private var glyph: some View {
-        switch landmark.glyph {
-        case .lozenge:
-            // The Mole, drawn in cream on the night plate: its spire is the one
-            // thing in Turin you can find from anywhere in it.
-            MoleSilhouette(
-                dome: Palette.salvia, domeShade: Palette.salviaScura,
-                stone: Palette.facciata, ink: Palette.carta
-            )
-        case .dome:
-            VStack(spacing: 0) {
-                HalfDisc().fill(Palette.salvia)
-                Rectangle().fill(Palette.facciata).frame(height: 5)
-            }
-        case .square:
-            Rectangle().fill(Palette.facciata)
-                .overlay(alignment: .top) { Rectangle().fill(Palette.rosso).frame(height: 4) }
-        case .range:
-            MountainRange()
-        case .arch:
-            ArchGlyph().stroke(Palette.carta, lineWidth: 2)
-        }
+    /// The real building, in its night inks.
+    private var glyph: some View {
+        landmark.drawn.view(night: true)
     }
 }
 

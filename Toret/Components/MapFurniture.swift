@@ -27,25 +27,16 @@ struct LandmarkMarker: View {
         .accessibilityLabel(landmark.name.capitalized)
     }
 
-    @ViewBuilder private var silhouette: some View {
-        switch landmark.key {
-        case .mole:
-            MoleSilhouette()
-                .frame(width: 12, height: 12 / MoleSilhouette.aspect)
-        default:
-            switch landmark.glyph {
-            case .lozenge:
-                Diamond().fill(Palette.inchiostro).frame(width: 13, height: 13)
-            case .square:
-                Rectangle().fill(Palette.inchiostro).frame(width: 11, height: 11)
-            case .dome:
-                HalfDisc().fill(Palette.inchiostro).frame(width: 15, height: 8)
-            case .arch:
-                ArchGlyph().fill(Palette.inchiostro).frame(width: 11, height: 11)
-            case .range:
-                Triangle().fill(Palette.salviaScura).frame(width: 15, height: 11)
-            }
+    /// The building itself, small: tall things taller, the Alps low and wide.
+    private var silhouette: some View {
+        let drawn = landmark.drawn
+        let height: CGFloat = switch drawn {
+        case .mole: 40
+        case .alps: 18
+        default: 26
         }
+        return drawn.view(night: false)
+            .frame(width: height * drawn.aspect, height: height)
     }
 }
 
