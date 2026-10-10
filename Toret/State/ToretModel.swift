@@ -8,11 +8,11 @@ enum Tab: Hashable, CaseIterable {
 
     var title: String {
         switch self {
-        case .map: "Mapa"
-        case .nearby: "Perto"
-        case .community: "Relatos"
-        case .saved: "Salvas"
-        case .settings: "Ajustes"
+        case .map: String(localized: "Mapa")
+        case .nearby: String(localized: "Perto")
+        case .community: String(localized: "Relatos")
+        case .saved: String(localized: "Salvas")
+        case .settings: String(localized: "Ajustes")
         }
     }
 }

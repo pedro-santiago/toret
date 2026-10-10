@@ -242,6 +242,30 @@ struct Fountain: Identifiable, Sendable {
         return neighbourhood
     }
 
+    /// ``place``, with just enough added to tell it from another fountain in `group`
+    /// that goes by the same name — Turin has more than one on Piazza San Carlo,
+    /// and a list that shows the same words twice looks like a bug. The plate
+    /// number first, then the neighbourhood, then which way it lies from you.
+    func place(distinguishedIn group: [Fountain]) -> String {
+        guard let extra = distinguisher(in: group) else { return place }
+        return "\(place) · \(extra)"
+    }
+
+    /// What tells this fountain from another in `group` with the same name, or nil
+    /// when nothing needs telling. Short enough for a subtitle: "n. 70060",
+    /// "Aurora", "NO".
+    func distinguisher(in group: [Fountain]) -> String? {
+        let rivals = group.filter { $0.id != id && $0.place == place }
+        guard !rivals.isEmpty else { return nil }
+        if let ref, rivals.allSatisfy({ $0.ref != ref }) {
+            return String(localized: "n. \(ref)")
+        }
+        if !place.contains(zone), rivals.allSatisfy({ $0.zone != zone }) {
+            return zone
+        }
+        return Bearing.cardinal(bearing)
+    }
+
     /// The neighbourhood, never empty.
     var zone: String { neighbourhood ?? String(localized: "Turim") }
 

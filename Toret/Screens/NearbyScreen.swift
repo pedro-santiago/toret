@@ -89,7 +89,7 @@ struct NearbyScreen: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 18) {
-                PosterTitle("PER", "TO", size: 104)
+                PosterTitle(localized: "PER\nTO", size: 104)
                     .padding(.top, 14)
 
                 Text(headline)
@@ -120,7 +120,8 @@ struct NearbyScreen: View {
                 FountainRow(
                     fountain: fountain,
                     isSelected: fountain == model.selected,
-                    isDimmed: !model.matchesFilters(fountain)
+                    isDimmed: !model.matchesFilters(fountain),
+                    siblings: shown
                 ) {
                     model.select(fountain)
                     model.push(.detail(fountain), in: .nearby)
@@ -200,7 +201,7 @@ struct SavedScreen: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 18) {
-                PosterTitle("SAL", "VAS", size: 104)
+                PosterTitle(localized: "SAL\nVAS", size: 104)
                     .padding(.top, 14)
 
                 Text(sentence)
@@ -224,7 +225,7 @@ struct SavedScreen: View {
     private var list: some View {
         LazyVStack(spacing: 0) {
             ForEach(Array(model.savedFountains.enumerated()), id: \.element.id) { index, fountain in
-                FountainRow(fountain: fountain, isSelected: fountain == model.selected) {
+                FountainRow(fountain: fountain, isSelected: fountain == model.selected, siblings: model.savedFountains) {
                     model.select(fountain)
                     model.push(.detail(fountain), in: .saved)
                 }

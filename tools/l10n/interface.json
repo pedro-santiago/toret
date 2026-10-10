@@ -1,0 +1,1338 @@
+{
+ "%@ %@": {
+  "en": "%@ %@",
+  "it": "%@ %@"
+ },
+ "%@, %@": {
+  "en": "%@, %@",
+  "it": "%@, %@"
+ },
+ "%@, %@, %@": {
+  "en": "%@, %@, %@",
+  "it": "%@, %@, %@"
+ },
+ "%@, %@, %@. %@": {
+  "en": "%@, %@, %@. %@",
+  "it": "%@, %@, %@. %@"
+ },
+ "%lld": {
+  "en": "%lld",
+  "it": "%lld"
+ },
+ "%lld m": {
+  "en": "%lld m",
+  "it": "%lld m"
+ },
+ "%lld/%lld": {
+  "en": "%lld/%lld",
+  "it": "%lld/%lld"
+ },
+ "m": {
+  "en": "m",
+  "it": "m"
+ },
+ "© OpenStreetMap contributors (ODbL)": {
+  "en": "© OpenStreetMap contributors (ODbL)",
+  "it": "© OpenStreetMap contributors (ODbL)"
+ },
+ "contato@pedrosantiago.com.br": {
+  "en": "contato@pedrosantiago.com.br",
+  "it": "contato@pedrosantiago.com.br"
+ },
+ "Piazza San Carlo": {
+  "en": "Piazza San Carlo",
+  "it": "Piazza San Carlo"
+ },
+ "Porta Nuova": {
+  "en": "Porta Nuova",
+  "it": "Porta Nuova"
+ },
+ "Toret · %@": {
+  "en": "Toret · %@",
+  "it": "Toret · %@"
+ },
+ "%@ do centro": {
+  "en": "%@ from the center",
+  "it": "%@ dal centro"
+ },
+ "%@ do centro de Turim": {
+  "en": "%@ from the center of Turin",
+  "it": "%@ dal centro di Torino"
+ },
+ "%@ em %@": {
+  "en": "%1$@ in %2$@",
+  "it": "%1$@, %2$@"
+ },
+ "%@ já estava nas suas salvas.": {
+  "en": "%@ was already in your saved fountains.",
+  "it": "%@ era già tra le tue salvate."
+ },
+ "%@ quilômetros": {
+  "en": "%@ kilometers",
+  "it": "%@ chilometri"
+ },
+ "1 quilômetro": {
+  "en": "1 kilometer",
+  "it": "1 chilometro"
+ },
+ "%@ %@, a %@ para %@, %@.": {
+  "en": "%1$@ %2$@, %3$@ %4$@, %5$@.",
+  "it": "%1$@ %2$@: dista %3$@ verso %4$@, %5$@."
+ },
+ "%@, %@ para %@, %@": {
+  "en": "%1$@, %2$@ %3$@, %4$@",
+  "it": "%1$@, %2$@ verso %3$@, %4$@"
+ },
+ "%@, para %@": {
+  "en": "%1$@, %2$@",
+  "it": "%1$@, verso %2$@"
+ },
+ "%@, relato %@": {
+  "en": "%1$@, reported %2$@",
+  "it": "%1$@, segnalato %2$@"
+ },
+ "%@. Último relato %@": {
+  "en": "%1$@. Last report %2$@",
+  "it": "%1$@. Ultima segnalazione %2$@"
+ },
+ "%lld metros. %@. %@": {
+  "en": "%1$lld meters. %2$@. %3$@",
+  "it": "%1$lld metri. %2$@. %3$@"
+ },
+ "%lld fontes": {
+  "plural": {
+   "pt-BR": {
+    "one": "%lld fonte",
+    "other": "%lld fontes"
+   },
+   "en": {
+    "one": "%lld fountain",
+    "other": "%lld fountains"
+   },
+   "it": {
+    "one": "%lld fontanella",
+    "other": "%lld fontanelle"
+   }
+  }
+ },
+ "%lld fontes em 500 m": {
+  "plural": {
+   "pt-BR": {
+    "one": "%lld fonte em 500 m",
+    "other": "%lld fontes em 500 m"
+   },
+   "en": {
+    "one": "%lld fountain within 500 m",
+    "other": "%lld fountains within 500 m"
+   },
+   "it": {
+    "one": "%lld fontanella entro 500 m",
+    "other": "%lld fontanelle entro 500 m"
+   }
+  }
+ },
+ "%lld metros": {
+  "plural": {
+   "pt-BR": {
+    "one": "%lld metro",
+    "other": "%lld metros"
+   },
+   "en": {
+    "one": "%lld meter",
+    "other": "%lld meters"
+   },
+   "it": {
+    "one": "%lld metro",
+    "other": "%lld metri"
+   }
+  }
+ },
+ "%lld minutos a pé": {
+  "plural": {
+   "pt-BR": {
+    "one": "%lld minuto a pé",
+    "other": "%lld minutos a pé"
+   },
+   "en": {
+    "one": "%lld minute on foot",
+    "other": "%lld minutes on foot"
+   },
+   "it": {
+    "one": "%lld minuto a piedi",
+    "other": "%lld minuti a piedi"
+   }
+  }
+ },
+ "cerca de %lld minutos a pé": {
+  "plural": {
+   "pt-BR": {
+    "one": "cerca de %lld minuto a pé",
+    "other": "cerca de %lld minutos a pé"
+   },
+   "en": {
+    "one": "about %lld minute on foot",
+    "other": "about %lld minutes on foot"
+   },
+   "it": {
+    "one": "circa %lld minuto a piedi",
+    "other": "circa %lld minuti a piedi"
+   }
+  }
+ },
+ "%lld min": {
+  "en": "%lld min",
+  "it": "%lld min"
+ },
+ "%lld min a pé": {
+  "en": "%lld min on foot",
+  "it": "%lld min a piedi"
+ },
+ "%lld de 5": {
+  "en": "%lld out of 5",
+  "it": "%lld su 5"
+ },
+ "Nota %@ de 5": {
+  "en": "Rating %@ out of 5",
+  "it": "Voto %@ su 5"
+ },
+ "nota %@": {
+  "en": "rating %@",
+  "it": "voto %@"
+ },
+ "1 avaliação": {
+  "en": "1 rating",
+  "it": "1 valutazione"
+ },
+ "sem avaliação": {
+  "en": "not rated",
+  "it": "non valutata"
+ },
+ "Sem avaliações": {
+  "en": "No ratings",
+  "it": "Nessuna valutazione"
+ },
+ "Sem nota": {
+  "en": "No rating",
+  "it": "Senza voto"
+ },
+ "Sua nota": {
+  "en": "Your rating",
+  "it": "Il tuo voto"
+ },
+ "%lld fontes a até 500 m %@.": {
+  "en": "%lld fountains within 500 m %@.",
+  "it": "%lld fontanelle entro 500 m %@."
+ },
+ "1 fonte a até 500 m %@.": {
+  "en": "1 fountain within 500 m %@.",
+  "it": "1 fontanella entro 500 m %@."
+ },
+ "Nenhuma fonte a até 500 m %@. A mais próxima está a %@.": {
+  "en": "No fountains within 500 m %1$@. The nearest is %2$@ away.",
+  "it": "Nessuna fontanella entro 500 m %1$@. La più vicina è a %2$@."
+ },
+ "de você": {
+  "en": "of you",
+  "it": "da te"
+ },
+ "da %@": {
+  "en": "of %@",
+  "it": "da %@"
+ },
+ "%lld fontes no seu trajeto, da mais próxima à mais distante.": {
+  "en": "%lld fountains on your route, from nearest to farthest.",
+  "it": "%lld fontanelle sul tuo percorso, dalla più vicina alla più lontana."
+ },
+ "1 fonte no seu trajeto.": {
+  "en": "1 fountain on your route.",
+  "it": "1 fontanella sul tuo percorso."
+ },
+ "%lld relatos aguardando envio": {
+  "en": "%lld reports waiting to send",
+  "it": "%lld segnalazioni in attesa di invio"
+ },
+ "1 relato aguardando envio": {
+  "en": "1 report waiting to send",
+  "it": "1 segnalazione in attesa di invio"
+ },
+ "%lld relatos nos últimos 30 dias.": {
+  "en": "%lld reports in the last 30 days.",
+  "it": "%lld segnalazioni negli ultimi 30 giorni."
+ },
+ "1 relato nos últimos 30 dias.": {
+  "en": "1 report in the last 30 days.",
+  "it": "1 segnalazione negli ultimi 30 giorni."
+ },
+ "Ver todos os %lld relatos": {
+  "en": "See all %lld reports",
+  "it": "Vedi tutte le %lld segnalazioni"
+ },
+ "Autores bloqueados (%lld)": {
+  "en": "Blocked authors (%lld)",
+  "it": "Autori bloccati (%lld)"
+ },
+ "Você já avaliou esta fonte agora há pouco. Tente de novo em %lld min.": {
+  "en": "You rated this fountain a moment ago. Try again in %lld min.",
+  "it": "Hai appena valutato questa fontanella. Riprova tra %lld min."
+ },
+ "A distância e a direção até a água, sem abrir o app.": {
+  "en": "The distance and direction to water, without opening the app.",
+  "it": "Distanza e direzione dell’acqua, senza aprire l’app."
+ },
+ "A fonte": {
+  "en": "The fountain",
+  "it": "La fontanella"
+ },
+ "A fonte está aqui.": {
+  "en": "The fountain is right here.",
+  "it": "La fontanella è qui."
+ },
+ "A fonte mais próxima é": {
+  "en": "The nearest fountain is",
+  "it": "La fontanella più vicina è"
+ },
+ "Sua fonte salva mais próxima é": {
+  "en": "Your nearest saved fountain is",
+  "it": "La tua fontanella salvata più vicina è"
+ },
+ "A lista de fontes que vem com o app não pôde ser lida. Feche e abra o Toret de novo; se continuar, reinstale o app.": {
+  "en": "The list of fountains that comes with the app couldn’t be read. Close and reopen Toret; if it keeps happening, reinstall the app.",
+  "it": "Non è stato possibile leggere l’elenco delle fontanelle incluso nell’app. Chiudi e riapri Toret; se il problema persiste, reinstalla l’app."
+ },
+ "A localização está bloqueada neste aparelho. As distâncias são medidas a partir da %@.": {
+  "en": "Location is blocked on this device. Distances are measured from %@.",
+  "it": "La posizione è bloccata su questo dispositivo. Le distanze sono misurate da %@."
+ },
+ "A localização está desligada. As distâncias são medidas a partir da %@.": {
+  "en": "Location is turned off. Distances are measured from %@.",
+  "it": "La posizione è disattivata. Le distanze sono misurate da %@."
+ },
+ "A localização é aproximada, então as distâncias podem errar por centenas de metros.": {
+  "en": "Location is approximate, so distances can be off by hundreds of meters.",
+  "it": "La posizione è approssimata, quindi le distanze possono sbagliare di centinaia di metri."
+ },
+ "A partir do centro de Torino": {
+  "en": "From the center of Turin",
+  "it": "Dal centro di Torino"
+ },
+ "A pé até": {
+  "en": "Walking to",
+  "it": "A piedi verso"
+ },
+ "a pé": {
+  "en": "on foot",
+  "it": "a piedi"
+ },
+ "AJUS\nTES": {
+  "en": "SET\nTINGS",
+  "it": "OPZIO\nNI"
+ },
+ "AVA\nLIAR": {
+  "en": "RATE\nTHIS",
+  "it": "VALU\nTA"
+ },
+ "BLO\nQUEIOS": {
+  "en": "BLOCK\nLIST",
+  "it": "BLOC\nCHI"
+ },
+ "OBRI\nGADO": {
+  "en": "THANK\nYOU",
+  "it": "GRA\nZIE"
+ },
+ "PER\nTO": {
+  "en": "NEAR\nBY",
+  "it": "VICI\nNO"
+ },
+ "RELA\nTOS": {
+  "en": "REPOR\nTS",
+  "it": "SEGNA\nLAZIONI"
+ },
+ "SAL\nVAS": {
+  "en": "SAV\nED",
+  "it": "SAL\nVATE"
+ },
+ "DUOMO": {
+  "en": "DUOMO",
+  "it": "DUOMO"
+ },
+ "MOLE": {
+  "en": "MOLE",
+  "it": "MOLE"
+ },
+ "SUPERGA": {
+  "en": "SUPERGA",
+  "it": "SUPERGA"
+ },
+ "M. CAPPUCCINI": {
+  "en": "M. CAPPUCCINI",
+  "it": "M. CAPPUCCINI"
+ },
+ "PORTA NUOVA": {
+  "en": "PORTA NUOVA",
+  "it": "PORTA NUOVA"
+ },
+ "PORTE PALATINE": {
+  "en": "PORTE PALATINE",
+  "it": "PORTE PALATINE"
+ },
+ "ALPES": {
+  "en": "ALPS",
+  "it": "ALPI"
+ },
+ "o Duomo": {
+  "en": "the Duomo",
+  "it": "il Duomo"
+ },
+ "a Mole Antonelliana": {
+  "en": "the Mole Antonelliana",
+  "it": "la Mole Antonelliana"
+ },
+ "a Basilica di Superga": {
+  "en": "the Basilica of Superga",
+  "it": "la Basilica di Superga"
+ },
+ "o Monte dei Cappuccini": {
+  "en": "the Monte dei Cappuccini",
+  "it": "il Monte dei Cappuccini"
+ },
+ "as Porte Palatine": {
+  "en": "the Porte Palatine",
+  "it": "le Porte Palatine"
+ },
+ "os Alpes": {
+  "en": "the Alps",
+  "it": "le Alpi"
+ },
+ "Alinhe-se com %@": {
+  "en": "Line up with %@",
+  "it": "Allineati con %@"
+ },
+ "Olhe entre %@ e %@": {
+  "en": "Look between %1$@ and %2$@",
+  "it": "Guarda tra %1$@ e %2$@"
+ },
+ "Olhe para %@": {
+  "en": "Look toward %@",
+  "it": "Guarda verso %@"
+ },
+ "De frente para %@": {
+  "en": "Facing %@",
+  "it": "Hai davanti %@"
+ },
+ "N": {
+  "en": "N",
+  "it": "N"
+ },
+ "NE": {
+  "en": "NE",
+  "it": "NE"
+ },
+ "L": {
+  "en": "E",
+  "it": "E"
+ },
+ "SE": {
+  "en": "SE",
+  "it": "SE"
+ },
+ "S": {
+  "en": "S",
+  "it": "S"
+ },
+ "SO": {
+  "en": "SW",
+  "it": "SO"
+ },
+ "O": {
+  "en": "W",
+  "it": "O"
+ },
+ "NO": {
+  "en": "NW",
+  "it": "NO"
+ },
+ "norte": {
+  "en": "north",
+  "it": "nord"
+ },
+ "nordeste": {
+  "en": "northeast",
+  "it": "nord-est"
+ },
+ "leste": {
+  "en": "east",
+  "it": "est"
+ },
+ "sudeste": {
+  "en": "southeast",
+  "it": "sud-est"
+ },
+ "sul": {
+  "en": "south",
+  "it": "sud"
+ },
+ "sudoeste": {
+  "en": "southwest",
+  "it": "sud-ovest"
+ },
+ "oeste": {
+  "en": "west",
+  "it": "ovest"
+ },
+ "noroeste": {
+  "en": "northwest",
+  "it": "nord-ovest"
+ },
+ "à sua frente": {
+  "en": "ahead of you",
+  "it": "davanti a te"
+ },
+ "à sua frente, à direita": {
+  "en": "ahead, to your right",
+  "it": "davanti a te, a destra"
+ },
+ "à sua direita": {
+  "en": "to your right",
+  "it": "alla tua destra"
+ },
+ "atrás de você, à direita": {
+  "en": "behind you, to your right",
+  "it": "dietro di te, a destra"
+ },
+ "atrás de você": {
+  "en": "behind you",
+  "it": "dietro di te"
+ },
+ "atrás de você, à esquerda": {
+  "en": "behind you, to your left",
+  "it": "dietro di te, a sinistra"
+ },
+ "à sua esquerda": {
+  "en": "to your left",
+  "it": "alla tua sinistra"
+ },
+ "à sua frente, à esquerda": {
+  "en": "ahead, to your left",
+  "it": "davanti a te, a sinistra"
+ },
+ "a %@": {
+  "en": "to the %@",
+  "it": "a %@"
+ },
+ "Abra o Toret para medir": {
+  "en": "Open Toret to measure",
+  "it": "Apri Toret per misurare"
+ },
+ "Abra o Toret uma vez para medir a partir de onde você está.": {
+  "en": "Open Toret once to measure from where you are.",
+  "it": "Apri Toret una volta per misurare da dove ti trovi."
+ },
+ "Abra uma fonte e toque em salvar. Ela aparece aqui, com a distância de onde você está agora.": {
+  "en": "Open a fountain and tap save. It shows up here, with its distance from where you are now.",
+  "it": "Apri una fontanella e tocca per salvarla. Comparirà qui, con la distanza da dove ti trovi adesso."
+ },
+ "Abre a bússola apontando para a água mais perto de você.": {
+  "en": "Opens the compass pointing at the closest water.",
+  "it": "Apre la bussola puntata sull’acqua più vicina."
+ },
+ "Abre a bússola do Toret apontando para a fonte mais próxima.": {
+  "en": "Opens the Toret compass pointing at the nearest fountain.",
+  "it": "Apre la bussola di Toret puntata sulla fontanella più vicina."
+ },
+ "Abre a bússola em tela cheia": {
+  "en": "Opens the compass full screen",
+  "it": "Apre la bussola a schermo intero"
+ },
+ "Abre a página da fonte": {
+  "en": "Opens the fountain’s page",
+  "it": "Apre la pagina della fontanella"
+ },
+ "Abre no navegador": {
+  "en": "Opens in the browser",
+  "it": "Apre nel browser"
+ },
+ "Abre o Toret já com a rota a pé até a fonte mais próxima.": {
+  "en": "Opens Toret with the walking route to the nearest fountain already set.",
+  "it": "Apre Toret con il percorso a piedi verso la fontanella più vicina già pronto."
+ },
+ "Abre o detalhe da fonte": {
+  "en": "Opens the fountain’s details",
+  "it": "Apre i dettagli della fontanella"
+ },
+ "Abrir Ajustes": {
+  "en": "Open Settings",
+  "it": "Apri Impostazioni"
+ },
+ "Abrir Ajustes do iOS": {
+  "en": "Open iOS Settings",
+  "it": "Apri Impostazioni di iOS"
+ },
+ "Abrir a bússola": {
+  "en": "Open the compass",
+  "it": "Apri la bussola"
+ },
+ "Acessibilidade": {
+  "en": "Accessibility",
+  "it": "Accessibilità"
+ },
+ "Afaste o mapa para ver as mais próximas.": {
+  "en": "Zoom out to see the nearest ones.",
+  "it": "Allontana la mappa per vedere le più vicine."
+ },
+ "Aguardando envio": {
+  "en": "Waiting to send",
+  "it": "In attesa di invio"
+ },
+ "Ainda não há relatos. Abra uma fonte e conte como está a água.": {
+  "en": "No reports yet. Open a fountain and tell people how the water is.",
+  "it": "Ancora nessuna segnalazione. Apri una fontanella e racconta com’è l’acqua."
+ },
+ "Ainda não perguntada": {
+  "en": "Not asked yet",
+  "it": "Non ancora richiesta"
+ },
+ "Ainda não perguntadas": {
+  "en": "Not asked yet",
+  "it": "Non ancora richieste"
+ },
+ "Ajuda e privacidade": {
+  "en": "Help and privacy",
+  "it": "Aiuto e privacy"
+ },
+ "Ajustes": {
+  "en": "Settings",
+  "it": "Opzioni"
+ },
+ "Alinhado com a fonte": {
+  "en": "Lined up with the fountain",
+  "it": "Allineato con la fontanella"
+ },
+ "Ao usar o app": {
+  "en": "While using the app",
+  "it": "Mentre usi l’app"
+ },
+ "Apagar": {
+  "en": "Delete",
+  "it": "Elimina"
+ },
+ "Apagar meu relato": {
+  "en": "Delete my report",
+  "it": "Elimina la mia segnalazione"
+ },
+ "Apagar o seu relato?": {
+  "en": "Delete your report?",
+  "it": "Eliminare la tua segnalazione?"
+ },
+ "Aproxima o mapa": {
+  "en": "Zooms the map in",
+  "it": "Ingrandisce la mappa"
+ },
+ "Aproximada": {
+  "en": "Approximate",
+  "it": "Approssimata"
+ },
+ "As fontes não carregaram": {
+  "en": "The fountains didn’t load",
+  "it": "Le fontanelle non si sono caricate"
+ },
+ "As posições vêm do OpenStreetMap. O estado da água vem só de relatos da comunidade, com data. O Toret não mede nem garante a água.": {
+  "en": "Positions come from OpenStreetMap. The state of the water comes only from dated community reports. Toret doesn’t measure or guarantee the water.",
+  "it": "Le posizioni vengono da OpenStreetMap. Lo stato dell’acqua viene solo dalle segnalazioni datate della comunità. Toret non misura né garantisce l’acqua."
+ },
+ "Ativar posição precisa": {
+  "en": "Turn on precise location",
+  "it": "Attiva la posizione precisa"
+ },
+ "Avaliar esta fonte": {
+  "en": "Rate this fountain",
+  "it": "Valuta questa fontanella"
+ },
+ "Avisar ao passar perto": {
+  "en": "Alert me when I pass one",
+  "it": "Avvisami quando passo vicino"
+ },
+ "Bloqueada neste aparelho": {
+  "en": "Blocked on this device",
+  "it": "Bloccata su questo dispositivo"
+ },
+ "Bloquear": {
+  "en": "Block",
+  "it": "Blocca"
+ },
+ "Bloquear %@?": {
+  "en": "Block %@?",
+  "it": "Bloccare %@?"
+ },
+ "Bloquear autor": {
+  "en": "Block author",
+  "it": "Blocca autore"
+ },
+ "Buscar rua, praça ou bairro": {
+  "en": "Search street, square or neighborhood",
+  "it": "Cerca via, piazza o quartiere"
+ },
+ "Bússola": {
+  "en": "Compass",
+  "it": "Bussola"
+ },
+ "Bússola e avisos": {
+  "en": "Compass and alerts",
+  "it": "Bussola e avvisi"
+ },
+ "Bússola imprecisa. Gire o celular desenhando um oito para calibrar.": {
+  "en": "Compass is inaccurate. Move your phone in a figure eight to calibrate it.",
+  "it": "Bussola imprecisa. Muovi il telefono disegnando un otto per calibrarla."
+ },
+ "Bússola sempre visível": {
+  "en": "Always-visible compass",
+  "it": "Bussola sempre visibile"
+ },
+ "Bússola. %@": {
+  "en": "Compass. %@",
+  "it": "Bussola. %@"
+ },
+ "Bússola. %@, %@": {
+  "en": "Compass. %1$@, %2$@",
+  "it": "Bussola. %1$@, %2$@"
+ },
+ "Bússola. Fonte mais próxima, %@, a %@": {
+  "en": "Compass. Nearest fountain, %1$@, %2$@ away",
+  "it": "Bussola. Fontanella più vicina, %1$@, a %2$@"
+ },
+ "Bússola. Fonte selecionada, %@, a %@": {
+  "en": "Compass. Selected fountain, %1$@, %2$@ away",
+  "it": "Bussola. Fontanella selezionata, %1$@, a %2$@"
+ },
+ "Cancelar": {
+  "en": "Cancel",
+  "it": "Annulla"
+ },
+ "Chegada às %@": {
+  "en": "Arrive at %@",
+  "it": "Arrivo alle %@"
+ },
+ "Chegou": {
+  "en": "Arrived",
+  "it": "Arrivato"
+ },
+ "Com a sua localização aproximada.": {
+  "en": "Using your approximate location.",
+  "it": "Con la tua posizione approssimata."
+ },
+ "Como está a água": {
+  "en": "How is the water",
+  "it": "Com’è l’acqua"
+ },
+ "Comunidade": {
+  "en": "Community",
+  "it": "Comunità"
+ },
+ "Concluir": {
+  "en": "Done",
+  "it": "Fine"
+ },
+ "Dados": {
+  "en": "Data",
+  "it": "Dati"
+ },
+ "Denunciar": {
+  "en": "Flag",
+  "it": "Segnala"
+ },
+ "Desbloquear": {
+  "en": "Unblock",
+  "it": "Sblocca"
+ },
+ "Desconhecida": {
+  "en": "Unknown",
+  "it": "Sconosciuta"
+ },
+ "Desconhecidas": {
+  "en": "Unknown",
+  "it": "Sconosciute"
+ },
+ "Desligada": {
+  "en": "Off",
+  "it": "Disattivata"
+ },
+ "Desligadas": {
+  "en": "Off",
+  "it": "Disattivate"
+ },
+ "Desligado": {
+  "en": "Off",
+  "it": "Disattivato"
+ },
+ "Ligado": {
+  "en": "On",
+  "it": "Attivato"
+ },
+ "Diz qual é a fonte de água mais próxima, a que distância e para que lado.": {
+  "en": "Tells you the nearest drinking fountain, how far it is and which way to go.",
+  "it": "Ti dice qual è la fontanella più vicina, a che distanza e in che direzione."
+ },
+ "Encerrar rota": {
+  "en": "End route",
+  "it": "Termina percorso"
+ },
+ "Encontrar fontes": {
+  "en": "Find fountains",
+  "it": "Trova fontanelle"
+ },
+ "Entre no iCloud, nos Ajustes do iOS, para compartilhar. Até lá, os relatos ficam salvos aqui.": {
+  "en": "Sign in to iCloud in iOS Settings to share. Until then, reports stay saved here.",
+  "it": "Accedi a iCloud nelle Impostazioni di iOS per condividere. Fino ad allora le segnalazioni restano salvate qui."
+ },
+ "Enviar relato": {
+  "en": "Send report",
+  "it": "Invia segnalazione"
+ },
+ "Escolha como está a água ou dê uma nota.": {
+  "en": "Pick how the water is, or give a rating.",
+  "it": "Scegli com’è l’acqua o dai un voto."
+ },
+ "Escolha entre a fonte mais próxima e a mais próxima entre as que você salvou.": {
+  "en": "Choose between the nearest fountain and the nearest of the ones you saved.",
+  "it": "Scegli tra la fontanella più vicina e la più vicina tra le tue salvate."
+ },
+ "Fonte": {
+  "en": "Fountain",
+  "it": "Fontanella"
+ },
+ "Fonte a %@ · %@": {
+  "en": "Fountain %@ · %@",
+  "it": "Fontanella a %@ · %@"
+ },
+ "Fonte mais próxima": {
+  "en": "Nearest fountain",
+  "it": "Fontanella più vicina"
+ },
+ "Fonte mais próxima, posição aproximada": {
+  "en": "Nearest fountain, approximate position",
+  "it": "Fontanella più vicina, posizione approssimata"
+ },
+ "Fonte sazonal: costuma ser desligada no inverno, então a falta de água entre novembro e março pode não ser defeito.": {
+  "en": "Seasonal fountain: it’s often switched off in winter, so no water between November and March may not be a fault.",
+  "it": "Fontanella stagionale: in inverno viene spesso spenta, quindi tra novembre e marzo l’assenza di acqua può non essere un guasto."
+ },
+ "Fonte selecionada": {
+  "en": "Selected fountain",
+  "it": "Fontanella selezionata"
+ },
+ "Fontes": {
+  "en": "Fountains",
+  "it": "Fontanelle"
+ },
+ "Fontes no catálogo": {
+  "en": "Fountains in the catalog",
+  "it": "Fontanelle nel catalogo"
+ },
+ "Gratuito, sem anúncios, sem conta e sem rastreamento.": {
+  "en": "Free, no ads, no account and no tracking.",
+  "it": "Gratuita, senza pubblicità, senza account e senza tracciamento."
+ },
+ "Guarda a fonte mais próxima nas suas salvas.": {
+  "en": "Adds the nearest fountain to your saved ones.",
+  "it": "Aggiunge la fontanella più vicina alle tue salvate."
+ },
+ "Informação falsa": {
+  "en": "False information",
+  "it": "Informazioni false"
+ },
+ "Ir": {
+  "en": "Go",
+  "it": "Vai"
+ },
+ "Ir para a fonte mais próxima": {
+  "en": "Go to the nearest fountain",
+  "it": "Vai alla fontanella più vicina"
+ },
+ "Legenda das marcas: círculo, água corrente; meio disco, fluxo fraco; triângulo, sem água; anel vazio, sem relato recente": {
+  "en": "Key to the marks: circle, water running; half disc, weak flow; triangle, no water; empty ring, no recent report",
+  "it": "Legenda dei simboli: cerchio, acqua che scorre; mezzo disco, flusso debole; triangolo, senz’acqua; anello vuoto, nessuna segnalazione recente"
+ },
+ "Limpar a busca": {
+  "en": "Clear search",
+  "it": "Cancella la ricerca"
+ },
+ "Links, e-mails e telefones não são aceitos nos relatos.": {
+  "en": "Links, emails and phone numbers aren’t accepted in reports.",
+  "it": "Link, e-mail e numeri di telefono non sono ammessi nelle segnalazioni."
+ },
+ "Localização": {
+  "en": "Location",
+  "it": "Posizione"
+ },
+ "Localização aproximada. Ative a posição precisa para distâncias exatas.": {
+  "en": "Approximate location. Turn on precise location for exact distances.",
+  "it": "Posizione approssimata. Attiva la posizione precisa per distanze esatte."
+ },
+ "Localização bloqueada neste aparelho. Distâncias medidas a partir da Piazza San Carlo.": {
+  "en": "Location is blocked on this device. Distances measured from Piazza San Carlo.",
+  "it": "Posizione bloccata su questo dispositivo. Distanze misurate da Piazza San Carlo."
+ },
+ "Localização desligada": {
+  "en": "Location off",
+  "it": "Posizione disattivata"
+ },
+ "Localização desligada. Distâncias a partir da Piazza San Carlo.": {
+  "en": "Location is off. Distances from Piazza San Carlo.",
+  "it": "Posizione disattivata. Distanze da Piazza San Carlo."
+ },
+ "Localização desligada. Distâncias medidas a partir da Piazza San Carlo.": {
+  "en": "Location is off. Distances measured from Piazza San Carlo.",
+  "it": "Posizione disattivata. Distanze misurate da Piazza San Carlo."
+ },
+ "Longe de Turim": {
+  "en": "Far from Turin",
+  "it": "Lontano da Torino"
+ },
+ "Mais opções": {
+  "en": "More options",
+  "it": "Altre opzioni"
+ },
+ "Mais próxima": {
+  "en": "Nearest",
+  "it": "Più vicina"
+ },
+ "Mapa": {
+  "en": "Map",
+  "it": "Mappa"
+ },
+ "Minhas salvas": {
+  "en": "My saved",
+  "it": "Le mie salvate"
+ },
+ "Mostrando o norte para cima.": {
+  "en": "Showing north up.",
+  "it": "Nord in alto."
+ },
+ "Mostrar": {
+  "en": "Show",
+  "it": "Mostra"
+ },
+ "Na tela bloqueada e no widget": {
+  "en": "On the Lock Screen and in the widget",
+  "it": "Nella schermata di blocco e nel widget"
+ },
+ "Nada por aqui ainda.": {
+  "en": "Nothing here yet.",
+  "it": "Ancora niente qui."
+ },
+ "Nenhuma fonte aqui": {
+  "en": "No fountains here",
+  "it": "Nessuna fontanella qui"
+ },
+ "Nenhuma fonte encontrada": {
+  "en": "No fountains found",
+  "it": "Nessuna fontanella trovata"
+ },
+ "Nenhuma fonte salva": {
+  "en": "No saved fountains",
+  "it": "Nessuna fontanella salvata"
+ },
+ "Nesta versão os relatos ficam só neste aparelho.": {
+  "en": "In this version, reports stay on this device only.",
+  "it": "In questa versione le segnalazioni restano solo su questo dispositivo."
+ },
+ "Ninguém bloqueado.": {
+  "en": "Nobody blocked.",
+  "it": "Nessun autore bloccato."
+ },
+ "Ninguém relatou ainda": {
+  "en": "Nobody has reported yet",
+  "it": "Nessuno ha ancora segnalato"
+ },
+ "Norte para cima": {
+  "en": "North up",
+  "it": "Nord in alto"
+ },
+ "Notificações": {
+  "en": "Notifications",
+  "it": "Notifiche"
+ },
+ "Não encontrei nenhuma fonte para medir.": {
+  "en": "I couldn’t find any fountain to measure.",
+  "it": "Non ho trovato nessuna fontanella da misurare."
+ },
+ "Não há fonte conhecida perto daqui.": {
+  "en": "There’s no known fountain near here.",
+  "it": "Non ci sono fontanelle note qui vicino."
+ },
+ "Não informado": {
+  "en": "Not specified",
+  "it": "Non indicato"
+ },
+ "Número": {
+  "en": "Number",
+  "it": "Numero"
+ },
+ "O catálogo de fontes não carregou.": {
+  "en": "The fountain catalog didn’t load.",
+  "it": "Il catalogo delle fontanelle non si è caricato."
+ },
+ "O iCloud está restrito neste aparelho. Os relatos ficam salvos aqui.": {
+  "en": "iCloud is restricted on this device. Reports stay saved here.",
+  "it": "iCloud è limitato su questo dispositivo. Le segnalazioni restano salvate qui."
+ },
+ "O que você notou, até 3": {
+  "en": "What you noticed, up to 3",
+  "it": "Cosa hai notato, fino a 3"
+ },
+ "O relato já aparece para quem estiver por perto.": {
+  "en": "The report already shows for people nearby.",
+  "it": "La segnalazione compare già a chi si trova vicino."
+ },
+ "O relato some para você agora e é enviado para revisão.": {
+  "en": "The report disappears for you now and is sent for review.",
+  "it": "La segnalazione sparisce per te adesso e viene inviata per la revisione."
+ },
+ "Ofensivo ou abusivo": {
+  "en": "Offensive or abusive",
+  "it": "Offensivo o abusivo"
+ },
+ "Outras fontes por perto": {
+  "en": "Other fountains nearby",
+  "it": "Altre fontanelle vicine"
+ },
+ "Água por perto": {
+  "en": "Water nearby",
+  "it": "Acqua nei dintorni"
+ },
+ "Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para:": {
+  "en": "To flag a report, use its three-dot menu. For anything else, write to:",
+  "it": "Per segnalare un contenuto, usa il menu con i tre puntini. Per qualsiasi altra cosa, scrivi a:"
+ },
+ "Permissões": {
+  "en": "Permissions",
+  "it": "Permessi"
+ },
+ "Permitidas": {
+  "en": "Allowed",
+  "it": "Consentite"
+ },
+ "Perto": {
+  "en": "Nearby",
+  "it": "Vicino"
+ },
+ "Política de privacidade": {
+  "en": "Privacy policy",
+  "it": "Informativa sulla privacy"
+ },
+ "Por que denunciar este relato?": {
+  "en": "Why are you flagging this report?",
+  "it": "Perché segnali questo contenuto?"
+ },
+ "Posição aproximada. Ative a localização precisa para medir melhor.": {
+  "en": "Approximate position. Turn on precise location to measure better.",
+  "it": "Posizione approssimata. Attiva la posizione precisa per misurare meglio."
+ },
+ "Posição conferida": {
+  "en": "Position checked",
+  "it": "Posizione verificata"
+ },
+ "Posições: %@. O estado da água vem só dos relatos da comunidade; o Toret não mede nem garante a água.": {
+  "en": "Positions: %@. The state of the water comes only from community reports; Toret doesn’t measure or guarantee the water.",
+  "it": "Posizioni: %@. Lo stato dell’acqua viene solo dalle segnalazioni della comunità; Toret non misura né garantisce l’acqua."
+ },
+ "Precisa": {
+  "en": "Precise",
+  "it": "Precisa"
+ },
+ "Preciso da sua localização para saber qual é a fonte mais próxima.": {
+  "en": "I need your location to know which fountain is nearest.",
+  "it": "Mi serve la tua posizione per sapere qual è la fontanella più vicina."
+ },
+ "Precisão": {
+  "en": "Accuracy",
+  "it": "Precisione"
+ },
+ "Procurando a sua posição.": {
+  "en": "Finding your position.",
+  "it": "Cerco la tua posizione."
+ },
+ "Procurando a sua posição…": {
+  "en": "Finding your position…",
+  "it": "Cerco la tua posizione…"
+ },
+ "Procure pelo nome de uma rua, de uma praça ou de um bairro.": {
+  "en": "Search by the name of a street, a square or a neighborhood.",
+  "it": "Cerca per nome di una via, di una piazza o di un quartiere."
+ },
+ "Próxima fonte": {
+  "en": "Next fountain",
+  "it": "Fontanella successiva"
+ },
+ "Quantas": {
+  "en": "How many",
+  "it": "Quante"
+ },
+ "Relato recente da comunidade: %@.": {
+  "en": "Recent community report: %@.",
+  "it": "Segnalazione recente della comunità: %@."
+ },
+ "Relatos": {
+  "en": "Reports",
+  "it": "Segnalazioni"
+ },
+ "Relatos são públicos e anônimos.": {
+  "en": "Reports are public and anonymous.",
+  "it": "Le segnalazioni sono pubbliche e anonime."
+ },
+ "Remover das salvas": {
+  "en": "Remove from saved",
+  "it": "Rimuovi dalle salvate"
+ },
+ "Rota até a fonte": {
+  "en": "Route to fountain",
+  "it": "Percorso alla fontanella"
+ },
+ "Salvar a fonte": {
+  "en": "Save fountain",
+  "it": "Salva fontanella"
+ },
+ "Salvar a fonte mais próxima": {
+  "en": "Save the nearest fountain",
+  "it": "Salva la fontanella più vicina"
+ },
+ "Salvar fonte": {
+  "en": "Save fountain",
+  "it": "Salva fontanella"
+ },
+ "Salvas": {
+  "en": "Saved",
+  "it": "Salvate"
+ },
+ "Salve as fontes do seu caminho": {
+  "en": "Save the fountains on your way",
+  "it": "Salva le fontanelle lungo il tuo percorso"
+ },
+ "Salve uma fonte no app e ela aparece aqui.": {
+  "en": "Save a fountain in the app and it shows up here.",
+  "it": "Salva una fontanella nell’app e comparirà qui."
+ },
+ "Salvei %@.": {
+  "en": "Saved %@.",
+  "it": "Ho salvato %@."
+ },
+ "Salvo neste aparelho.": {
+  "en": "Saved on this device.",
+  "it": "Salvata su questo dispositivo."
+ },
+ "Salvo, será enviado quando houver conexão.": {
+  "en": "Saved. It will be sent when there’s a connection.",
+  "it": "Salvata. Verrà inviata quando ci sarà connessione."
+ },
+ "Salvo. Entre no iCloud para compartilhar; o envio é automático.": {
+  "en": "Saved. Sign in to iCloud to share; sending is automatic.",
+  "it": "Salvata. Accedi a iCloud per condividere; l’invio è automatico."
+ },
+ "Seja o primeiro a avaliar esta fonte: como está a água, e se vale a caminhada.": {
+  "en": "Be the first to rate this fountain: how the water is, and whether it’s worth the walk.",
+  "it": "Nessuno ha ancora valutato questa fontanella: com’è l’acqua e se vale la camminata?"
+ },
+ "Sem a sua localização, medindo a partir do centro de Turim.": {
+  "en": "Without your location, measuring from the center of Turin.",
+  "it": "Senza la tua posizione, misuro dal centro di Torino."
+ },
+ "Sem bússola neste aparelho: mostrando o norte para cima.": {
+  "en": "No compass on this device: showing north up.",
+  "it": "Nessuna bussola su questo dispositivo: nord in alto."
+ },
+ "Sem conexão no momento.": {
+  "en": "No connection right now.",
+  "it": "Nessuna connessione al momento."
+ },
+ "Sem conexão: mostrando os últimos relatos baixados.": {
+  "en": "No connection: showing the last reports downloaded.",
+  "it": "Nessuna connessione: mostro le ultime segnalazioni scaricate."
+ },
+ "Sem fonte": {
+  "en": "No fountain",
+  "it": "Nessuna fontanella"
+ },
+ "Sem fontes": {
+  "en": "No fountains",
+  "it": "Nessuna fontanella"
+ },
+ "Sem fontes para mostrar": {
+  "en": "No fountains to show",
+  "it": "Nessuna fontanella da mostrare"
+ },
+ "Sem rota de ruas: siga na direção da fonte.": {
+  "en": "No street route: head toward the fountain.",
+  "it": "Nessun percorso stradale: dirigiti verso la fontanella."
+ },
+ "Sempre": {
+  "en": "Always",
+  "it": "Sempre"
+ },
+ "Sim": {
+  "en": "Yes",
+  "it": "Sì"
+ },
+ "Sobre": {
+  "en": "About",
+  "it": "Info"
+ },
+ "Spam ou propaganda": {
+  "en": "Spam or advertising",
+  "it": "Spam o pubblicità"
+ },
+ "Sua salva mais próxima": {
+  "en": "Nearest saved",
+  "it": "Salvata più vicina"
+ },
+ "Suporte e contato": {
+  "en": "Support and contact",
+  "it": "Supporto e contatti"
+ },
+ "Só avaliação": {
+  "en": "Rating only",
+  "it": "Solo voto"
+ },
+ "Só dentro do app": {
+  "en": "Only inside the app",
+  "it": "Solo dentro l’app"
+ },
+ "Tipo": {
+  "en": "Type",
+  "it": "Tipo"
+ },
+ "Tire as palavras ofensivas para enviar.": {
+  "en": "Remove the offensive words to send.",
+  "it": "Togli le parole offensive per inviare."
+ },
+ "Toret leva o nome dos touros de ferro fundido que dão água a Turim desde o século XIX. Aqui, todas as fontes públicas de beber da cidade são chamadas de fontes. A sua localização fica no aparelho.": {
+  "en": "Toret is named after the cast-iron bulls that have given Turin water since the 19th century. Here, all of the city’s public drinking fountains are simply called fountains. Your location stays on your device.",
+  "it": "Toret è il nome dei tori di ghisa che dissetano Torino dall’Ottocento. Qui tutte le fontanelle pubbliche della città si chiamano semplicemente fontanelle. La tua posizione resta sul dispositivo."
+ },
+ "Toret · longe de Turim": {
+  "en": "Toret · far from Turin",
+  "it": "Toret · lontano da Torino"
+ },
+ "Toret · nenhuma salva": {
+  "en": "Toret · none saved",
+  "it": "Toret · nessuna salvata"
+ },
+ "Traça a rota a pé até a fonte mais próxima.": {
+  "en": "Plots the walking route to the nearest fountain.",
+  "it": "Traccia il percorso a piedi fino alla fontanella più vicina."
+ },
+ "Traçar rota": {
+  "en": "Get route",
+  "it": "Percorso"
+ },
+ "Traçar rota a pé": {
+  "en": "Get walking route",
+  "it": "Percorso a piedi"
+ },
+ "Traçar rota até a fonte mais próxima": {
+  "en": "Route to the nearest fountain",
+  "it": "Percorso verso la fontanella più vicina"
+ },
+ "Uma linha, se quiser": {
+  "en": "A line, if you like",
+  "it": "Una riga, se vuoi"
+ },
+ "Uma notificação quando houver uma fonte a menos de 100 m. Ela não diz se a água está correndo.": {
+  "en": "A notification when there’s a fountain within 100 m. It doesn’t say whether the water is running.",
+  "it": "Una notifica quando c’è una fontanella entro 100 m. Non dice se l’acqua scorre."
+ },
+ "Ver mais fontes": {
+  "en": "Show more fountains",
+  "it": "Mostra altre fontanelle"
+ },
+ "Ver menos": {
+  "en": "Show less",
+  "it": "Mostra meno"
+ },
+ "Ver no mapa": {
+  "en": "Show on map",
+  "it": "Vedi sulla mappa"
+ },
+ "Verificando": {
+  "en": "Checking",
+  "it": "Verifica in corso"
+ },
+ "Versão": {
+  "en": "Version",
+  "it": "Versione"
+ },
+ "Você": {
+  "en": "You",
+  "it": "Tu"
+ },
+ "Você ainda não salvou nenhuma fonte.": {
+  "en": "You haven’t saved any fountains yet.",
+  "it": "Non hai ancora salvato nessuna fontanella."
+ },
+ "Você chegou": {
+  "en": "You’ve arrived",
+  "it": "Destinazione raggiunta"
+ },
+ "Você chegou a %@": {
+  "en": "You’ve arrived at %@",
+  "it": "Hai raggiunto %@"
+ },
+ "Você chegou à fonte, %@": {
+  "en": "You’ve reached the fountain, %@",
+  "it": "Hai raggiunto la fontanella, %@"
+ },
+ "Você deixa de ver tudo o que esta pessoa escreve. É possível desfazer na aba Relatos.": {
+  "en": "You’ll stop seeing anything this person writes. You can undo this in the Reports tab.",
+  "it": "Non vedrai più nulla di ciò che scrive questa persona. Puoi annullare dalla scheda Segnalazioni."
+ },
+ "Você está a %@ km de Turim. As distâncias são medidas a partir da %@.": {
+  "en": "You are %1$@ km from Turin. Distances are measured from %2$@.",
+  "it": "Sei a %1$@ km da Torino. Le distanze sono misurate da %2$@."
+ },
+ "Você está a %@ km de Turim. Distâncias medidas a partir da Piazza San Carlo.": {
+  "en": "You are %@ km from Turin. Distances measured from Piazza San Carlo.",
+  "it": "Sei a %@ km da Torino. Distanze misurate da Piazza San Carlo."
+ },
+ "Você está a %lld km": {
+  "en": "You are %lld km away",
+  "it": "Sei a %lld km"
+ },
+ "Você está a %lld km de Turim. Distâncias a partir da Piazza San Carlo.": {
+  "en": "You are %lld km from Turin. Distances from Piazza San Carlo.",
+  "it": "Sei a %lld km da Torino. Distanze da Piazza San Carlo."
+ },
+ "Você está a %lld quilômetros de Turim, então estou medindo a partir do centro.": {
+  "en": "You are %lld kilometers from Turin, so I’m measuring from the center.",
+  "it": "Sei a %lld chilometri da Torino, quindi misuro dal centro."
+ },
+ "Você está aqui": {
+  "en": "You are here",
+  "it": "Sei qui"
+ },
+ "Voltar": {
+  "en": "Back",
+  "it": "Indietro"
+ },
+ "Voltar para onde estou": {
+  "en": "Back to my location",
+  "it": "Torna alla mia posizione"
+ },
+ "de distância": {
+  "en": "away",
+  "it": "di distanza"
+ },
+ "restantes": {
+  "en": "left",
+  "it": "rimanenti"
+ },
+ "Água": {
+  "en": "Water",
+  "it": "Acqua"
+ },
+ "Água gelada, fila pequena": {
+  "en": "Cold water, short line",
+  "it": "Acqua fredda, poca fila"
+ },
+ "n. %@": {
+  "en": "no. %@",
+  "it": "n. %@"
+ }
+}

@@ -73,6 +73,7 @@ struct CommunitySection: View {
             footnote
                 .padding(.top, 12)
         }
+        .background { debugAnchor }
         .animation(Motion.ui, value: showingAll)
         .task { await community.refresh(fountainID: fountain.id) }
         .sheet(isPresented: $composing) {
@@ -80,11 +81,21 @@ struct CommunitySection: View {
         }
     }
 
+    /// Only in Debug builds: lets a screenshot script bring the section on screen.
+    @ViewBuilder
+    private var debugAnchor: some View {
+        #if DEBUG
+        DebugScrollIntoView()
+        #else
+        EmptyView()
+        #endif
+    }
+
     @ViewBuilder
     private func header(_ summary: CommunitySummary) -> some View {
         if let average = summary.average {
             HStack(alignment: .center, spacing: 16) {
-                Text(average.formatted(.number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))))
+                Text(Formatting.rating(average))
                     .font(Typo.display(56))
                     .foregroundStyle(Palette.inchiostro)
                 VStack(alignment: .leading, spacing: 6) {
@@ -145,3 +156,25 @@ enum CommunityNotice {
         }
     }
 }
+
+#if DEBUG
+/// Scrolls the enclosing scroll view until this view is near the top, when the
+/// app was launched with `-toret-focus-community`. The section sits halfway down
+/// the detail page and the simulator cannot swipe, so this is the only way a
+/// script can photograph it.
+private struct DebugScrollIntoView: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView { UIView() }
+
+    func updateUIView(_ view: UIView, context: Context) {
+        guard ProcessInfo.processInfo.arguments.contains("-toret-focus-community") else { return }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            var parent = view.superview
+            while let current = parent, !(current is UIScrollView) { parent = current.superview }
+            guard let scroll = parent as? UIScrollView else { return }
+            let frame = view.convert(view.bounds, to: scroll)
+            scroll.setContentOffset(CGPoint(x: 0, y: max(0, frame.minY - 150)), animated: false)
+        }
+    }
+}
+#endif

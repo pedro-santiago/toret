@@ -6,27 +6,18 @@ import SwiftUI
 /// decimal, because "3200 m" asks the reader to do the division. The decimal
 /// separator follows the device, so a phone set to Portuguese says "1,2 km".
 enum Distance {
-    static func parts(_ metres: Int, locale: Locale = .current) -> (value: String, unit: String) {
-        guard metres >= 1000 else { return (String(max(0, metres)), "m") }
-        let kilometres = Double(metres) / 1000
-        let precision: NumberFormatStyleConfiguration.Precision =
-            kilometres < 10 ? .fractionLength(0 ... 1) : .fractionLength(0)
-        let value = kilometres.formatted(.number.precision(precision).locale(locale))
-        return (value, "km")
+    static func parts(_ metres: Int, locale: Locale = .autoupdatingCurrent) -> (value: String, unit: String) {
+        DistanceFormat.parts(metres, locale: locale)
     }
 
     /// "84 m", "1,2 km".
-    static func text(_ metres: Int, locale: Locale = .current) -> String {
-        let parts = parts(metres, locale: locale)
-        return "\(parts.value) \(parts.unit)"
+    static func text(_ metres: Int, locale: Locale = .autoupdatingCurrent) -> String {
+        DistanceFormat.short(metres, locale: locale)
     }
 
     /// For VoiceOver: "84 metros", "1,2 quilômetros".
-    static func spoken(_ metres: Int, locale: Locale = .current) -> String {
-        let parts = parts(metres, locale: locale)
-        return parts.unit == "m"
-            ? String(localized: "\(parts.value) metros")
-            : String(localized: "\(parts.value) quilômetros")
+    static func spoken(_ metres: Int, locale: Locale = .autoupdatingCurrent) -> String {
+        DistanceFormat.spoken(metres, locale: locale)
     }
 }
 
@@ -48,7 +39,12 @@ struct FountainRow: View {
     var night: Bool = false
     /// The compact night variant used inside the compass panel.
     var compact: Bool = false
+    /// The other fountains on screen with it. Two of them can share a street name;
+    /// the row then adds what tells them apart (see ``Fountain/place(distinguishedIn:)``).
+    var siblings: [Fountain] = []
     let action: () -> Void
+
+    private var title: String { fountain.place }
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -59,9 +55,12 @@ struct FountainRow: View {
     /// "Toret em Cenisia". When the place name already carries the neighbourhood,
     /// the kind alone.
     private var kindLine: String {
-        fountain.place.contains(fountain.zone)
+        let base = fountain.place.contains(fountain.zone)
             ? fountain.kind.label
             : String(localized: "\(fountain.kind.label) em \(fountain.zone)")
+        // Two fountains on the same square read the same; the subtitle says which.
+        guard let extra = fountain.distinguisher(in: siblings) else { return base }
+        return "\(base) · \(extra)"
     }
 
     var body: some View {
@@ -89,7 +88,7 @@ struct FountainRow: View {
             Rectangle().fill(rule).frame(height: 1.5)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(fountain.place), \(kindLine)")
+        .accessibilityLabel("\(title), \(kindLine)")
         .accessibilityValue(accessibilityValue)
         .accessibilityHint(String(localized: "Abre a página da fonte"))
         .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
@@ -134,7 +133,7 @@ struct FountainRow: View {
 
     private func names(lines: Int) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(fountain.place)
+            Text(title)
                 .font(Typo.ui(18, 700))
                 .foregroundStyle(primary)
                 .lineLimit(lines)
@@ -183,7 +182,7 @@ struct FountainRow: View {
     private var compactBody: some View {
         HStack(spacing: 12) {
             StateMark(state: fountain.state, size: 20, night: night)
-            Text(fountain.place)
+            Text(title)
                 .font(Typo.ui(15, isSelected ? 700 : 500))
                 .foregroundStyle(primary)
                 .lineLimit(1)

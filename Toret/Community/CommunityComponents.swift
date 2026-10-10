@@ -146,10 +146,7 @@ extension Icon {
 extension Report {
     /// "há 2 h", "há 3 dias".
     var ago: String {
-        date.formatted(
-            .relative(presentation: .numeric, unitsStyle: .abbreviated)
-                .locale(Locale(identifier: "pt_BR"))
-        )
+        Formatting.relative(date)
     }
 }
 

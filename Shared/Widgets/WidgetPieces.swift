@@ -87,16 +87,37 @@ struct CycleButton: View {
     var body: some View {
         if count > 1 {
             Button(intent: CycleFountainIntent(count: count)) {
-                Triangle()
-                    .fill(ink)
-                    .frame(width: 10, height: 10)
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 30, height: 30)
-                    .overlay { Rectangle().strokeBorder(ink, lineWidth: 2) }
+                HStack(spacing: 0) {
+                    Triangle()
+                        .fill(ink)
+                        .frame(width: 9, height: 9)
+                        .rotationEffect(.degrees(90))
+                    Rectangle().fill(ink).frame(width: 2.5, height: 10)
+                }
+                .frame(width: 30, height: 30)
+                .overlay { Rectangle().strokeBorder(ink, lineWidth: 2) }
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Próxima fonte")
         }
+    }
+}
+
+/// The sun with a diamond on it: a fountain *somewhere*, with no bearing from you.
+///
+/// Stands where the bearing dial would, when the reader's position is unknown.
+struct OriginDisc: View {
+    var diameter: CGFloat
+    var fill: Color = Palette.sole
+    var ink: Color = Palette.inchiostro
+
+    var body: some View {
+        ZStack {
+            Circle().fill(fill)
+            Diamond().fill(ink).frame(width: diameter * 0.3, height: diameter * 0.3)
+        }
+        .frame(width: diameter, height: diameter)
+        .accessibilityHidden(true)
     }
 }
 
@@ -136,12 +157,12 @@ struct EmptyReading: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Diamond().stroke(ink, lineWidth: 2.5).frame(width: 26, height: 26)
-            Text(reading.savedIsEmpty ? "Nenhuma fonte salva" : "Sem fontes para mostrar")
+            Text(reading.savedIsEmpty ? String(localized: "Nenhuma fonte salva") : String(localized: "Sem fontes para mostrar"))
                 .font(Typo.ui(17, 800))
                 .foregroundStyle(ink)
             Text(reading.savedIsEmpty
-                ? "Salve uma fonte no app e ela aparece aqui."
-                : "Não há fonte conhecida perto daqui.")
+                ? String(localized: "Salve uma fonte no app e ela aparece aqui.")
+                : String(localized: "Não há fonte conhecida perto daqui."))
                 .font(Typo.ui(13))
                 .foregroundStyle(ink.opacity(0.75))
         }
@@ -152,10 +173,12 @@ struct EmptyReading: View {
 
 extension Fountain {
     /// The second line under a name on a widget: where it is, or — when the
-    /// distances are measured from the old town — which neighbourhood it is in.
+    /// distances are measured from the old town — how far it is from there.
     func widgetDetail(measuredFromUser: Bool, long: Bool = false) -> String {
-        guard measuredFromUser else { return zone }
-        let walk = long ? "\(walkingMinutes) min a pé" : "\(walkingMinutes) min"
+        guard measuredFromUser else { return distanceFromCentre }
+        let walk = long
+            ? String(localized: "\(walkingMinutes) min a pé")
+            : String(localized: "\(walkingMinutes) min")
         return "\(cardinalPhrase) · \(walk)"
     }
 }

@@ -280,7 +280,7 @@ struct SelectedFountainCard: View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text(model.selectedIsNearest ? "Fonte mais próxima" : "Fonte selecionada")
+                Text(model.selectedIsNearest ? String(localized: "Fonte mais próxima") : String(localized: "Fonte selecionada"))
                     .font(Typo.ui(12.5, 600))
                     .foregroundStyle(Palette.ink(0.75))
                 Spacer(minLength: 8)
@@ -335,7 +335,7 @@ struct SelectedFountainCard: View {
                 }
                 .buttonStyle(.pressable)
                 .sensoryFeedback(.success, trigger: saved)
-                .accessibilityLabel(saved ? "Remover das salvas" : "Salvar fonte")
+                .accessibilityLabel(saved ? String(localized: "Remover das salvas") : String(localized: "Salvar fonte"))
             }
         }
         .padding(.horizontal, 16)

@@ -28,7 +28,7 @@ struct ReviewSheet: View {
                 if let sent {
                     confirmation(sent)
                 } else {
-                    PosterTitle("AVA", "LIAR", size: 64)
+                    PosterTitle(localized: "AVA\nLIAR", size: 64)
                     Text(fountain.place)
                         .font(Typo.ui(18, 700))
                         .foregroundStyle(Palette.inchiostro)
@@ -79,8 +79,10 @@ struct ReviewSheet: View {
             group(String(localized: "Uma linha, se quiser")) {
                 VStack(alignment: .trailing, spacing: 6) {
                     TextField(
-                        String(localized: "Água gelada, fila pequena"),
-                        text: $note, axis: .vertical
+                        "", text: $note,
+                        prompt: Text(String(localized: "Água gelada, fila pequena"))
+                            .foregroundStyle(Palette.inchiostro.opacity(0.6)),
+                        axis: .vertical
                     )
                     .lineLimit(2 ... 4)
                     .font(Typo.ui(16))
@@ -210,7 +212,7 @@ struct ReviewSheet: View {
     private func confirmation(_ delivery: SubmitDelivery) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             StateMark(state: water ?? .unknown, size: 56)
-            PosterTitle("OBRI", "GADO", size: 64)
+            PosterTitle(localized: "OBRI\nGADO", size: 64)
             Text(deliveryText(delivery))
                 .font(Typo.ui(16))
                 .foregroundStyle(Palette.inchiostro)

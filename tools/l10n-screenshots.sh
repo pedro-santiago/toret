@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 UDID="${1:-$(xcrun simctl list devices | grep -F 'Toret i18n (' | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')}"
 BUNDLE=br.tec.nuance.toret
 LANGS=(${=LANGS:-pt-BR en it})
-SCREENS=(mapa perto salvas relatos ajustes bussola detalhe rota)
+SCREENS=(${=SCREENS:-mapa perto salvas relatos ajustes bussola detalhe rota})
 
 xcrun simctl boot "$UDID" 2>/dev/null || true
 xcrun simctl bootstatus "$UDID" -b >/dev/null

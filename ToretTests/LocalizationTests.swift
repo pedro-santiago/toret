@@ -148,9 +148,10 @@ struct CompiledTranslationTests {
         #expect(bundle.localizedString(forKey: key, value: nil, table: nil) == expected)
     }
 
-    /// Plural rules live in the generated .stringsdict: one and other everywhere,
-    /// and the right noun for each.
-    @Test("Plurals use each language's own rule", arguments: [
+    /// Plural rules live in the generated .stringsdict: Xcode compiles a catalog's
+    /// plural variations into one table per language, with a `value` rule holding
+    /// one text per category. English, Portuguese and Italian all use `one` for 1.
+    @Test("Plurals use each language's own noun", arguments: [
         ("pt-BR", 1, "1 avaliação"), ("pt-BR", 3, "3 avaliações"),
         ("en", 1, "1 rating"), ("en", 2, "2 ratings"),
         ("it", 1, "1 valutazione"), ("it", 5, "5 valutazioni"),
@@ -159,9 +160,22 @@ struct CompiledTranslationTests {
         let url = try #require(try lproj(language).url(forResource: "Localizable", withExtension: "stringsdict"))
         let table = try #require(NSDictionary(contentsOf: url) as? [String: Any])
         let entry = try #require(table["%lld avaliações"] as? [String: Any])
-        let variable = try #require(entry["arg1"] as? [String: Any])
-        let rule = (language == "pt-BR" ? (count <= 1 ? "one" : "other") : (count == 1 ? "one" : "other"))
-        let format = try #require(variable[rule] as? String)
+        let rule = try #require(entry["value"] as? [String: Any])
+        let format = try #require(rule[count == 1 ? "one" : "other"] as? String)
+        #expect(String(format: format, count) == expected)
+    }
+
+    @Test("Metres have their own plural in every language", arguments: [
+        ("pt-BR", 1, "1 metro"), ("pt-BR", 84, "84 metros"),
+        ("en", 1, "1 meter"), ("en", 84, "84 meters"),
+        ("it", 1, "1 metro"), ("it", 84, "84 metri"),
+    ])
+    func metres(language: String, count: Int, expected: String) throws {
+        let url = try #require(try lproj(language).url(forResource: "Localizable", withExtension: "stringsdict"))
+        let table = try #require(NSDictionary(contentsOf: url) as? [String: Any])
+        let entry = try #require(table["%lld metros"] as? [String: Any])
+        let rule = try #require(entry["value"] as? [String: Any])
+        let format = try #require(rule[count == 1 ? "one" : "other"] as? String)
         #expect(String(format: format, count) == expected)
     }
 }
@@ -184,15 +198,32 @@ struct FormattingTests {
     /// The fountains are in Italy: an American reader still gets metres.
     @Test("Distances stay metric in every language")
     func distance() {
-        #expect(Formatting.distance(metres: 84, locale: english) == "84 m")
-        #expect(Formatting.distance(metres: 84, locale: italian) == "84 m")
-        #expect(Formatting.distance(metres: 1234, locale: english) == "1.2 km")
-        #expect(Formatting.distance(metres: 1234, locale: italian) == "1,2 km")
-        #expect(Formatting.distance(metres: 1234, locale: portuguese) == "1,2 km")
+        #expect(DistanceFormat.short(84, locale: english) == "84 m")
+        #expect(DistanceFormat.short(84, locale: italian) == "84 m")
+        #expect(DistanceFormat.short(1234, locale: english) == "1.2 km")
+        #expect(DistanceFormat.short(1234, locale: italian) == "1,2 km")
+        #expect(DistanceFormat.short(1234, locale: portuguese) == "1,2 km")
+        #expect(DistanceFormat.short(1000, locale: english) == "1 km")
+        #expect(DistanceFormat.short(12_400, locale: english) == "12 km")
         for locale in [english, italian, portuguese] {
-            let text = Formatting.distance(metres: 5000, locale: locale)
+            let text = DistanceFormat.short(5000, locale: locale)
             #expect(!text.contains("mi") && !text.contains("ft"))
         }
+    }
+
+    /// 9,96 km rounds to ten: it reads "10", not "10,0".
+    @Test("A figure that rounds to ten has no decimal")
+    func roundsToTen() {
+        #expect(DistanceFormat.figure(9960, unit: "km", locale: portuguese) == "10")
+        #expect(DistanceFormat.figure(9940, unit: "km", locale: portuguese) == "9,9")
+    }
+
+    /// Metres are a plain figure: "1 240 m" on a sign is a different number.
+    @Test("Metre figures carry no grouping separator")
+    func noGrouping() {
+        #expect(DistanceFormat.figure(999, unit: "m", locale: english) == "999")
+        #expect(Formatting.integer(1240, locale: english, grouping: false) == "1240")
+        #expect(Formatting.integer(1240, locale: english) == "1,240")
     }
 
     @Test("Relative times read naturally in each language")

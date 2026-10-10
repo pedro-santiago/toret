@@ -14,6 +14,7 @@ Checks, for Shared/Resources/Localizable.xcstrings and both InfoPlist catalogs:
     or silently drop a number.
 Run from the repository root or anywhere; exits 1 on any problem.
 """
+import glob
 import json
 import os
 import re
@@ -79,6 +80,30 @@ def check(path, allow_stale):
     return problems, len(catalog["strings"])
 
 
+# Calls where a plain literal does NOT get localized, though it looks as if it
+# would: SwiftUI picks the verbatim String overload for `Text(cond ? "A" : "B")`,
+# and a `String` parameter never looks anything up. Each needs String(localized:).
+PORTUGUESE = re.compile(r'[À-ÿ]|\b(?:fonte|fontes|rota|você|sem|nenhuma|abrir|relato|salv\w*|perto|mapa|toque)\b', re.I)
+TERNARY = re.compile(r'(?:Text|accessibilityLabel|accessibilityValue|accessibilityHint)\([^()\n]*\?\s*"([^"\n]+)"\s*:\s*"([^"\n]+)"')
+
+
+def lint_sources():
+    """Static check for the unlocalized-literal traps. Prints file:line for each."""
+    problems = []
+    for path in sorted(glob.glob(os.path.join(ROOT, "Toret", "**", "*.swift"), recursive=True)
+                       + glob.glob(os.path.join(ROOT, "Shared", "**", "*.swift"), recursive=True)
+                       + glob.glob(os.path.join(ROOT, "ToretWidgets", "**", "*.swift"), recursive=True)):
+        for number, line in enumerate(open(path), 1):
+            if line.lstrip().startswith("//"):
+                continue
+            match = TERNARY.search(line)
+            if match and "String(localized" not in line and PORTUGUESE.search(match.group(0)):
+                problems.append(f"{os.path.relpath(path, ROOT)}:{number}: ternary of plain literals is not localized; wrap each in String(localized:)")
+            if "Locale(identifier:" in line and "Tests" not in path and "Formatting.swift" not in path:
+                problems.append(f"{os.path.relpath(path, ROOT)}:{number}: hard-coded Locale; use Formatting or the current locale")
+    return problems
+
+
 def check_shortcuts(path, allow_stale):
     """Siri phrase sets: every language present, translated, and every phrase names the app."""
     problems = []
@@ -117,6 +142,7 @@ def main():
         total += count
     else:
         problems.append(f"{SHORTCUTS}: missing")
+    problems += lint_sources()
     for line in problems:
         print(line)
     print(f"{total} keys checked, {len(problems)} problems")

@@ -28,8 +28,8 @@ struct LandmarkMarker: View {
     }
 
     @ViewBuilder private var silhouette: some View {
-        switch landmark.name {
-        case "MOLE":
+        switch landmark.key {
+        case .mole:
             MoleSilhouette()
                 .frame(width: 12, height: 12 / MoleSilhouette.aspect)
         default:
@@ -140,7 +140,7 @@ struct FountainPin: View {
         .animation(reduceMotion ? nil : Motion.ui, value: isDimmed)
         .animation(reduceMotion ? nil : Motion.ui, value: density)
         .accessibilityLabel("\(fountain.place), \(fountain.plateTitle)")
-        .accessibilityValue("\(fountain.state.label), a \(fountain.distance) metros")
+        .accessibilityValue(String(localized: "\(fountain.state.label), a \(DistanceFormat.spoken(fountain.distance))"))
         .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
     }
 
@@ -217,8 +217,8 @@ struct MapCompassButton: View {
         .buttonStyle(.pressable)
         .accessibilityLabel(
             isNearest
-                ? "Bússola. Fonte mais próxima, \(fountain.place), a \(fountain.distance) metros"
-                : "Bússola. Fonte selecionada, \(fountain.place), a \(fountain.distance) metros"
+                ? String(localized: "Bússola. Fonte mais próxima, \(fountain.place), a \(DistanceFormat.spoken(fountain.distance))")
+                : String(localized: "Bússola. Fonte selecionada, \(fountain.place), a \(DistanceFormat.spoken(fountain.distance))")
         )
         .accessibilityHint("Abre a bússola em tela cheia")
     }

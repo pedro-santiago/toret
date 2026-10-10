@@ -4,7 +4,9 @@ extension Bearing {
     /// The wind spelled out for a voice: "noroeste".
     static func spokenCardinal(_ degrees: Double) -> String {
         let names = [
-            "norte", "nordeste", "leste", "sudeste", "sul", "sudoeste", "oeste", "noroeste",
+            String(localized: "norte"), String(localized: "nordeste"), String(localized: "leste"),
+            String(localized: "sudeste"), String(localized: "sul"), String(localized: "sudoeste"),
+            String(localized: "oeste"), String(localized: "noroeste"),
         ]
         let normalised = (degrees.truncatingRemainder(dividingBy: 360) + 360)
             .truncatingRemainder(dividingBy: 360)
@@ -42,9 +44,7 @@ enum SpokenAnswer {
         let distance = DistanceFormat.spoken(fountain.distance)
         let direction = Bearing.spokenCardinal(fountain.bearing)
         let minutes = fountain.walkingMinutes
-        let walk = minutes == 1
-            ? String(localized: "cerca de 1 minuto a pé")
-            : String(localized: "cerca de \(minutes) minutos a pé")
+        let walk = String(localized: "cerca de \(minutes) minutos a pé")
         let lead = reading.source == .saved
             ? String(localized: "Sua fonte salva mais próxima é")
             : String(localized: "A fonte mais próxima é")

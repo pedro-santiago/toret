@@ -129,7 +129,7 @@ struct DetailScreen: View {
     }
 
     private func circleButton<Glyph: View>(
-        label: String, @ViewBuilder glyph: () -> Glyph, action: @escaping () -> Void
+        label: LocalizedStringKey, @ViewBuilder glyph: () -> Glyph, action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             glyph()
@@ -161,9 +161,7 @@ struct DetailScreen: View {
     /// the poster's 3 pt vertical rule.
     private func figures(for fountain: Fountain) -> some View {
         let distance = Self.distanceParts(fountain.distance)
-        let rating = fountain.community.average.map {
-            $0.formatted(.number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR")))
-        }
+        let rating = fountain.community.average.map { Formatting.rating($0) }
         let ratingCaption = fountain.community.ratingCount > 0
             ? String(localized: "\(fountain.community.ratingCount) avaliações")
             : String(localized: "sem avaliação")
@@ -219,11 +217,7 @@ struct DetailScreen: View {
 
     /// 84 m, 1,2 km. Kilometres only once metres stop being the useful unit.
     static func distanceParts(_ metres: Int) -> (value: String, unit: String) {
-        guard metres >= 1000 else { return ("\(metres)", "m") }
-        let km = (Double(metres) / 1000).formatted(
-            .number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))
-        )
-        return (km, "km")
+        DistanceFormat.parts(metres)
     }
 
     private var seasonal: some View {
@@ -239,7 +233,7 @@ struct DetailScreen: View {
 
     // MARK: Sections
 
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             PosterRule()
             Text(title)
@@ -310,7 +304,7 @@ struct DetailScreen: View {
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("\(other.place), \(other.kind.label), \(other.state.label)")
-                    .accessibilityValue("\(other.distance) metros")
+                    .accessibilityValue(DistanceFormat.spoken(other.distance))
                 }
             }
         }
@@ -423,7 +417,7 @@ struct DetailTitle: View {
 
 /// A label and its value on one line, with a light rule under it.
 private struct FactRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let value: String
     var isLast = false
 

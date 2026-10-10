@@ -246,8 +246,8 @@ struct RouteScreen: View {
         .accessibilityAddTraits(.updatesFrequently)
         .accessibilityLabel(
             hasArrived
-                ? "Você chegou à fonte, \(fountain.place)"
-                : "\(route.toNextTurn) metros. \(route.headline). \(subhead)"
+                ? String(localized: "Você chegou à fonte, \(fountain.place)")
+                : String(localized: "\(route.toNextTurn) metros. \(route.headline). \(subhead)")
         )
     }
 
@@ -337,8 +337,8 @@ struct RouteScreen: View {
     /// Minutes and metres left, as two heavy figures split by a rule.
     @ViewBuilder
     private func figures(stacked: Bool) -> some View {
-        let minutes = figure(value: hasArrived ? "0" : "\(route.minutes)", unit: "min", caption: "Chegada às \(route.arrival())")
-        let remaining = figure(value: "\(hasArrived ? 0 : route.remaining)", unit: "m", caption: "restantes")
+        let minutes = figure(value: hasArrived ? "0" : "\(route.minutes)", unit: "min", caption: String(localized: "Chegada às \(route.arrival())"))
+        let remaining = figure(value: "\(hasArrived ? 0 : route.remaining)", unit: "m", caption: String(localized: "restantes"))
         if stacked {
             VStack(alignment: .leading, spacing: 10) { minutes; remaining }
                 .frame(maxWidth: .infinity, alignment: .leading)

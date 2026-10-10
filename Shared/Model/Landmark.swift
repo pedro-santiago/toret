@@ -13,10 +13,14 @@ struct Landmark: Identifiable, Hashable, Sendable {
     /// matches the shape to the skyline rather than to a legend.
     enum Glyph: Hashable, Sendable { case lozenge, square, dome, arch, range }
 
-    /// Ring label, set in narrow capitals.
-    let name: String
-    /// The same landmark inside a sentence, with its article.
-    let spoken: String
+    /// Which landmark it is, independent of the language it is named in. Code that
+    /// has to recognise one (the Mole is drawn as its own silhouette) switches on
+    /// this, never on the text.
+    enum Key: String, Hashable, Sendable {
+        case duomo, mole, superga, cappuccini, portaNuova, alps, portePalatine
+    }
+
+    let key: Key
     let glyph: Glyph
     /// Whether it earns a place on the compass ring.
     let onRing: Bool
@@ -27,19 +31,47 @@ struct Landmark: Identifiable, Hashable, Sendable {
     /// Bearing from the current origin, degrees clockwise from north.
     let bearing: Double
 
-    var id: String { name }
+    var id: String { key.rawValue }
+
+    /// Ring label, set in narrow capitals, in the reader's language: "ALPES",
+    /// "ALPS", "ALPI". Most are proper names that read the same everywhere.
+    var name: String {
+        switch key {
+        case .duomo: String(localized: "DUOMO")
+        case .mole: String(localized: "MOLE")
+        case .superga: String(localized: "SUPERGA")
+        case .cappuccini: String(localized: "M. CAPPUCCINI")
+        case .portaNuova: String(localized: "PORTA NUOVA")
+        case .alps: String(localized: "ALPES")
+        case .portePalatine: String(localized: "PORTE PALATINE")
+        }
+    }
+
+    /// The same landmark inside a sentence, with its article: "o Duomo", "the
+    /// Duomo", "il Duomo". Each language carries its own article, so the sentence
+    /// around it never has to guess a gender.
+    var spoken: String {
+        switch key {
+        case .duomo: String(localized: "o Duomo")
+        case .mole: String(localized: "a Mole Antonelliana")
+        case .superga: String(localized: "a Basilica di Superga")
+        case .cappuccini: String(localized: "o Monte dei Cappuccini")
+        case .portaNuova: String(localized: "Porta Nuova")
+        case .alps: String(localized: "os Alpes")
+        case .portePalatine: String(localized: "as Porte Palatine")
+        }
+    }
 
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
     private init(
-        _ name: String, _ spoken: String, _ glyph: Glyph, onRing: Bool = true,
+        _ key: Key, _ glyph: Glyph, onRing: Bool = true,
         _ latitude: CLLocationDegrees, _ longitude: CLLocationDegrees,
         from origin: CLLocationCoordinate2D
     ) {
-        self.name = name
-        self.spoken = spoken
+        self.key = key
         self.glyph = glyph
         self.onRing = onRing
         self.latitude = latitude
@@ -57,15 +89,15 @@ struct Landmark: Identifiable, Hashable, Sendable {
     /// middle of town on a clear day.
     static func all(from origin: CLLocationCoordinate2D) -> [Landmark] {
         [
-            Landmark("DUOMO", "o Duomo", .dome, 45.0733, 7.6856, from: origin),
-            Landmark("MOLE", "a Mole Antonelliana", .lozenge, 45.0690, 7.6934, from: origin),
-            Landmark("SUPERGA", "a Basilica di Superga", .dome, 45.0808, 7.7684, from: origin),
-            Landmark("M. CAPPUCCINI", "o Monte dei Cappuccini", .dome, 45.0616, 7.6947, from: origin),
-            Landmark("PORTA NUOVA", "Porta Nuova", .square, 45.0623, 7.6787, from: origin),
-            Landmark("ALPI", "os Alpes", .range, 45.1400, 7.2200, from: origin),
+            Landmark(.duomo, .dome, 45.0733, 7.6856, from: origin),
+            Landmark(.mole, .lozenge, 45.0690, 7.6934, from: origin),
+            Landmark(.superga, .dome, 45.0808, 7.7684, from: origin),
+            Landmark(.cappuccini, .dome, 45.0616, 7.6947, from: origin),
+            Landmark(.portaNuova, .square, 45.0623, 7.6787, from: origin),
+            Landmark(.alps, .range, 45.1400, 7.2200, from: origin),
             // On the map but not on the ring: it is a mark you navigate past
             // rather than a bearing you take.
-            Landmark("PORTE PALATINE", "as Porte Palatine", .arch, onRing: false,
+            Landmark(.portePalatine, .arch, onRing: false,
                      45.0745, 7.6836, from: origin),
         ]
     }
@@ -129,9 +161,9 @@ struct Landmark: Identifiable, Hashable, Sendable {
             .map { ($0, Bearing.separation($0.bearing, bearing)) }
             .sorted { $0.1 < $1.1 }
         guard let nearest = ranked.first else { return "" }
-        if nearest.1 < 15 { return "Alinhe-se com \(nearest.0.spoken)" }
-        guard ranked.count > 1 else { return "Alinhe-se com \(nearest.0.spoken)" }
-        return "Olhe entre \(nearest.0.spoken) e \(ranked[1].0.spoken)"
+        if nearest.1 < 15 { return String(localized: "Alinhe-se com \(nearest.0.spoken)") }
+        guard ranked.count > 1 else { return String(localized: "Alinhe-se com \(nearest.0.spoken)") }
+        return String(localized: "Olhe entre \(nearest.0.spoken) e \(ranked[1].0.spoken)")
     }
 }
 

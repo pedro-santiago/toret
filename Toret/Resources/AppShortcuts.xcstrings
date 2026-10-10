@@ -2,7 +2,6 @@
   "sourceLanguage" : "pt-BR",
   "strings" : {
     "Abrir a bússola do ${applicationName}" : {
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringSet" : {
@@ -34,7 +33,6 @@
       }
     },
     "Me leve até a fonte mais próxima com o ${applicationName}" : {
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringSet" : {
@@ -66,7 +64,6 @@
       }
     },
     "Qual a fonte mais próxima no ${applicationName}" : {
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringSet" : {
@@ -104,7 +101,6 @@
       }
     },
     "Salvar a fonte mais próxima no ${applicationName}" : {
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringSet" : {

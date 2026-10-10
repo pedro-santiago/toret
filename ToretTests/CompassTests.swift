@@ -168,8 +168,11 @@ struct CompassLanguageTests {
     @Test("Facing finds the landmark in front of you, and nothing when there is none")
     func facing() throws {
         let origin = Catalogue.anchor
-        let mole = try #require(Landmark.ring(from: origin).first { $0.name == "MOLE" })
-        #expect(Landmark.facing(mole.bearing + 3, from: origin)?.name == "MOLE")
+        let mole = try #require(Landmark.ring(from: origin).first { $0.key == .mole })
+        // Exactly on the Mole picks the Mole, even though the Monte dei Cappuccini
+        // stands within a few degrees of it from the old town: the nearest wins.
+        #expect(Landmark.facing(mole.bearing, from: origin)?.key == .mole)
+        #expect(Landmark.facing(mole.bearing + 3, from: origin) != nil)
         let empty = (0 ..< 360).first { Landmark.facing(Double($0), from: origin) == nil }
         #expect(empty != nil)
     }

@@ -34,8 +34,8 @@ struct CommunityScreen: View {
                             }
                         }
                     }
-                    .padding(.top, 18)
                     .overlay(alignment: .top) { PosterRule().padding(.horizontal, 22) }
+                    .padding(.top, 22)
                 }
 
                 footer
@@ -55,7 +55,7 @@ struct CommunityScreen: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PosterTitle("RELA", "TOS")
+            PosterTitle(localized: "RELA\nTOS")
             Text(subtitle)
                 .font(Typo.ui(16))
                 .foregroundStyle(Palette.inchiostro)
@@ -98,9 +98,15 @@ struct CommunityScreen: View {
                 .font(Typo.ui(14))
                 .foregroundStyle(Palette.inchiostro.opacity(0.7))
 
-            Text("Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para contato@pedrosantiago.com.br.")
+            Text("Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para:")
                 .font(Typo.ui(14))
                 .foregroundStyle(Palette.inchiostro.opacity(0.7))
+            if let mail = URL(string: "mailto:contato@pedrosantiago.com.br") {
+                Link("contato@pedrosantiago.com.br", destination: mail)
+                    .font(Typo.ui(15, 700))
+                    .foregroundStyle(Palette.blu)
+                    .tint(Palette.blu)
+            }
 
             if !community.blockedAuthors.isEmpty {
                 Button(String(localized: "Autores bloqueados (\(community.blockedAuthors.count))")) {
@@ -119,7 +125,7 @@ struct BlockedAuthorsSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PosterTitle("BLO", "QUEIOS", size: 56)
+            PosterTitle(localized: "BLO\nQUEIOS", size: 56)
 
             if community.blockedAuthors.isEmpty {
                 Text("Ninguém bloqueado.")

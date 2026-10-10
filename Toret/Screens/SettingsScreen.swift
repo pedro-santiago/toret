@@ -73,7 +73,7 @@ struct SettingsScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 VStack(alignment: .leading, spacing: 18) {
-                    PosterTitle("AJUS", "TES", size: 104)
+                    PosterTitle(localized: "AJUS\nTES", size: 104)
                         .padding(.top, 14)
                     Text(String(localized: "Gratuito, sem anúncios, sem conta e sem rastreamento."))
                         .font(Typo.ui(17, 500))

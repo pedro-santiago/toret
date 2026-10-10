@@ -1,6 +1,12 @@
 import SwiftUI
 import WidgetKit
 
+// Each family reads the same `WidgetReading` and splits on one question: are the
+// figures measured from *you*? If so the poster speaks in numbers and a bearing.
+// If not (no permission, no fix yet, a fix far from Turin) the number would be a
+// plausible wrong answer, so the tile leads with the fountain's name, drops the
+// arrow, and says where the distance is measured from.
+
 // MARK: - Small: a poster tile
 
 /// A cream tile with the distance set as large as it will go, the way the poster
@@ -25,13 +31,23 @@ struct SmallFountainView: View {
                             CycleButton(count: reading.cycleCount, ink: ink.color)
                         }
                         Spacer(minLength: 0)
-                        DistanceFigure(metres: fountain.distance, size: 64, color: ink.color)
-                        Text(fountain.place)
-                            .font(Typo.ui(15, 800))
-                            .foregroundStyle(ink.color)
-                            .lineLimit(1)
-                            .padding(.top, 2)
-                        Text(fountain.widgetDetail(measuredFromUser: reading.provenance.isMeasuringFromUser))
+                        if reading.isPersonal {
+                            DistanceFigure(metres: fountain.distance, size: 62, color: ink.color)
+                            Text(fountain.place)
+                                .font(Typo.ui(15, 800))
+                                .foregroundStyle(ink.color)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .padding(.top, 2)
+                        } else {
+                            Text(fountain.place.uppercased())
+                                .font(Typo.display(24, 900))
+                                .tracking(Typo.tracking(-0.01, at: 24))
+                                .foregroundStyle(ink.color)
+                                .lineLimit(3)
+                                .minimumScaleFactor(0.6)
+                        }
+                        Text(fountain.widgetDetail(measuredFromUser: reading.isPersonal))
                             .font(Typo.ui(12.5))
                             .foregroundStyle(ink.secondary)
                             .lineLimit(1)
@@ -67,13 +83,7 @@ struct MediumFountainView: View {
             Group {
                 if let fountain = reading.featured {
                     HStack(alignment: .center, spacing: 14) {
-                        VStack(spacing: 3) {
-                            NorthLabel(color: ink.color)
-                            BearingDisc(bearing: fountain.bearing, diameter: 106, needle: ink.color) {
-                                DistanceFigure(metres: fountain.distance, size: 34, color: ink.color)
-                                    .padding(.horizontal, 16)
-                            }
-                        }
+                        dial(for: fountain, ink: ink)
 
                         VStack(alignment: .leading, spacing: 0) {
                             HStack(alignment: .top) {
@@ -92,14 +102,22 @@ struct MediumFountainView: View {
                                 .minimumScaleFactor(0.6)
                                 .padding(.top, 2)
                             Text(fountain.widgetDetail(
-                                measuredFromUser: reading.provenance.isMeasuringFromUser, long: true
+                                measuredFromUser: reading.isPersonal, long: true
                             ))
                                 .font(Typo.ui(13))
                                 .foregroundStyle(ink.secondary)
                                 .lineLimit(1)
                                 .padding(.top, 4)
-                            StateLine(fountain: fountain, size: 12, ink: ink.color)
-                                .padding(.top, 5)
+                            if reading.isPersonal {
+                                StateLine(fountain: fountain, size: 12, ink: ink.color)
+                                    .padding(.top, 5)
+                            } else if let note = reading.provenance.shortNote {
+                                Text(note)
+                                    .font(Typo.ui(12, 700))
+                                    .foregroundStyle(ink.color)
+                                    .lineLimit(1)
+                                    .padding(.top, 5)
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -115,6 +133,21 @@ struct MediumFountainView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             WidgetRiver(height: 12)
+        }
+    }
+
+    @ViewBuilder
+    private func dial(for fountain: Fountain, ink: WidgetInk) -> some View {
+        if reading.isPersonal {
+            VStack(spacing: 3) {
+                NorthLabel(color: ink.color)
+                BearingDisc(bearing: fountain.bearing, diameter: 106, needle: ink.color) {
+                    DistanceFigure(metres: fountain.distance, size: 34, color: ink.color)
+                        .padding(.horizontal, 16)
+                }
+            }
+        } else {
+            OriginDisc(diameter: 106, ink: ink.color)
         }
     }
 }
@@ -133,15 +166,16 @@ struct LargeFountainView: View {
                 if let fountain = reading.featured {
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(alignment: .center, spacing: 14) {
-                            BearingDisc(bearing: fountain.bearing, diameter: 92, needle: ink.color) {
-                                DistanceFigure(metres: fountain.distance, size: 30, color: ink.color)
-                                    .padding(.horizontal, 14)
-                            }
+                            dial(for: fountain, ink: ink)
                             VStack(alignment: .leading, spacing: 0) {
-                                Text(reading.eyebrow)
-                                    .font(Typo.ui(12, 700))
-                                    .foregroundStyle(ink.color)
-                                    .lineLimit(1)
+                                HStack(alignment: .top) {
+                                    Text(reading.eyebrow)
+                                        .font(Typo.ui(12, 700))
+                                        .foregroundStyle(ink.color)
+                                        .lineLimit(1)
+                                    Spacer(minLength: 4)
+                                    CycleButton(count: reading.cycleCount, ink: ink.color)
+                                }
                                 Text(fountain.place.uppercased())
                                     .font(Typo.display(24, 900))
                                     .tracking(Typo.tracking(-0.01, at: 24))
@@ -150,7 +184,7 @@ struct LargeFountainView: View {
                                     .minimumScaleFactor(0.6)
                                     .padding(.top, 2)
                                 Text(fountain.widgetDetail(
-                                    measuredFromUser: reading.provenance.isMeasuringFromUser, long: true
+                                    measuredFromUser: reading.isPersonal, long: true
                                 ))
                                     .font(Typo.ui(12.5))
                                     .foregroundStyle(ink.secondary)
@@ -170,7 +204,7 @@ struct LargeFountainView: View {
                         }
 
                         PosterRule()
-                            .padding(.top, 10)
+                            .padding(.top, 12)
 
                         ForEach(Array(reading.candidates.enumerated()), id: \.element.id) { index, row in
                             Link(destination: row.deepLink) {
@@ -187,11 +221,16 @@ struct LargeFountainView: View {
                                             .lineLimit(1)
                                     }
                                     Spacer(minLength: 0)
-                                    DistanceFigure(metres: row.distance, size: 24, color: ink.color)
+                                    // From the old town, a row's distance is not the
+                                    // reader's: the header already says so, and the
+                                    // row leaves the figure out rather than repeat it.
+                                    if reading.isPersonal {
+                                        DistanceFigure(metres: row.distance, size: 24, color: ink.color)
+                                    }
                                 }
-                                .padding(.vertical, 7)
+                                .padding(.vertical, 10)
                                 .accessibilityElement(children: .combine)
-                                .accessibilityLabel(row.widgetSpoken)
+                                .accessibilityLabel(reading.spoken(row))
                             }
                             if index < reading.candidates.count - 1 {
                                 PosterRule(weight: .light, color: ink.color)
@@ -211,6 +250,18 @@ struct LargeFountainView: View {
             WidgetRiver(height: 12)
         }
     }
+
+    @ViewBuilder
+    private func dial(for fountain: Fountain, ink: WidgetInk) -> some View {
+        if reading.isPersonal {
+            BearingDisc(bearing: fountain.bearing, diameter: 100, needle: ink.color) {
+                DistanceFigure(metres: fountain.distance, size: 32, color: ink.color)
+                    .padding(.horizontal, 14)
+            }
+        } else {
+            OriginDisc(diameter: 100, ink: ink.color)
+        }
+    }
 }
 
 // MARK: - Lock Screen: monochrome shapes
@@ -221,42 +272,55 @@ struct LockRectangularView: View {
 
     var body: some View {
         if let fountain = reading.featured {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle().strokeBorder(.primary, lineWidth: 2)
-                    Needle(
-                        angle: fountain.bearing, diameter: 36,
-                        headWidth: 9, headHeight: 11, headInset: 3, tint: .primary
-                    )
+                    if reading.isPersonal {
+                        Needle(
+                            angle: fountain.bearing, diameter: 32,
+                            headWidth: 8, headHeight: 10, headInset: 3, tint: .primary
+                        )
+                    } else {
+                        Diamond().fill(.primary).frame(width: 11, height: 11)
+                    }
                 }
-                .frame(width: 36, height: 36)
+                .frame(width: 32, height: 32)
                 .widgetAccentable()
 
                 VStack(alignment: .leading, spacing: 1) {
-                    if reading.provenance.isMeasuringFromUser {
+                    if reading.isPersonal {
                         DistanceFigure(metres: fountain.distance, size: 22, color: .primary)
                     } else {
                         Text(reading.eyebrow)
-                            .font(Typo.ui(13, 800))
+                            .font(Typo.ui(12, 800))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     Text(fountain.place)
-                        .font(Typo.ui(13, 700))
+                        .font(Typo.ui(12, 700))
                         .lineLimit(1)
-                    HStack(spacing: 5) {
-                        StateMark(state: fountain.state, size: 11)
-                        Text(fountain.state.shortLabel)
-                            .font(Typo.ui(11.5, 600))
+                        .minimumScaleFactor(0.7)
+                    if reading.isPersonal {
+                        HStack(spacing: 5) {
+                            StateMark(state: fountain.state, size: 11)
+                            Text(fountain.state.shortLabel)
+                                .font(Typo.ui(11.5, 600))
+                                .lineLimit(1)
+                        }
+                    } else {
+                        Text(reading.provenance.shortNote ?? fountain.zone)
+                            .font(Typo.ui(11, 600))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                 }
                 Spacer(minLength: 0)
             }
             .widgetURL(fountain.deepLink)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel(fountain.widgetSpoken)
+            .accessibilityLabel(reading.spoken(fountain))
         } else {
-            Text(reading.savedIsEmpty ? "Nenhuma fonte salva" : "Sem fontes")
+            Text(reading.savedIsEmpty ? String(localized: "Nenhuma fonte salva") : String(localized: "Sem fontes"))
                 .font(Typo.ui(14, 800))
         }
     }
@@ -268,23 +332,24 @@ struct LockCircularView: View {
     var body: some View {
         ZStack {
             Circle().strokeBorder(.primary, lineWidth: 2.5)
-            if let fountain = reading.featured {
+            if let fountain = reading.featured, reading.isPersonal {
                 Needle(
                     angle: fountain.bearing, diameter: 58,
                     headWidth: 10, headHeight: 12, headInset: 3, tint: .primary
                 )
-                Text(reading.provenance.isMeasuringFromUser
-                    ? DistanceFormat.parts(fountain.distance).value : "–")
+                Text(DistanceFormat.parts(fountain.distance).value)
                     .font(Typo.display(20, 900))
                     .minimumScaleFactor(0.6)
             } else {
-                Diamond().stroke(.primary, lineWidth: 2.5).frame(width: 20, height: 20)
+                Diamond()
+                    .stroke(.primary, lineWidth: 2.5)
+                    .frame(width: 20, height: 20)
             }
         }
         .widgetAccentable()
         .widgetURL(reading.featured?.deepLink)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(reading.featured?.widgetSpoken ?? "Sem fonte")
+        .accessibilityLabel(reading.featured.map(reading.spoken) ?? String(localized: "Sem fonte"))
     }
 }
 
@@ -302,7 +367,7 @@ struct LockInlineView: View {
                 Text("Toret · longe de Turim")
             }
         } else {
-            Text(reading.savedIsEmpty ? "Toret · nenhuma salva" : "Toret")
+            Text(reading.savedIsEmpty ? String(localized: "Toret · nenhuma salva") : String(localized: "Toret"))
         }
     }
 }

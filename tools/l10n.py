@@ -5,6 +5,8 @@
     tools/l10n.py merge-plist app|widget   apply tools/l10n/infoplist-*.json to the InfoPlist catalogs
     tools/l10n.py merge-shortcuts          apply tools/l10n/appshortcuts.json (Siri phrase sets) to AppShortcuts.xcstrings
     tools/l10n.py sync [derived-data]      add the literals the compiler found (build first) and mark vanished ones stale
+    tools/l10n.py prune                    delete keys marked stale (they vanished from the code)
+    tools/l10n.py fill                     write explicit pt-BR values (tools/fill-source-language.py)
     tools/l10n.py missing                  print the keys that still lack en or it
 
 A translations file is a JSON object, key (the Portuguese source text, with
@@ -131,6 +133,41 @@ def sync(derived):
             command += ["--stringsdata", path]
         subprocess.run(command, check=True)
     print(f"synced from {len(files)} files and {len(shortcuts)} shortcut files")
+    prune()
+    fill()
+
+
+def prune():
+    catalog = load(CATALOG)
+    # An empty key comes from `TextField("", …)`: nothing to translate.
+    gone = [
+        key for key, entry in catalog["strings"].items()
+        if entry.get("extractionState") == "stale" or key == ""
+    ]
+    for key in gone:
+        del catalog["strings"][key]
+    save(CATALOG, catalog)
+    print(f"pruned {len(gone)} stale keys")
+
+
+def fill():
+    """Xcode leaves a key out of pt-BR.lproj when its value equals the key, and a
+    pt-BR device then falls back to the development region (English). Explicit
+    pt-BR values make Xcode emit the table. Run after every sync."""
+    subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools", "fill-source-language.py")], check=True, cwd=ROOT)
+    # xcstringstool writes the pt-BR side of a multi-argument key with positional
+    # specifiers (%1$@, a %2$lld ...) and state "new". The text is the source text,
+    # so it is already translated; leaving it "new" makes the checker (rightly)
+    # distrust every such key.
+    catalog = load(CATALOG)
+    flipped = 0
+    for entry in catalog["strings"].values():
+        unit = entry.get("localizations", {}).get("pt-BR", {}).get("stringUnit")
+        if unit and unit.get("state") == "new":
+            unit["state"] = "translated"
+            flipped += 1
+    save(CATALOG, catalog)
+    print(f"marked {flipped} pt-BR source values translated")
 
 
 def missing():
@@ -152,6 +189,10 @@ if __name__ == "__main__":
         merge_plist(sys.argv[2])
     elif command == "sync":
         sync(sys.argv[2] if len(sys.argv) > 2 else None)
+    elif command == "prune":
+        prune()
+    elif command == "fill":
+        fill()
     elif command == "missing":
         missing()
     else:

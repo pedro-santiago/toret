@@ -1,60 +1,171 @@
 {
-  "Água corrente": {"en": "Water running", "it": "Acqua che scorre"},
-  "Fluxo fraco": {"en": "Weak flow", "it": "Flusso debole"},
-  "Sem água": {"en": "No water", "it": "Senz’acqua"},
-  "Sem relato recente": {"en": "No recent report", "it": "Nessuna segnalazione recente"},
-
-  "Corrente": {"en": "Running", "it": "Scorre"},
-  "Fraca": {"en": "Weak", "it": "Debole"},
-  "Seca": {"en": "Dry", "it": "Asciutta"},
-  "Sem relato": {"en": "No report", "it": "Non segnalata"},
-
-  "Toret": {"en": "Toret", "it": "Toret"},
-  "Fonte pública": {"en": "Public fountain", "it": "Fontanella"},
-  "Bebedouro": {"en": "Drinking jet", "it": "Fontanella a getto"},
-  "Recarga de garrafa": {"en": "Bottle refill", "it": "Ricarica borracce"},
-
-  "Acessível": {"en": "Accessible", "it": "Accessibile"},
-  "Acesso parcial": {"en": "Partly accessible", "it": "Accesso parziale"},
-  "Sem acesso": {"en": "Not accessible", "it": "Non accessibile"},
-
-  "Turim": {"en": "Turin", "it": "Torino"},
-  "%@ n. %@": {"en": "%@ no. %@", "it": "%@ n. %@"},
-
-  "Água gelada": {"en": "Cold water", "it": "Acqua fredda"},
-  "Limpa": {"en": "Clean", "it": "Pulita"},
-  "Bom fluxo": {"en": "Good flow", "it": "Buon flusso"},
-  "Fácil de alcançar": {"en": "Easy to reach", "it": "Facile da raggiungere"},
-  "À sombra": {"en": "In the shade", "it": "All’ombra"},
-  "Suja": {"en": "Dirty", "it": "Sporca"},
-  "Difícil de achar": {"en": "Hard to find", "it": "Difficile da trovare"},
-
-  "Sem relatos": {"en": "No reports", "it": "Nessuna segnalazione"},
-  "Último relato %@": {"en": "Last report %@", "it": "Ultima segnalazione %@"},
-  "Relato %@": {"en": "Reported %@", "it": "Segnalato %@"},
-  "%lld avaliações": {"plural": {
-    "pt-BR": {"one": "%lld avaliação", "other": "%lld avaliações"},
-    "en": {"one": "%lld rating", "other": "%lld ratings"},
-    "it": {"one": "%lld valutazione", "many": "%lld di valutazioni", "other": "%lld valutazioni"}
-  }},
-
-  "Sem relato de seca": {"en": "No dry reports", "it": "Senza segnalazioni di secca"},
-  "Para garrafa": {"en": "For bottles", "it": "Per borracce"},
-  "Para cães": {"en": "Dog-friendly", "it": "Per cani"},
-
-  "Siga na direção da fonte": {"en": "Head towards the fountain", "it": "Vai verso la fontanella"},
-  "Chegada à fonte": {"en": "Arrive at the fountain", "it": "Arrivo alla fontanella"},
-  "%@, a %@": {"en": "%@, %@ away", "it": "%@, a %@"},
-  "Siga em frente": {"en": "Continue straight", "it": "Prosegui dritto"},
-  "Depois: %@": {"en": "Then: %@", "it": "Poi: %@"},
-
-  "Fonte a %lld m": {"en": "Drinking fountain %lld m away", "it": "Fontanella a %lld m"},
-  "%@ · %@. Toque para traçar a rota.": {
-    "en": "%1$@ · %2$@. Tap for walking directions.",
-    "it": "%1$@ · %2$@. Tocca per il percorso a piedi."
-  },
-  "%@ · %@. Relato recente: %@. Toque para traçar a rota.": {
-    "en": "%1$@ · %2$@. Recent report: %3$@. Tap for walking directions.",
-    "it": "%1$@ · %2$@. Segnalazione recente: %3$@. Tocca per il percorso a piedi."
+ "Água corrente": {
+  "en": "Water running",
+  "it": "Acqua che scorre"
+ },
+ "Fluxo fraco": {
+  "en": "Weak flow",
+  "it": "Flusso debole"
+ },
+ "Sem água": {
+  "en": "No water",
+  "it": "Senz’acqua"
+ },
+ "Sem relato recente": {
+  "en": "No recent report",
+  "it": "Nessuna segnalazione recente"
+ },
+ "Corrente": {
+  "en": "Running",
+  "it": "Scorre"
+ },
+ "Fraca": {
+  "en": "Weak",
+  "it": "Debole"
+ },
+ "Seca": {
+  "en": "Dry",
+  "it": "Asciutta"
+ },
+ "Sem relato": {
+  "en": "No report",
+  "it": "Non segnalata"
+ },
+ "Toret": {
+  "en": "Toret",
+  "it": "Toret"
+ },
+ "Fonte pública": {
+  "en": "Public fountain",
+  "it": "Fontanella"
+ },
+ "Bebedouro": {
+  "en": "Drinking jet",
+  "it": "Fontanella a getto"
+ },
+ "Recarga de garrafa": {
+  "en": "Bottle refill",
+  "it": "Ricarica borracce"
+ },
+ "Acessível": {
+  "en": "Accessible",
+  "it": "Accessibile"
+ },
+ "Acesso parcial": {
+  "en": "Partly accessible",
+  "it": "Accesso parziale"
+ },
+ "Sem acesso": {
+  "en": "Not accessible",
+  "it": "Non accessibile"
+ },
+ "Turim": {
+  "en": "Turin",
+  "it": "Torino"
+ },
+ "%@ n. %@": {
+  "en": "%@ no. %@",
+  "it": "%@ n. %@"
+ },
+ "Água gelada": {
+  "en": "Cold water",
+  "it": "Acqua fredda"
+ },
+ "Limpa": {
+  "en": "Clean",
+  "it": "Pulita"
+ },
+ "Bom fluxo": {
+  "en": "Good flow",
+  "it": "Buon flusso"
+ },
+ "Fácil de alcançar": {
+  "en": "Easy to reach",
+  "it": "Facile da raggiungere"
+ },
+ "À sombra": {
+  "en": "In the shade",
+  "it": "All’ombra"
+ },
+ "Suja": {
+  "en": "Dirty",
+  "it": "Sporca"
+ },
+ "Difícil de achar": {
+  "en": "Hard to find",
+  "it": "Difficile da trovare"
+ },
+ "Sem relatos": {
+  "en": "No reports",
+  "it": "Nessuna segnalazione"
+ },
+ "Último relato %@": {
+  "en": "Last report %@",
+  "it": "Ultima segnalazione %@"
+ },
+ "Relato %@": {
+  "en": "Reported %@",
+  "it": "Segnalato %@"
+ },
+ "%lld avaliações": {
+  "plural": {
+   "pt-BR": {
+    "one": "%lld avaliação",
+    "other": "%lld avaliações"
+   },
+   "en": {
+    "one": "%lld rating",
+    "other": "%lld ratings"
+   },
+   "it": {
+    "one": "%lld valutazione",
+    "many": "%lld di valutazioni",
+    "other": "%lld valutazioni"
+   }
   }
+ },
+ "Sem relato de seca": {
+  "en": "No dry reports",
+  "it": "Non asciutte"
+ },
+ "Para garrafa": {
+  "en": "For bottles",
+  "it": "Per borracce"
+ },
+ "Para cães": {
+  "en": "Dog-friendly",
+  "it": "Per cani"
+ },
+ "Siga na direção da fonte": {
+  "en": "Head towards the fountain",
+  "it": "Vai verso la fontanella"
+ },
+ "Chegada à fonte": {
+  "en": "Arrive at the fountain",
+  "it": "Arrivo alla fontanella"
+ },
+ "%@, a %@": {
+  "en": "%@, %@ away",
+  "it": "%@, a %@"
+ },
+ "Siga em frente": {
+  "en": "Continue straight",
+  "it": "Prosegui dritto"
+ },
+ "Depois: %@": {
+  "en": "Then: %@",
+  "it": "Poi: %@"
+ },
+ "Fonte a %lld m": {
+  "en": "Drinking fountain %lld m away",
+  "it": "Fontanella a %lld m"
+ },
+ "%@ · %@. Toque para traçar a rota.": {
+  "en": "%1$@ · %2$@. Tap for walking directions.",
+  "it": "%1$@ · %2$@. Tocca per il percorso a piedi."
+ },
+ "%@ · %@. Relato recente: %@. Toque para traçar a rota.": {
+  "en": "%1$@ · %2$@. Recent report: %3$@. Tap for walking directions.",
+  "it": "%1$@ · %2$@. Segnalazione recente: %3$@. Tocca per il percorso a piedi."
+ }
 }

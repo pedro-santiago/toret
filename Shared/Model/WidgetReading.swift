@@ -228,39 +228,21 @@ struct WidgetReading: Sendable {
 // MARK: - Saying it
 
 extension Bearing {
-    /// The eight winds, in Portuguese: N, NE, L, SE, S, SO, O, NO.
+    /// The eight winds as a map writes them, in the reader's language: N, NE, L, SE,
+    /// S, SO, O, NO in Portuguese; N, NE, E, SE, S, SW, W, NW in English.
     ///
     /// A widget cannot know which way the phone faces, so it names the direction
     /// the way a map would — which is also what the compass screen prints on its
     /// own dial (N, L, S, O).
     static func cardinal(_ degrees: Double) -> String {
-        let names = ["N", "NE", "L", "SE", "S", "SO", "O", "NO"]
+        let names = [
+            String(localized: "N"), String(localized: "NE"), String(localized: "L"),
+            String(localized: "SE"), String(localized: "S"), String(localized: "SO"),
+            String(localized: "O"), String(localized: "NO"),
+        ]
         let normalised = (degrees.truncatingRemainder(dividingBy: 360) + 360)
             .truncatingRemainder(dividingBy: 360)
         return names[Int((normalised + 22.5) / 45) % 8]
-    }
-}
-
-/// A distance as a figure and a unit: 84 → "84" "m", 1240 → "1,2" "km".
-enum DistanceFormat {
-    static func parts(_ metres: Int) -> (value: String, unit: String) {
-        guard metres >= 1000 else { return (String(metres), "m") }
-        let kilometres = (Double(metres) / 1000).formatted(
-            .number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))
-        )
-        return (kilometres, "km")
-    }
-
-    static func spoken(_ metres: Int) -> String {
-        guard metres >= 1000 else {
-            return metres == 1 ? "1 metro" : "\(metres) metros"
-        }
-        return parts(metres).value + " quilômetros"
-    }
-
-    static func short(_ metres: Int) -> String {
-        let parts = parts(metres)
-        return "\(parts.value) \(parts.unit)"
     }
 }
 

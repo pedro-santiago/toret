@@ -133,6 +133,28 @@ struct PosterTitle: View {
         self.ruleColor = ruleColor
     }
 
+    /// A title that changes with the language. The two lines are one catalog entry,
+    /// split by a newline — `PosterTitle(localized: "PER\nTO")` — so a translator
+    /// re-cuts the word to fill the plate in their language ("NEAR / BY",
+    /// "VICI / NO") instead of translating each half on its own. Keep every line
+    /// to about five letters at 104 pt; longer ones shrink to fit.
+    init(
+        localized title: LocalizedStringResource, size: CGFloat = 84,
+        color: Color = Palette.inchiostro, ruleColor: Color = Palette.inchiostro
+    ) {
+        self.init(
+            lines: String(localized: title).components(separatedBy: "\n"),
+            size: size, color: color, ruleColor: ruleColor
+        )
+    }
+
+    private init(lines: [String], size: CGFloat, color: Color, ruleColor: Color) {
+        self.lines = lines
+        self.size = size
+        self.color = color
+        self.ruleColor = ruleColor
+    }
+
     var body: some View {
         let font = Typo.uiDisplay(size, 900)
         HStack(alignment: .top, spacing: size * 0.16) {

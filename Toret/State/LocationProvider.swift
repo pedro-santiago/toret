@@ -199,7 +199,7 @@ extension LocationStatus {
         case .approximate:
             String(localized: "Localização aproximada. Ative a posição precisa para distâncias exatas.")
         case let .outsideTurin(kilometres):
-            String(localized: "Você está a \(kilometres.formatted(.number.locale(Locale(identifier: "pt_BR")))) km de Turim. Distâncias medidas a partir da Piazza San Carlo.")
+            String(localized: "Você está a \(Formatting.integer(kilometres)) km de Turim. Distâncias medidas a partir da Piazza San Carlo.")
         }
     }
 }

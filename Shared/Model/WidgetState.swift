@@ -49,8 +49,10 @@ extension Fountain {
     /// A widget has no focus ring, so VoiceOver gets the whole sentence at once.
     var widgetSpoken: String {
         let minutes = walkingMinutes
-        let walk = minutes == 1 ? "1 minuto a pé" : "\(minutes) minutos a pé"
-        let status = state == .unknown ? "" : ", \(state.label.lowercased())"
-        return "\(place), \(DistanceFormat.spoken(distance)) para \(Bearing.spokenCardinal(bearing)), \(walk)\(status)"
+        let walk = String(localized: "\(minutes) minutos a pé")
+        let sentence = String(
+            localized: "\(place), \(DistanceFormat.spoken(distance)) para \(Bearing.spokenCardinal(bearing)), \(walk)"
+        )
+        return state == .unknown ? sentence : sentence + ", " + state.label.lowercased()
     }
 }

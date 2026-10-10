@@ -49,7 +49,7 @@ struct WalkingRoute: Hashable {
         remaining = total
         toNextTurn = firstLeg
         headline = String(localized: "Siga na direção da fonte")
-        subhead = String(localized: "\(fountain.place), a \(Formatting.distance(metres: total))")
+        subhead = String(localized: "\(fountain.place), a \(DistanceFormat.short(total))")
         minutes = fountain.walkingMinutes
         polyline = nil
     }

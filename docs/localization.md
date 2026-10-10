@@ -69,25 +69,68 @@ tools/l10n/appshortcuts.json     Siri phrase sets
    - Anything that is a plain `String` (model labels, notification text, accessibility
      strings built in code): `String(localized: "Salvar")`.
    - App Intents and widgets: `LocalizedStringResource` / `IntentDescription` literals.
+   - Poster titles: `PosterTitle(localized: "PER\nTO")`. See below.
 2. Build, then fold what the compiler found into the catalog:
    `xcodebuild … -derivedDataPath build/i18n build && tools/l10n.py sync`
-   (`SWIFT_EMIT_LOC_STRINGS` is on, so each build writes `.stringsdata`; `sync` marks
-   strings that vanished from the code as stale).
+   (`SWIFT_EMIT_LOC_STRINGS` is on, so each build writes `.stringsdata`). `sync` also runs
+   `fill`, which writes explicit pt-BR values: Xcode leaves a key out of `pt-BR.lproj`
+   when its value equals the key, and a Portuguese device would then fall back to
+   English. Run `tools/l10n.py prune` to drop keys that vanished from the code.
 3. Add the English and Italian to a `tools/l10n/*.json` file and run
-   `tools/l10n.py merge`.
-4. `tools/check-localization.py` must print `0 problems`.
+   `tools/l10n.py merge tools/l10n/model.json tools/l10n/interface.json`.
+4. `tools/check-localization.py` must print `0 problems`. It also lints the Swift sources
+   for the two traps below.
 
-Never build a sentence by gluing translated pieces: give the translator the whole
-sentence with the variable inside it (`"Relato recente: \(state). Toque…"`), so every
-language can order the words its own way. Use positional specifiers (`%1$@`, `%2$@`)
-in a translation that needs a different order.
+### The two ways a literal looks localized and is not
+
+SwiftUI localizes a *literal* handed to `Text`, `Button`, `Label`, `Toggle` and the
+accessibility modifiers. It does not localize:
+
+- **A ternary of literals**: `Text(saved ? "Remover" : "Salvar")` picks the verbatim
+  `String` overload. Write `Text(saved ? String(localized: "Remover") : String(localized: "Salvar"))`.
+- **A `String` parameter**: `FactRow(label: "Tipo")` where `label: String` is shown
+  verbatim. Either type the parameter `LocalizedStringKey` (the literal then extracts)
+  or pass `String(localized:)`.
+
+Having the key in the catalog proves nothing about this: the same text may be extracted
+from somewhere else. The only test is to look at the screen in another language, which
+is what `tools/l10n-screenshots.sh` is for.
+
+### Poster titles
+
+The big two-line titles (`PosterTitle`) are one catalog entry with a newline between the
+lines, so the translator re-cuts the *word* to fill the plate in their language instead
+of translating two halves: `"PER\nTO"` is `NEAR\nBY` in English and `VICI\nNO` in Italian.
+Keep every line to about five letters at 104 pt; a longer line shrinks to fit. The
+current cuts: Nearby `PER/TO` · `NEAR/BY` · `VICI/NO`; Saved `SAL/VAS` · `SAV/ED` ·
+`SAL/VATE`; Settings `AJUS/TES` · `SET/TINGS` · `OPZIO/NI`; Reports `RELA/TOS` ·
+`REPOR/TS` · `SEGNA/LAZIONI`.
+
+### Vocabulary
+
+| Concept | pt-BR | English | Italian |
+| --- | --- | --- | --- |
+| a drinking fountain | fonte | fountain | fontanella |
+| a community post | relato | report | segnalazione |
+| to flag a post | denunciar | flag | segnala |
+| a saved fountain | salva | saved | salvata |
+| distance measured from | a partir de | from | da |
+
+Italian says *fontanella*, never *fonte* (a spring); *salvate*, not *preferite*, so the
+tab, the title and the buttons agree. Italian speaks to the reader as *tu*. Where a
+gendered form would be needed for the reader ("sei arrivato/a"), the sentence is
+rewritten to avoid it ("Destinazione raggiunta"). English is US spelling (meters,
+neighborhood, center).
 
 ### Plurals
 
-Counts use catalog plural variations, not `if count == 1`. English and Portuguese have
-`one` and `other`; Italian has `one`, `many` (only for numbers like 1 000 000, which
-share the `other` text here) and `other`. Example: `%lld avaliações` → "1 rating",
-"2 ratings", "1 valutazione", "2 valutazioni", "1 avaliação", "2 avaliações".
+Counts use catalog plural variations where the noun changes (`%lld avaliações` → "1 rating",
+"2 ratings", "1 valutazione", "2 valutazioni", "1 avaliação", "2 avaliações"; `%lld metros`;
+`%lld minutos a pé`). A few older sentences branch on `count == 1` in code and carry two
+keys (`1 fonte a até 500 m %@.` / `%lld fontes a até 500 m %@.`); each is translated
+on its own. Never glue translated pieces into a sentence: give the translator the whole
+sentence with the variable inside it, and use positional specifiers (`%1$@`, `%2$@`) in a
+translation that needs another word order.
 
 ## Numbers, dates, distances
 
@@ -95,9 +138,11 @@ Everything goes through `Shared/Model/Formatting.swift`; nothing hard-codes a lo
 (`Locale(identifier: "pt_BR")` anywhere in `Shared/` or `Toret/` is a bug.)
 
 - Ratings: "4,6" in Portuguese and Italian, "4.6" in English.
-- Distances: **metric in every language** ("84 m", "1,2 km"). The fountains are in
-  Italy; an American reader still needs metres to walk Via Po. `Measurement` is used
-  with `usage: .asProvided` so it never converts to feet or miles.
+- Distances: **metric in every language** ("84 m", "1,2 km"), through
+  `DistanceFormat` (`Shared/Model/Formatting.swift`), which every surface uses: rows,
+  compass, widgets, Live Activity, Siri. The fountains are in Italy; an American reader
+  still needs meters to walk Via Po. It never converts to feet or miles. Spoken forms
+  ("84 meters", "1.2 kilometers") are catalog strings with their own plurals.
 - Relative times: "há 2 h", "2 hr. ago", "2 h fa", from `RelativeDateTimeFormatter`.
 - Clock: 24 h or 12 h as the device is set.
 - MapKit's walking instructions arrive already translated by the system. Our own

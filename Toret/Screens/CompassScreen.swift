@@ -276,7 +276,7 @@ struct CompassScreen: View {
                 Button { model.select(other) } label: {
                     HStack(spacing: 14) {
                         StateMark(state: other.state, size: 20, night: true)
-                        Text(other.place)
+                        Text(other.place(distinguishedIn: model.nearest3))
                             .font(Typo.ui(16, other.id == fountain.id ? 700 : 500))
                             .foregroundStyle(Palette.carta)
                             .lineLimit(1)
@@ -314,8 +314,8 @@ struct CompassScreen: View {
                     .font(Typo.ui(15, 600))
                     .foregroundStyle(Palette.carta)
                 Text(model.compassAlwaysVisible
-                    ? "Na tela bloqueada e no widget"
-                    : "Só dentro do app")
+                    ? String(localized: "Na tela bloqueada e no widget")
+                    : String(localized: "Só dentro do app"))
                     .font(Typo.ui(12.5))
                     .foregroundStyle(Palette.carta.opacity(0.7))
             }

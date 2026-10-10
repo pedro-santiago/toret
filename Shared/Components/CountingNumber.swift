@@ -51,26 +51,6 @@ struct CountingMetres: View {
     }
 }
 
-extension DistanceFormat {
-    /// The unit a distance is shown in: "m" under a kilometre, "km" from there.
-    ///
-    /// Chosen from the *target* of a count-up, not from the value passing through
-    /// on the way, so the unit does not flicker while the figure runs.
-    static func unit(for metres: Int) -> String { metres >= 1000 ? "km" : "m" }
-
-    /// The figure alone, in `unit`: "84", "1,2", "12". Under ten kilometres it
-    /// keeps one decimal, because 1,2 km and 1,9 km are different walks; from ten
-    /// up the decimal is noise.
-    static func figure(_ metres: Int, unit: String) -> String {
-        guard unit == "km" else { return String(max(0, metres)) }
-        let kilometres = Double(max(0, metres)) / 1000
-        if kilometres >= 10 { return String(Int(kilometres.rounded())) }
-        return kilometres.formatted(
-            .number.precision(.fractionLength(1)).locale(Locale(identifier: "pt_BR"))
-        )
-    }
-}
-
 /// A distance that counts, and says "km" once it has to. Set the unit beside it
 /// with `DistanceFormat.unit(for:)` on the same `metres`.
 ///
