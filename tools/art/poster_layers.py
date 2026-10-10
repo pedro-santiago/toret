@@ -293,7 +293,7 @@ def build_masks(idx):
     mole_ink = idx.copy()
     behind = box_mask(shape, 548, 1085, 960, 1150)   # a hand's breadth: only the tilt can open a gap here
     fill = behind & ~mole
-    fill &= (np.arange(shape[0])[:, None] >= up(1100))
+    fill &= (np.arange(shape[0])[:, None] >= up(MOLE_FILL_TOP))
     mole |= fill
     mole_ink[fill] = FACCIATA
 
@@ -306,9 +306,13 @@ def build_masks(idx):
     corner |= box_mask(shape, 58, ARCADE_BOTTOM, CORNER_RIGHT, 1614)
     quay = box_mask(shape, CORNER_RIGHT, QUAY_TOP, 1224, 1614)
     quay &= ~box_mask(shape, RIVER_LEFT, RIVER_TOP, 1224, 1614)
+    # The poster's own right margin leaves a block of bare stock on top of the bridge; it is stone.
+    quay_ink = idx.copy()
+    bridge = box_mask(shape, 900, QUAY_TOP, 1224, RIVER_TOP)
+    quay_ink[bridge & (idx == CARTA)] = FACCIATA
 
     return {"mole": mole, "mole_ink": mole_ink, "city": city, "city_ink": city_ink, "alps": alps,
-            "alps_ink": alps_ink, "corner": corner, "quay": quay, "sun": sun, "dot": dot,
+            "alps_ink": alps_ink, "corner": corner, "quay": quay, "quay_ink": quay_ink, "sun": sun, "dot": dot,
             "background": background}
 
 
@@ -358,7 +362,8 @@ def difference(composite, idx):
 
 # The scene is the poster without its empty left margin and the empty sky above the spire.
 ORIGIN = (58, 30)
-SIDE_PAD = 64
+SIDE_PAD = 192            # 128 for a screen wider than the poster, 64 more for the tilt to slide into
+MOLE_FILL_TOP = 1100          # below this the Mole's layer is only filler, hidden by the city
 SCENE = (1224 - 58, 1614 - 30)
 
 
@@ -402,15 +407,25 @@ def export(masks, idx, out):
             # left margin was painted out to stock colour, and the filters leave the first few
             # columns blended with it.
             inner = 8
+            crop_ink = crop_ink.copy()
+            crop_alpha = crop_alpha.copy()
             if left_pad:
-                crop_ink = crop_ink.copy()
-                crop_alpha = crop_alpha.copy()
                 crop_ink[:, :inner] = crop_ink[:, inner:inner + 1]
                 crop_alpha[:, :inner] = crop_alpha[:, inner:inner + 1]
-            left_ink = np.repeat(crop_ink[:, inner:inner + 1], left_pad, axis=1)
-            left_alpha = np.repeat(crop_alpha[:, inner:inner + 1], left_pad, axis=1)
-            right_ink = np.repeat(crop_ink[:, -1:], right_pad, axis=1)
-            right_alpha = np.repeat(crop_alpha[:, -1:], right_pad, axis=1)
+            if right_pad:
+                crop_ink[:, -inner:] = crop_ink[:, -inner - 1:-inner]
+                crop_alpha[:, -inner:] = crop_alpha[:, -inner - 1:-inner]
+            if name == "city":
+                # The arcades continue as their own mirror image, not as a smear of one column.
+                left_ink = crop_ink[:, inner + 1:inner + 1 + left_pad][:, ::-1]
+                left_alpha = crop_alpha[:, inner + 1:inner + 1 + left_pad][:, ::-1]
+                right_ink = crop_ink[:, -1 - right_pad:-1][:, ::-1]
+                right_alpha = crop_alpha[:, -1 - right_pad:-1][:, ::-1]
+            else:
+                left_ink = np.repeat(crop_ink[:, inner:inner + 1], left_pad, axis=1)
+                left_alpha = np.repeat(crop_alpha[:, inner:inner + 1], left_pad, axis=1)
+                right_ink = np.repeat(crop_ink[:, -1:], right_pad, axis=1)
+                right_alpha = np.repeat(crop_alpha[:, -1:], right_pad, axis=1)
             crop_ink = np.concatenate([left_ink, crop_ink, right_ink], axis=1)
             crop_alpha = np.concatenate([left_alpha, crop_alpha, right_alpha], axis=1)
             x0, x1 = x0 - left_pad, x1 + right_pad
@@ -462,6 +477,12 @@ def swift_geometry(manifest):
         lines.append(
             f"    static let {name} = Placement(image: \"{spec['file']}\", frame: CGRect("
             f"x: {num(spec['x'])}, y: {num(spec['y'])}, width: {num(spec['w'])}, height: {num(spec['h'])}))")
+    lines += [
+        "",
+        "    /// Where the Mole's own artwork ends. Below it the layer holds only filler that the city hides;",
+        "    /// a screen that shows the Mole alone clips the scene here.",
+        f"    static let moleBase: CGFloat = {MOLE_FILL_TOP - ORIGIN[1]}",
+    ]
     lines += ["", "    struct Disc: Sendable {", "        let centre: CGPoint", "        let radii: CGSize", "        let angle: Double", "    }", ""]
     for key in ("sun", "dot"):
         d = manifest[key]

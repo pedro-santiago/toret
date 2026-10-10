@@ -137,7 +137,7 @@ struct ParallaxScene: View {
     private func river(scale: CGFloat, flowing: Bool) -> some View {
         // Wider than the poster's river by the sideways overscan, so a tilt never shows its edge.
         let frame = PosterSceneGeometry.river
-        let overscan = 64 * scale
+        let overscan = ParallaxMath.layoutInset * scale
         return RiverView(flowing: flowing, scale: scale)
             .frame(width: frame.width * scale + overscan, height: frame.height * scale)
             .position(

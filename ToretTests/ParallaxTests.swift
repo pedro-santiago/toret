@@ -245,6 +245,27 @@ struct PosterSceneLayerTests {
         }
     }
 
+    /// The Perto cover shows the poster wider than it is, on the layers' padding, and the
+    /// tilt then slides the layers by up to 14 points: the padding has to hold both, down to
+    /// the narrowest phone.
+    @Test("The padding covers the cover's overscan and the tilt's travel")
+    func paddingRoom() {
+        let narrowestPhone: CGFloat = 320
+        let windowWidth = PosterSceneGeometry.size.width + 2 * ParallaxMath.coverReach
+        let scale = narrowestPhone / windowWidth
+        let spare = (ParallaxMath.layoutInset - ParallaxMath.coverReach) * scale
+        #expect(spare >= ParallaxMath.maximumTilt)
+    }
+
+    /// A screen that shows the Mole alone clips at its base; below that the layer is filler
+    /// that only the city is meant to hide.
+    @Test("The Mole's base lies inside its layer")
+    func moleBase() {
+        let mole = PosterSceneGeometry.mole.frame
+        #expect(PosterSceneGeometry.moleBase > mole.minY)
+        #expect(PosterSceneGeometry.moleBase < mole.maxY)
+    }
+
     @Test("The sun and the dot fit inside the scene")
     func discs() {
         let size = PosterSceneGeometry.size

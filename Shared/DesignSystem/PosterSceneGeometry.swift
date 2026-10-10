@@ -11,11 +11,15 @@ enum PosterSceneGeometry {
         let frame: CGRect
     }
 
-    static let alps = Placement(image: "scene-alps", frame: CGRect(x: -64, y: 752.5, width: 666, height: 357.5))
+    static let alps = Placement(image: "scene-alps", frame: CGRect(x: -192, y: 752.5, width: 794, height: 357.5))
     static let mole = Placement(image: "scene-mole", frame: CGRect(x: 489.5, y: 16, width: 412.5, height: 1104))
-    static let city = Placement(image: "scene-city", frame: CGRect(x: -64, y: 956.5, width: 1294, height: 445.5))
-    static let corner = Placement(image: "scene-corner", frame: CGRect(x: -64, y: 1165, width: 496, height: 419))
-    static let quay = Placement(image: "scene-quay", frame: CGRect(x: 432, y: 1262, width: 798, height: 322))
+    static let city = Placement(image: "scene-city", frame: CGRect(x: -192, y: 956.5, width: 1550, height: 445.5))
+    static let corner = Placement(image: "scene-corner", frame: CGRect(x: -192, y: 1165, width: 624, height: 419))
+    static let quay = Placement(image: "scene-quay", frame: CGRect(x: 432, y: 1262, width: 926, height: 322))
+
+    /// Where the Mole's own artwork ends. Below it the layer holds only filler that the city hides;
+    /// a screen that shows the Mole alone clips the scene here.
+    static let moleBase: CGFloat = 1070
 
     struct Disc: Sendable {
         let centre: CGPoint

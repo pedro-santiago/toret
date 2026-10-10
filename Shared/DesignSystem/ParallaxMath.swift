@@ -19,7 +19,10 @@ enum ParallaxMath {
     /// moved back by a render offset: SwiftUI does not draw a view's overflow past the left
     /// edge of its parent's layout, so the padding that covers a tilt has to live in
     /// positive coordinates.
-    static let layoutInset: CGFloat = 64
+    static let layoutInset: CGFloat = 192
+    /// How far a screen wider than the poster may show past its edges: the padding less the
+    /// room the tilt needs, which is about 14 points of travel at the scale of a phone.
+    static let coverReach: CGFloat = 128
     /// Scrolling beyond this does not move the layers further: past it the header is gone.
     static let maximumScroll: CGFloat = 320
 
