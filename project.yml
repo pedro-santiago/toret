@@ -1,0 +1,148 @@
+name: Toret
+options:
+  bundleIdPrefix: br.tec.nuance
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    GCC_WARN_INHIBIT_ALL_WARNINGS: NO
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  Toret:
+    type: application
+    platform: iOS
+    sources:
+      - path: Toret
+        excludes:
+          - PrivacyInfo.xcprivacy
+      - path: Toret/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: br.tec.nuance.toret
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_CFBundleDisplayName: Toret
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: YES
+        CODE_SIGN_ENTITLEMENTS: Toret/Toret.entitlements
+        # The community feed's CloudKit container. Empty outside Release, which is
+        # what makes the app fall back to a file on the device: a CKContainer
+        # created without the iCloud entitlement crashes instead of failing.
+        TORET_CLOUDKIT_CONTAINER: ""
+      configs:
+        Release:
+          CODE_SIGN_ENTITLEMENTS: Toret/Toret.Release.entitlements
+          TORET_CLOUDKIT_CONTAINER: iCloud.br.tec.nuance.toret
+    info:
+      path: Toret/Info.plist
+      properties:
+        CFBundleDisplayName: Toret
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSLocationWhenInUseUsageDescription: >-
+          O Toret usa a sua localização para apontar a agulha para a fonte mais
+          próxima e calcular a distância a pé.
+        NSLocationAlwaysAndWhenInUseUsageDescription: >-
+          Com a localização sempre ativa, a bússola do Toret continua visível na
+          tela bloqueada e no widget, e você é avisado quando passa perto de uma fonte.
+        UIBackgroundModes:
+          - location
+        NSSupportsLiveActivities: true
+        ToretCloudContainer: "$(TORET_CLOUDKIT_CONTAINER)"
+        CFBundleURLTypes:
+          - CFBundleURLName: br.tec.nuance.toret
+            CFBundleURLSchemes:
+              - toret
+        UIAppFonts:
+          - Archivo.ttf
+          - LeagueSpartan.ttf
+        CFBundleLocalizations:
+          - pt-BR
+        CFBundleDevelopmentRegion: pt-BR
+        ITSAppUsesNonExemptEncryption: false
+    dependencies:
+      - target: ToretWidgetsExtension
+
+  ToretWidgetsExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ToretWidgets
+        excludes:
+          - PrivacyInfo.xcprivacy
+      - path: ToretWidgets/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Shared
+      - path: Toret/Resources/Fonts
+        buildPhase: resources
+        excludes:
+          - "*.txt"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: br.tec.nuance.toret.widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        PRODUCT_NAME: ToretWidgets
+        INFOPLIST_KEY_CFBundleDisplayName: Toret
+        ENABLE_PREVIEWS: YES
+        SKIP_INSTALL: YES
+        CODE_SIGN_ENTITLEMENTS: ToretWidgets/ToretWidgets.entitlements
+    info:
+      path: ToretWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Toret
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UIAppFonts:
+          - Archivo.ttf
+          - LeagueSpartan.ttf
+        NSWidgetWantsLocation: true
+        NSLocationWhenInUseUsageDescription: >-
+          O Toret usa a sua localização para mostrar, no widget, a distância até a
+          fonte mais próxima.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+  ToretTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ToretTests
+    dependencies:
+      - target: Toret
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: br.tec.nuance.toret.tests
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Toret:
+    build:
+      targets:
+        Toret: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - ToretTests
+    archive:
+      config: Release

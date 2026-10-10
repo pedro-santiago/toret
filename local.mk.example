@@ -1,0 +1,11 @@
+# Copy to local.mk (which is gitignored) and fill in. Never commit local.mk.
+#
+# App Store Connect API key, for `make archive` / `make testflight`.
+# The key file itself goes in ~/.appstoreconnect/private_keys/AuthKey_<ASC_KEY_ID>.p8
+# and never in this repository.
+ASC_KEY_ID = XXXXXXXXXX
+ASC_ISSUER = 00000000-0000-0000-0000-000000000000
+
+# Optional: your own signing teams.
+# TEAM     = YOURPERSONALTEAMID
+# ASC_TEAM = YOURPAIDTEAMID

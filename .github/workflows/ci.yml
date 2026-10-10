@@ -1,0 +1,22 @@
+name: CI
+
+# Manual for now: this has not been run on a GitHub runner yet, and the simulator
+# name below may not exist on the hosted image. Enable push/pull_request once it
+# has been seen to pass.
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate --quiet
+      - name: Test
+        run: |
+          xcodebuild test -project Toret.xcodeproj -scheme Toret \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -derivedDataPath build/ci CODE_SIGNING_ALLOWED=NO
