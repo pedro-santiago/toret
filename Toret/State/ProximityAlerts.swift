@@ -29,7 +29,10 @@ final class ProximityAlerts {
     /// only ones that can plausibly fire before the next fix redraws them anyway.
     private static let maximumRegions = 8
 
-    private static let monitorName = "toret.proximity"
+    /// Letters and digits only: CLMonitor asserts on any other character, and a name
+    /// with a dot in it ("toret.proximity") crashed the app at launch the moment a
+    /// user had granted both location and notifications.
+    private static let monitorName = "toretproximity"
     private static func identifier(for fountain: Fountain) -> String { "fonte-\(fountain.id)" }
 
     private let manager = CLLocationManager()
