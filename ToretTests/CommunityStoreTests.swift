@@ -137,11 +137,17 @@ struct CommunityStoreTests {
         let backend = FakeBackend(availability: .signedOut, token: nil)
         let community = makeCommunity(backend: backend)
 
-        let result = community.submit(ReportDraft(fountainID: "f1", state: .running))
+        // The app has already refreshed by the time anyone can open the sheet, so
+        // availability is known. Before that first flush it is not, and a shared
+        // backend says "waiting for a connection" rather than guessing.
+        #expect(community.delivery == .waitingForConnection)
         await community.flush()
         #expect(community.availability == .signedOut)
-        #expect(result == .accepted(.sending) || result == .accepted(.waitingForICloud))
+
+        let result = community.submit(ReportDraft(fountainID: "f1", state: .running))
+        #expect(result == .accepted(.waitingForICloud))
         #expect(community.delivery == .waitingForICloud)
+        await community.flush()
         #expect(await backend.saveAttempts == 0)
         #expect(community.pendingCount == 1)
 

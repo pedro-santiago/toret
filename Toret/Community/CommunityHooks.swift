@@ -17,7 +17,7 @@ struct CommunityHooks: ViewModifier {
             .task {
                 #if DEBUG
                 if ProcessInfo.processInfo.arguments.contains("-toret-seed-reports") {
-                    community.seedSamples(fountains: model.byDistance)
+                    await community.seedSamples(fountains: model.byDistance)
                 }
                 #endif
                 // What was said while the app was closed reaches the pins before

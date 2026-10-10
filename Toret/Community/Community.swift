@@ -320,10 +320,12 @@ final class Community {
     }
 
     #if DEBUG
-    /// Fills the feed with a few invented reports, for screenshots
-    /// (`-toret-seed-reports`). Debug builds only, and never uploaded.
-    func seedSamples(fountains: [Fountain]) {
-        guard state.known.isEmpty, fountains.count > 4 else { return }
+    /// Writes a few invented reports into the device-only backend, for
+    /// screenshots (`-toret-seed-reports`). Debug builds only, never into a
+    /// shared database, and idempotent: the ids are fixed, so a second run
+    /// replaces the first instead of doubling it.
+    func seedSamples(fountains: [Fountain]) async {
+        guard !backend.isShared, fountains.count > 4 else { return }
         let now = clock()
         let samples: [(Int, WaterState, Int?, [ReportTag], String, TimeInterval, String)] = [
             (0, .running, 5, [.cold, .clean], "Água gelada, sem fila.", 2 * 3600, "Visitante 4F2A91"),
@@ -333,15 +335,14 @@ final class Community {
             (3, .running, 5, [.cold], "Melhor da rua.", 3 * 86400, "Visitante 2D44C9"),
             (0, .running, 4, [.strongFlow], "", 5 * 86400, "Visitante 6E0F32"),
         ]
-        for (index, state, rating, tags, note, ago, author) in samples {
-            let fountain = fountains[index]
-            self.state.known.append(Report(
-                id: "seed-\(self.state.known.count)", fountainID: fountain.id, state: state,
+        for (number, (index, state, rating, tags, note, ago, author)) in samples.enumerated() {
+            try? await backend.save(Report(
+                id: "seed-\(number)", fountainID: fountains[index].id, state: state,
                 rating: rating, tags: tags, note: note, date: now.addingTimeInterval(-ago),
                 author: author, isMine: false
             ))
         }
-        commit()
+        await refresh()
     }
     #endif
 
