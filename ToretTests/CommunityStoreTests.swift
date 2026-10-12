@@ -472,6 +472,7 @@ struct ReportRowCopyTests {
         #expect(Report.ago(now.addingTimeInterval(-2 * 3600), now: now, locale: portuguese).hasPrefix("há 2"))
     }
 
+    @MainActor
     @Test("The full stop of an abbreviated time is not doubled before the pending note")
     func singleFullStop() {
         let pending = ReportRow.byline(who: "Você", ago: "há 1 seg.", pending: true)
