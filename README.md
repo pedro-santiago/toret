@@ -51,8 +51,8 @@ Built:
 In progress (see the `Toret/Community` and `ToretWidgets` folders):
 
 - **Community**: rate a fountain, report the water, read the feed. Offline-first,
-  anonymous, stored in the CloudKit public database. Report, block and delete
-  are built in.
+  anonymous (no accounts), stored on the project's own server (`backend/`, API in
+  `docs/backend/api.md`). Report, block and delete are built in.
 - **Widgets and system integration**: home and lock-screen widgets, a Live
   Activity for the walk, Control Center controls, Siri and Shortcuts.
 

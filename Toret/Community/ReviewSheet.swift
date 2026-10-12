@@ -4,7 +4,7 @@ import SwiftUI
 ///
 /// Everything is optional except having *something* to say. Submitting returns
 /// at once — the report is queued and the sheet says where it will go — so this
-/// works in a tunnel, with no iCloud, and with a build that shares nothing.
+/// works in a tunnel, with no account, and with a build that shares nothing.
 struct ReviewSheet: View {
     let fountain: Fountain
 
@@ -227,8 +227,8 @@ struct ReviewSheet: View {
         switch delivery {
         case .sending:
             String(localized: "O relato já aparece para quem estiver por perto.")
-        case .waitingForICloud:
-            String(localized: "Salvo. Entre no iCloud para compartilhar; o envio é automático.")
+        case .waitingForAccount:
+            String(localized: "Salvo. Entre na sua conta para compartilhar; o envio é automático.")
         case .waitingForConnection:
             String(localized: "Salvo, será enviado quando houver conexão.")
         case .deviceOnly:

@@ -6,6 +6,7 @@ struct RootView: View {
     @State private var location = LocationProvider()
     @State private var router = NotificationRouter.shared
     @State private var community = Community.standard()
+    @State private var conditions = ConditionsStore.standard()
     @State private var showingSkyline = false
     @State private var showingEmpties = false
     @Environment(\.scenePhase) private var scenePhase
@@ -31,9 +32,11 @@ struct RootView: View {
         // Inside the environment calls: the modifier reads the model and the
         // community from it, and sees only what is injected *outside* it.
         .modifier(CommunityHooks())
+        .modifier(ConditionsHooks(store: conditions))
         .environment(model)
         .environment(location)
         .environment(community)
+        .environment(conditions)
         .background(Palette.paper)
         .overlay { LaunchOverlay() }
         .modifier(SkylineGalleryHook(isPresented: $showingSkyline))
@@ -173,6 +176,7 @@ struct RootView: View {
                             .environment(model)
                             .environment(location)
                             .environment(community)
+                            .environment(conditions)
                     }
                 }
         }

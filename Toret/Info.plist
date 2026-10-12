@@ -45,8 +45,6 @@
 	<string>Toret uses your location to point the needle at the nearest fountain and work out the walking distance.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
-	<key>ToretCloudContainer</key>
-	<string>$(TORET_CLOUDKIT_CONTAINER)</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Archivo.ttf</string>

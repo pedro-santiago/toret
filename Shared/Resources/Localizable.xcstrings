@@ -1067,6 +1067,28 @@
         }
       }
     },
+    "A SMAT lista uma obra perto de %@, iniciada em %@. O abastecimento próximo pode ser afetado. Fonte: SMAT, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SMAT lists a works order near %1$@, started %2$@. Supply nearby may be affected. Source: SMAT, %3$@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SMAT segnala un cantiere vicino a %1$@, iniziato il %2$@. L’approvvigionamento nelle vicinanze potrebbe essere interessato. Fonte: SMAT, %3$@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A SMAT lista uma obra perto de %@, iniciada em %@. O abastecimento próximo pode ser afetado. Fonte: SMAT, %@"
+          }
+        }
+      }
+    },
     "A distância e a direção até a água, sem abrir o app." : {
       "localizations" : {
         "en" : {
@@ -1789,28 +1811,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ainda não há relatos"
-          }
-        }
-      }
-    },
-    "Ainda não há relatos. Abra uma fonte e conte como está a água." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No reports yet. Open a fountain and tell people how the water is."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ancora nessuna segnalazione. Apri una fontanella e racconta com’è l’acqua."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ainda não há relatos. Abra uma fonte e conte como está a água."
           }
         }
       }
@@ -2915,6 +2915,28 @@
         }
       }
     },
+    "Dados do tempo por Open-Meteo.com (CC BY 4.0)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weather data by Open-Meteo.com (CC BY 4.0)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dati meteo di Open-Meteo.com (CC BY 4.0)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dados do tempo por Open-Meteo.com (CC BY 4.0)"
+          }
+        }
+      }
+    },
     "De frente para %@" : {
       "localizations" : {
         "en" : {
@@ -3113,6 +3135,28 @@
         }
       }
     },
+    "Dia quente: leve água." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hot day: carry water."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giornata calda: porta dell’acqua."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dia quente: leve água."
+          }
+        }
+      }
+    },
     "Difícil de achar" : {
       "localizations" : {
         "en" : {
@@ -3223,24 +3267,24 @@
         }
       }
     },
-    "Entre no iCloud, nos Ajustes do iOS, para compartilhar. Até lá, os relatos ficam salvos aqui." : {
+    "Entre na sua conta para compartilhar. Até lá, os relatos ficam salvos aqui." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign in to iCloud in iOS Settings to share. Until then, reports stay saved here."
+            "value" : "Sign in to your account to share. Until then, reports stay saved here."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Accedi a iCloud nelle Impostazioni di iOS per condividere. Fino ad allora le segnalazioni restano salvate qui."
+            "value" : "Accedi al tuo account per condividere. Fino ad allora le segnalazioni restano salvate qui."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entre no iCloud, nos Ajustes do iOS, para compartilhar. Até lá, os relatos ficam salvos aqui."
+            "value" : "Entre na sua conta para compartilhar. Até lá, os relatos ficam salvos aqui."
           }
         }
       }
@@ -3681,50 +3725,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Informação falsa"
-          }
-        }
-      }
-    },
-    "Ir" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Go"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ir"
-          }
-        }
-      }
-    },
-    "Ir para a fonte mais próxima" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Go to the nearest fountain"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai alla fontanella più vicina"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ir para a fonte mais próxima"
           }
         }
       }
@@ -4345,28 +4345,6 @@
         }
       }
     },
-    "Nada por aqui ainda." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nothing here yet."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ancora niente qui."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nada por aqui ainda."
-          }
-        }
-      }
-    },
     "Nenhuma fonte a até 500 m %@. A mais próxima está a %@." : {
       "localizations" : {
         "en" : {
@@ -4719,24 +4697,24 @@
         }
       }
     },
-    "O iCloud está restrito neste aparelho. Os relatos ficam salvos aqui." : {
+    "O compartilhamento está restrito neste aparelho. Os relatos ficam salvos aqui." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud is restricted on this device. Reports stay saved here."
+            "value" : "Sharing is restricted on this device. Reports stay saved here."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud è limitato su questo dispositivo. Le segnalazioni restano salvate qui."
+            "value" : "La condivisione è limitata su questo dispositivo. Le segnalazioni restano salvate qui."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O iCloud está restrito neste aparelho. Os relatos ficam salvos aqui."
+            "value" : "O compartilhamento está restrito neste aparelho. Os relatos ficam salvos aqui."
           }
         }
       }
@@ -6017,24 +5995,24 @@
         }
       }
     },
-    "Salvo. Entre no iCloud para compartilhar; o envio é automático." : {
+    "Salvo. Entre na sua conta para compartilhar; o envio é automático." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved. Sign in to iCloud to share; sending is automatic."
+            "value" : "Saved. Sign in to your account to share; sending is automatic."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salvata. Accedi a iCloud per condividere; l’invio è automatico."
+            "value" : "Salvata. Accedi al tuo account per condividere; l’invio è automatico."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salvo. Entre no iCloud para compartilhar; o envio é automático."
+            "value" : "Salvo. Entre na sua conta para compartilhar; o envio é automático."
           }
         }
       }
@@ -7047,6 +7025,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Turim"
+          }
+        }
+      }
+    },
+    "Turim agora: %lld graus, sensação térmica %lld graus. Fonte: Open-Meteo, %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turin now: %1$lld degrees Celsius, feels like %2$lld degrees. Source: Open-Meteo, %3$@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torino adesso: %1$lld gradi, percepita %2$lld gradi. Fonte: Open-Meteo, %3$@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turim agora: %lld graus, sensação térmica %lld graus. Fonte: Open-Meteo, %@."
+          }
+        }
+      }
+    },
+    "Turim agora: %lld °C, sensação %lld °C · Open-Meteo, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turin now: %1$lld °C, feels like %2$lld °C · Open-Meteo, %3$@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torino adesso: %1$lld °C, percepita %2$lld °C · Open-Meteo, %3$@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turim agora: %lld °C, sensação %lld °C · Open-Meteo, %@"
           }
         }
       }

@@ -27,9 +27,9 @@ enum SubmitRejection: Equatable, Sendable {
 enum SubmitDelivery: Equatable, Sendable {
     /// Going to the shared database now.
     case sending
-    /// Kept here until there is an iCloud account to send it from.
-    case waitingForICloud
-    /// Kept here until iCloud can be reached.
+    /// Kept here until there is an account to send it from.
+    case waitingForAccount
+    /// Kept here until the server can be reached.
     case waitingForConnection
     /// This build shares nothing; the report lives on the device.
     case deviceOnly
@@ -59,6 +59,10 @@ final class Community {
     static let rateLimit: TimeInterval = 30 * 60
     /// How far back the city feed reaches.
     static let feedWindow: TimeInterval = 30 * 86400
+    /// The server's lists lag a moment behind its writes (docs/backend/api.md 5.1):
+    /// for this long a report just sent is not dropped for missing from a
+    /// download, and one just deleted is not brought back by one.
+    static let settleTime: TimeInterval = 60
     private static let cacheLimit = 600
     private static let feedFetchLimit = 200
     private static let fountainFetchLimit = 40
@@ -85,6 +89,10 @@ final class Community {
     @ObservationIgnored private var state: CommunityState
     @ObservationIgnored private var byFountain: [String: [Report]] = [:]
     @ObservationIgnored private var isFlushing = false
+    /// When each report was last uploaded or deleted from here. Not persisted: a
+    /// relaunch is longer than the lag it covers.
+    @ObservationIgnored private var sentAt: [String: Date] = [:]
+    @ObservationIgnored private var deletedAt: [String: Date] = [:]
     @ObservationIgnored private var monitor: NWPathMonitor?
 
     /// True when what is submitted here is visible to other people.
@@ -105,13 +113,22 @@ final class Community {
         rebuild()
     }
 
-    /// The real thing: CloudKit when this build was signed for it, a file otherwise.
-    static func standard() -> Community {
-        let container = Bundle.main.object(forInfoDictionaryKey: "ToretCloudContainer") as? String
-        let backend: any CommunityBackend = (container?.isEmpty == false)
-            ? CloudKitBackend(containerIdentifier: container!)
-            : LocalBackend()
-        return Community(backend: backend, persistence: FilePersistence())
+    /// The real thing: the Toret server in a Release build, and in a Debug build
+    /// when `-toret-api <url>` names one; a file on the device otherwise.
+    static func standard(arguments: [String] = ProcessInfo.processInfo.arguments) -> Community {
+        let persistence = FilePersistence()
+        guard let baseURL = APIConfiguration.resolvedBaseURL(arguments: arguments) else {
+            return Community(backend: LocalBackend(), persistence: persistence)
+        }
+        // The server's token starts as this install's id, so the handle people have
+        // already seen does not change. A first launch writes the id down now, so
+        // the backend and the store cannot each invent their own.
+        let state = persistence.load() ?? {
+            let fresh = CommunityState()
+            persistence.save(fresh)
+            return fresh
+        }()
+        return Community(backend: HTTPBackend(baseURL: baseURL, seed: state.installID), persistence: persistence)
     }
 
     // MARK: Reading
@@ -121,8 +138,8 @@ final class Community {
 
     func summary(for fountainID: String) -> CommunitySummary { summaries[fountainID] ?? .empty }
 
-    /// Whether this device wrote the report. A report written before an iCloud
-    /// account was known carries the install's handle, so both count.
+    /// Whether this device wrote the report. A report written before the backend's
+    /// token was known carries the install's handle, so both count.
     func isMine(_ report: Report) -> Bool {
         report.author == handle || report.author == installHandle
     }
@@ -144,7 +161,7 @@ final class Community {
         switch availability {
         case .localOnly: .deviceOnly
         case .ready: .sending
-        case .signedOut: .waitingForICloud
+        case .signedOut: .waitingForAccount
         case .restricted, .unavailable: .waitingForConnection
         }
     }
@@ -277,6 +294,13 @@ final class Community {
             do {
                 try await backend.save(report)
                 state.pending.removeAll { $0 == id }
+                sentAt[id] = clock()
+            } catch CommunityError.rejected(let rejection) {
+                // A wait is not a verdict; anything else is final, and a report the
+                // server refused for good must not stay on screen as if it were out.
+                if case .rateLimited = rejection { break }
+                state.pending.removeAll { $0 == id }
+                state.known.removeAll { $0.id == id }
             } catch {
                 break
             }
@@ -285,6 +309,7 @@ final class Community {
             do {
                 try await backend.delete(reportID: id)
                 state.pendingDeletes.removeAll { $0 == id }
+                deletedAt[id] = clock()
             } catch {
                 break
             }
@@ -350,8 +375,8 @@ final class Community {
 
     private var installHandle: String { AuthorHandle.make(from: state.installID) }
 
-    /// Learns which iCloud account this is. Reports written before that carry the
-    /// install's handle and have not been uploaded; they go out under the account's.
+    /// Learns which token the backend signs with. Reports written before that carry
+    /// the install's handle and have not been uploaded; they go out under the token's.
     private func adopt(accountToken token: String) {
         state.accountToken = token
         let previous = handle
@@ -376,8 +401,11 @@ final class Community {
         let remoteIDs = Set(remote.map(\.id))
         let oldest = remote.map(\.date).min()
         let complete = remote.count < limit
-        let deleting = Set(state.pendingDeletes)
-        let pending = Set(state.pending)
+        let now = clock()
+        sentAt = sentAt.filter { now.timeIntervalSince($0.value) < Self.settleTime }
+        deletedAt = deletedAt.filter { now.timeIntervalSince($0.value) < Self.settleTime }
+        let deleting = Set(state.pendingDeletes).union(deletedAt.keys)
+        let pending = Set(state.pending).union(sentAt.keys)
 
         var kept = state.known.filter { report in
             if let scope, report.fountainID != scope { return true }

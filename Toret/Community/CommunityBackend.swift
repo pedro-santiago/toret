@@ -5,21 +5,24 @@ import Foundation
 enum CommunityAvailability: Equatable, Sendable {
     /// This build has no shared database; reports stay on the device.
     case localOnly
-    /// Signed in to iCloud and able to write to the public database.
+    /// The server answered and takes writes.
     case ready
-    /// Reading works without an account; writing needs one.
+    /// Reading works without an account; writing needs one. The anonymous
+    /// backend has no accounts and never reports this; it is kept for a backend
+    /// that does.
     case signedOut
-    /// Screen Time or a profile forbids iCloud.
+    /// Screen Time or a profile forbids sharing. Never reported by the anonymous
+    /// backend either.
     case restricted
-    /// iCloud could not be reached or has not answered yet.
+    /// The server could not be reached or has not answered yet.
     case unavailable
 }
 
 /// Where reports live.
 ///
 /// Everything the community feature does to the outside world goes through this
-/// one seam, so the real database (CloudKit) can be swapped for a file on the
-/// device — in a Debug build, in a test, or when the user has no iCloud at all —
+/// one seam, so the real server (``HTTPBackend``) can be swapped for a file on the
+/// device — in a Debug build, in a test, or while the server is out of reach —
 /// without the rest of the app noticing.
 protocol CommunityBackend: Sendable {
     /// Whether what is saved here is visible to other people.
@@ -27,8 +30,8 @@ protocol CommunityBackend: Sendable {
 
     func availability() async -> CommunityAvailability
 
-    /// An opaque, stable identifier for the signed-in account, hashed into the
-    /// author's handle and never shown or sent as it is. Nil when there is none.
+    /// An opaque, stable identifier for this install or account, hashed into the
+    /// author's handle and never shown as it is. Nil when there is none.
     func accountToken() async -> String?
 
     /// The newest reports across the city, newest first.
@@ -49,10 +52,16 @@ protocol CommunityBackend: Sendable {
 }
 
 enum CommunityError: Error, Equatable {
-    /// Writing needs an iCloud account and there is none.
+    /// Writing needs an account and there is none.
     case notSignedIn
-    /// The backend cannot be reached or is not configured.
+    /// The backend cannot be reached or is not configured. Always worth retrying.
     case unavailable
+    /// The server asked to be left alone for a while (429, or 503 with
+    /// `Retry-After`). Worth retrying, but not before then.
+    case retryLater(seconds: Int, rateLimited: Bool)
+    /// The server refused this report for good. Retrying cannot help, except for
+    /// `.rateLimited`, which is only a wait.
+    case rejected(SubmitRejection)
 }
 
 /// The anonymous name a report goes out under: "Visitante 4F2A91".

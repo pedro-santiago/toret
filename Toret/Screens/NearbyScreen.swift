@@ -47,6 +47,8 @@ struct NearbyScreen: View {
             VStack(alignment: .leading, spacing: 0) {
                 cover
 
+                WeatherLine()
+
                 header
                     .padding(.horizontal, 22)
                     .padding(.top, 20)

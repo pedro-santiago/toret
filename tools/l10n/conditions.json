@@ -1,0 +1,22 @@
+{
+ "Turim agora: %lld °C, sensação %lld °C · Open-Meteo, %@": {
+  "en": "Turin now: %1$lld °C, feels like %2$lld °C · Open-Meteo, %3$@",
+  "it": "Torino adesso: %1$lld °C, percepita %2$lld °C · Open-Meteo, %3$@"
+ },
+ "Turim agora: %lld graus, sensação térmica %lld graus. Fonte: Open-Meteo, %@.": {
+  "en": "Turin now: %1$lld degrees Celsius, feels like %2$lld degrees. Source: Open-Meteo, %3$@.",
+  "it": "Torino adesso: %1$lld gradi, percepita %2$lld gradi. Fonte: Open-Meteo, %3$@."
+ },
+ "Dia quente: leve água.": {
+  "en": "Hot day: carry water.",
+  "it": "Giornata calda: porta dell’acqua."
+ },
+ "A SMAT lista uma obra perto de %@, iniciada em %@. O abastecimento próximo pode ser afetado. Fonte: SMAT, %@": {
+  "en": "SMAT lists a works order near %1$@, started %2$@. Supply nearby may be affected. Source: SMAT, %3$@",
+  "it": "SMAT segnala un cantiere vicino a %1$@, iniziato il %2$@. L’approvvigionamento nelle vicinanze potrebbe essere interessato. Fonte: SMAT, %3$@"
+ },
+ "Dados do tempo por Open-Meteo.com (CC BY 4.0)": {
+  "en": "Weather data by Open-Meteo.com (CC BY 4.0)",
+  "it": "Dati meteo di Open-Meteo.com (CC BY 4.0)"
+ }
+}

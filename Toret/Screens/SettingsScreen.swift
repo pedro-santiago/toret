@@ -9,6 +9,7 @@ enum ExternalLinks {
     static let privacy = URL(string: "https://toret.deepdive.dev/privacy")!
     static let support = URL(string: "https://toret.deepdive.dev/support")!
     static let openStreetMapCopyright = URL(string: "https://www.openstreetmap.org/copyright")!
+    static let openMeteo = URL(string: "https://open-meteo.com/")!
 }
 
 /// The version the bundle says it is, never a number typed into a view.
@@ -131,6 +132,10 @@ struct SettingsScreen: View {
                     LinkRow(
                         title: String(localized: "© OpenStreetMap contributors (ODbL)"),
                         url: ExternalLinks.openStreetMapCopyright
+                    )
+                    LinkRow(
+                        title: String(localized: "Dados do tempo por Open-Meteo.com (CC BY 4.0)"),
+                        url: ExternalLinks.openMeteo
                     )
                 }
 

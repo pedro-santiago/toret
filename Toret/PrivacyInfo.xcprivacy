@@ -10,8 +10,10 @@
 	     catalogue, written to the app group so the widgets can read it, and
 	     never sent anywhere. What does leave is a community report the user
 	     chooses to publish (rating, tags, a note, the date and an anonymous
-	     handle hashed from the iCloud account), stored in the app's public
-	     CloudKit database, where the developer can read it. Apple counts that as
+	     handle hashed from a random per-install code; there are no accounts),
+	     stored on the developer's own server, where the developer can read it.
+	     The server keeps only a salted hash of that code, and the code is never
+	     tied to a name, an email or a position. Apple counts that as
 	     collected: the note and rating are "Other User Content", and the handle
 	     is a "User ID" because it is the same on each of one person's reports.
 	     Linked to the user because of that handle; used for app functionality

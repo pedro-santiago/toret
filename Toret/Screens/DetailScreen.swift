@@ -50,6 +50,8 @@ struct DetailScreen: View {
                     figures(for: fountain)
                         .padding(.top, 22)
 
+                    WorksNotices(fountainID: fountain.id)
+
                     if fountain.isSeasonal { seasonal.padding(.top, 20) }
 
                     sectionHeader("Comunidade")

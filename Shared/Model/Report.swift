@@ -41,7 +41,7 @@ struct Report: Identifiable, Codable, Hashable, Sendable {
     let tags: [ReportTag]
     let note: String
     let date: Date
-    /// Anonymous and stable per device or iCloud account: "Visitante 4F2A".
+    /// Anonymous and stable per install: "Visitante 4F2A91".
     let author: String
     /// True for reports this device wrote.
     var isMine: Bool

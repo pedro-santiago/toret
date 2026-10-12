@@ -132,7 +132,7 @@ struct CommunityStoreTests {
         #expect(await backend.stored.count == 1)
     }
 
-    @Test("Without an iCloud account nothing is sent, and nothing is lost")
+    @Test("Without an account nothing is sent, and nothing is lost")
     func signedOut() async {
         let backend = FakeBackend(availability: .signedOut, token: nil)
         let community = makeCommunity(backend: backend)
@@ -145,8 +145,8 @@ struct CommunityStoreTests {
         #expect(community.availability == .signedOut)
 
         let result = community.submit(ReportDraft(fountainID: "f1", state: .running))
-        #expect(result == .accepted(.waitingForICloud))
-        #expect(community.delivery == .waitingForICloud)
+        #expect(result == .accepted(.waitingForAccount))
+        #expect(community.delivery == .waitingForAccount)
         await community.flush()
         #expect(await backend.saveAttempts == 0)
         #expect(community.pendingCount == 1)
@@ -356,7 +356,7 @@ struct CommunityStoreTests {
         #expect(second.submit(ReportDraft(fountainID: "f1", state: .dry)) != .accepted(second.delivery))
     }
 
-    @Test("Learning the iCloud account re-signs the queue under the account's handle")
+    @Test("Learning the backend's token re-signs the queue under its handle")
     func adoptsAccount() async {
         let backend = FakeBackend(availability: .signedOut, token: nil)
         let persistence = InMemoryPersistence()

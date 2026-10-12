@@ -46,14 +46,6 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_PREVIEWS: YES
         CODE_SIGN_ENTITLEMENTS: Toret/Toret.entitlements
-        # The community feed's CloudKit container. Empty outside Release, which is
-        # what makes the app fall back to a file on the device: a CKContainer
-        # created without the iCloud entitlement crashes instead of failing.
-        TORET_CLOUDKIT_CONTAINER: ""
-      configs:
-        Release:
-          CODE_SIGN_ENTITLEMENTS: Toret/Toret.Release.entitlements
-          TORET_CLOUDKIT_CONTAINER: iCloud.br.tec.nuance.toret
     info:
       path: Toret/Info.plist
       properties:
@@ -75,7 +67,6 @@ targets:
         UIBackgroundModes:
           - location
         NSSupportsLiveActivities: true
-        ToretCloudContainer: "$(TORET_CLOUDKIT_CONTAINER)"
         CFBundleURLTypes:
           - CFBundleURLName: br.tec.nuance.toret
             CFBundleURLSchemes:

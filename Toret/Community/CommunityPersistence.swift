@@ -21,10 +21,10 @@ struct CommunityState: Codable, Equatable, Sendable {
     var blocked: [String] = []
     /// When this device last reported on each fountain, for the rate limit.
     var lastSubmitted: [String: Date] = [:]
-    /// Random, per install. The author handle until an iCloud account is known.
+    /// Random, per install. The author handle until the backend names its own token.
     var installID: String = UUID().uuidString
-    /// The hashed-handle seed of the iCloud account, once seen, so the handle is
-    /// the same offline.
+    /// The hashed-handle seed the backend reported (the install token, for the
+    /// server), once seen, so the handle is the same offline.
     var accountToken: String?
 
     struct PendingFlag: Codable, Equatable, Sendable {

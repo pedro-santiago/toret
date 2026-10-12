@@ -6,7 +6,7 @@
 | League Spartan (titles and figures) | `Toret/Resources/Fonts/LeagueSpartan.ttf` | SIL Open Font License 1.1. See `Toret/Resources/Fonts/OFL-LeagueSpartan.txt`. © 2020 The League Spartan Project Authors. |
 | Archivo (interface text) | `Toret/Resources/Fonts/Archivo.ttf` | SIL Open Font License 1.1. See `Toret/Resources/Fonts/OFL-Archivo.txt`. |
 | FLUX.2 [klein] 4B (4-bit MLX build `mlx-community/flux2-klein-4b-4bit`), run locally with mflux | Used to draw the base of `art-toret*` and `art-skyline-*` in the asset catalogue; no weights or code are redistributed. Prompts and seeds in `tools/art/PROMPTS.md` | Apache License 2.0 (model licence permits commercial use of outputs). The generated images are then palette-quantised, retouched and, for the sun, repainted. |
-| MapKit, CoreLocation, WidgetKit, ActivityKit, App Intents, CloudKit | Linked from the OS | Apple's SDK terms. No Apple code is redistributed here. |
+| MapKit, CoreLocation, WidgetKit, ActivityKit, App Intents | Linked from the OS | Apple's SDK terms. No Apple code is redistributed here. |
 
 There are no package-manager dependencies.
 

@@ -779,9 +779,9 @@
   "en": "Find fountains",
   "it": "Trova fontanelle"
  },
- "Entre no iCloud, nos Ajustes do iOS, para compartilhar. Até lá, os relatos ficam salvos aqui.": {
-  "en": "Sign in to iCloud in iOS Settings to share. Until then, reports stay saved here.",
-  "it": "Accedi a iCloud nelle Impostazioni di iOS per condividere. Fino ad allora le segnalazioni restano salvate qui."
+ "Entre na sua conta para compartilhar. Até lá, os relatos ficam salvos aqui.": {
+  "en": "Sign in to your account to share. Until then, reports stay saved here.",
+  "it": "Accedi al tuo account per condividere. Fino ad allora le segnalazioni restano salvate qui."
  },
  "Enviar relato": {
   "en": "Send report",
@@ -971,9 +971,9 @@
   "en": "The fountain catalog didn’t load.",
   "it": "Il catalogo delle fontanelle non si è caricato."
  },
- "O iCloud está restrito neste aparelho. Os relatos ficam salvos aqui.": {
-  "en": "iCloud is restricted on this device. Reports stay saved here.",
-  "it": "iCloud è limitato su questo dispositivo. Le segnalazioni restano salvate qui."
+ "O compartilhamento está restrito neste aparelho. Os relatos ficam salvos aqui.": {
+  "en": "Sharing is restricted on this device. Reports stay saved here.",
+  "it": "La condivisione è limitata su questo dispositivo. Le segnalazioni restano salvate qui."
  },
  "O que você notou, até 3": {
   "en": "What you noticed, up to 3",
@@ -1123,9 +1123,9 @@
   "en": "Saved. It will be sent when there’s a connection.",
   "it": "Salvata. Verrà inviata quando ci sarà connessione."
  },
- "Salvo. Entre no iCloud para compartilhar; o envio é automático.": {
-  "en": "Saved. Sign in to iCloud to share; sending is automatic.",
-  "it": "Salvata. Accedi a iCloud per condividere; l’invio è automatico."
+ "Salvo. Entre na sua conta para compartilhar; o envio é automático.": {
+  "en": "Saved. Sign in to your account to share; sending is automatic.",
+  "it": "Salvata. Accedi al tuo account per condividere; l’invio è automatico."
  },
  "Seja o primeiro a avaliar esta fonte: como está a água, e se vale a caminhada.": {
   "en": "Be the first to rate this fountain: how the water is, and whether it’s worth the walk.",

@@ -146,9 +146,9 @@ enum CommunityNotice {
         case .localOnly:
             String(localized: "Nesta versão os relatos ficam só neste aparelho.")
         case .signedOut:
-            String(localized: "Entre no iCloud, nos Ajustes do iOS, para compartilhar. Até lá, os relatos ficam salvos aqui.")
+            String(localized: "Entre na sua conta para compartilhar. Até lá, os relatos ficam salvos aqui.")
         case .restricted:
-            String(localized: "O iCloud está restrito neste aparelho. Os relatos ficam salvos aqui.")
+            String(localized: "O compartilhamento está restrito neste aparelho. Os relatos ficam salvos aqui.")
         case .ready, .unavailable:
             failed
                 ? String(localized: "Sem conexão: mostrando os últimos relatos baixados.")
