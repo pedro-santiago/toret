@@ -82,13 +82,13 @@ and x["connectionProperties"].get("tunnelState")!="unavailable"), ""))' "$$json"
 		exit 1; \
 	fi; \
 	echo "==> device $$udid, team $(TEAM)"; \
-	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
+	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration $(CONFIG) \
 		-destination "platform=iOS,id=$$udid" -derivedDataPath $(BUILD_DIR)/device \
 		CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=$(TEAM) $(signing_extra) \
 		-allowProvisioningUpdates -quiet build \
 		|| { echo "signing failed: see the notes above this target in the Makefile (GROUPS=NO, or TEAM=N859AT5MST once the iPhone is registered)"; exit 1; }; \
 	xcrun devicectl device install app --device "$$udid" \
-		$(BUILD_DIR)/device/Build/Products/Debug-iphoneos/Toret.app | grep -E "installed|bundleID"; \
+		$(BUILD_DIR)/device/Build/Products/$(CONFIG)-iphoneos/Toret.app | grep -E "installed|bundleID"; \
 	xcrun devicectl device process launch --device "$$udid" --terminate-existing $(BUNDLE_ID) >/dev/null 2>&1 \
 		&& echo "launched on $$udid" \
 		|| echo "installed, but iOS refused to launch it: trust the developer profile on the phone (Settings > General > VPN & Device Management), then open the app"
