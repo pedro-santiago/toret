@@ -6,8 +6,8 @@ import UserNotifications
 /// `docs/privacy` and `docs/support`; until they are hosted at these addresses
 /// the two links open a page that does not exist yet.
 enum ExternalLinks {
-    static let privacy = URL(string: "https://toret.deepdive.dev/privacy")!
-    static let support = URL(string: "https://toret.deepdive.dev/support")!
+    static let privacy = URL(string: "https://toret.deepdive.dev.br/privacy/")!
+    static let support = URL(string: "https://toret.deepdive.dev.br/support/")!
     static let openStreetMapCopyright = URL(string: "https://www.openstreetmap.org/copyright")!
     static let openMeteo = URL(string: "https://open-meteo.com/")!
 }

@@ -45,12 +45,12 @@ O que falta para o Toret chegar à App Store, separado entre o que já está pro
      (CC BY 4.0) já está em Ajustes e na política de privacidade.
 3. **App Store Connect:** criar o registro do app com o bundle `br.tec.nuance.toret` e conferir se o nome
    "Toret" está livre (alternativas no `metadata.md`).
-4. **Hospedar as duas páginas** e trocar os endereços provisórios. Hoje o app aponta para
-   `https://toret.deepdive.dev/privacy` e `/support` (em `SettingsScreen.swift`): são **placeholders**,
-   ainda não existe nada nesses endereços. Antes de enviar, eles precisam apontar para páginas
-   hospedadas de verdade (a política em `docs/privacy/index.html` e o suporte em
-   `docs/support/index.html`), e o App Store Connect também pede as duas URLs. Opção simples: ligar o
-   GitHub Pages do repositório na pasta `docs/` e trocar as constantes.
+4. **Páginas hospedadas (feito).** A política e o suporte estão no ar em
+   `https://toret.deepdive.dev.br/privacy/` e `/support/` (S3 privado atrás do CloudFront, certificado
+   `*.deepdive.dev.br`, registros A/AAAA na zona `deepdive.dev.br`); o app aponta para eles
+   (`SettingsScreen.swift`) e o App Store Connect pede as mesmas duas URLs. Para publicar uma mudança nas páginas:
+   `tools/site/publish.sh` (sobe `docs/privacy` e `docs/support` e invalida o cache). As páginas ainda usam o visual
+   antigo, anterior ao cartaz.
 5. **Classificação etária e preço:** gratuito; 12+ por conteúdo gerado por usuários (respostas em
    `metadata.md`).
 6. **Rótulo de privacidade:** responder como em `metadata.md` (localização só no aparelho; conteúdo do

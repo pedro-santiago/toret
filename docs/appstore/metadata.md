@@ -9,10 +9,8 @@ Revisar depois que o app for fechado: o texto só pode prometer o que a versão 
 - **Classificação etária:** 12+ por conteúdo gerado por usuários sem filtro total (relatos de texto livre).
   Respostas: sem violência, sem conteúdo adulto, sem jogos de azar; "Conteúdo gerado por usuário" = sim,
   com filtro, denúncia e bloqueio dentro do app.
-- **URL de suporte:** a hospedar — fonte em `docs/support/index.html` (o app ainda aponta para o placeholder
-  `https://toret.deepdive.dev/support`: precisa apontar para a página hospedada)
-- **URL da política de privacidade:** a hospedar — fonte em `docs/privacy/index.html` (o app ainda aponta para o
-  placeholder `https://toret.deepdive.dev/privacy`: idem)
+- **URL de suporte:** `https://toret.deepdive.dev.br/support/` (fonte em `docs/support/index.html`)
+- **URL da política de privacidade:** `https://toret.deepdive.dev.br/privacy/` (fonte em `docs/privacy/index.html`)
 
 ## Português (Brasil) — idioma principal
 
