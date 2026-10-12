@@ -58,6 +58,8 @@ run: generate
 #   - Nuance (TEAM=N859AT5MST) signs the group, but the iPhone must first be registered in that
 #     account's devices ("Device 'iPhone' isn't registered in your developer account").
 #   make device GROUPS=NO              Personal Team, no app group
+# Debug keeps community reports on the device; CONFIG=Release talks to the live backend.
+CONFIG ?= Debug
 TEAM   ?= M79D47H32S
 DEVICE ?=
 GROUPS ?= YES
