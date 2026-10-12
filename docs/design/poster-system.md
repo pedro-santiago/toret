@@ -101,7 +101,7 @@ hero; the rest stay quiet.
   diamonds.
 - **Ajustes**: `PosterTitle("AJUS","TES")`. Plain grouped rows, heavy rule between
   groups.
-- **Fonte**: a full-bleed illustration of a toret under the sun, the name in
+- **Fonte**: a full-bleed fountain plate (see Fountain plates below), the name in
   Spartan 900/44, three heavy figures (distance, minutes, rating) split by
   3 pt vertical rules, community section, specs.
 - **Bússola** (night): the moon disc (`luna`) is the dial. The distance sits in
@@ -110,6 +110,37 @@ hero; the rest stay quiet.
   silhouette); the rest are shapes: dome, square, arch, peaks.
 - **Rota**: the instruction is the poster: the number of metres at 120 pt, one
   line of Archivo under it.
+
+## Fountain plates
+
+Every fountain has its own small poster, `FountainPlate` (`Shared/DesignSystem/FountainPlate.swift`,
+layout in `FountainPlateSpec.swift`). It is the hero of **Fonte** and the thumbnail on
+each **Perto** row. Nothing is stored per fountain: the picture is composed in code from
+three facts, and the same fountain always gets the same one.
+
+- **Kind** picks the subject: one of 3 to 4 printed plates of a toret, a basin
+  fountain, a bubbler or a refill post (`plate-<kind>-<a…>` in the asset catalogue, made
+  by the local model, see `tools/art/PROMPTS.md`). A stable hash may also mirror it.
+- **Neighbourhood** (35 named, some fountains with none) picks the backdrop, one landmark from the skyline
+  kit or a flat motif (chequered diamond, three bands), and with the hash one of five ink
+  pairings (`daylight`, `gold`, `river`, `ochre`, `brick`). A fountain with no known
+  neighbourhood gets only the geometry.
+- **The OSM node id**, through a fixed FNV-1a and SplitMix64 stream (never Swift's seeded
+  `Hasher`), drives the sun's position and size, the red dot's position, the number of
+  ground stripes (2 to 4), the backdrop's place and the subject variant, so neighbours
+  differ.
+
+Printed like the rest: flat, no gradient, a heavy rule on the ground line, a 4 px keyline
+on the subject. At night (`night: true`) the sky is `notte`, the sun becomes the `luna`
+disc and moves behind the subject so a black head always stands on light.
+
+**The honesty rule.** The plate never implies the state of the water. There is no stream
+from the spout, no puddle, no running or dry art, no liquid in a basin, no blue in a
+subject, and the spec is built from id, kind and neighbourhood alone (a test builds it
+from fountains in every water state and requires the same result). The blue stripes on
+the ground are decoration and appear on every plate whatever the state. Water state is
+shown by `StateMark` and the community sentence, which sit next to the plate, never in it.
+The plate is decorative and hidden from VoiceOver.
 
 ## Motion
 

@@ -2,10 +2,12 @@ import SwiftUI
 
 /// One fountain, as a plate of the poster.
 ///
-/// The top of the page is the picture: a toret under the sun, in front of the
-/// arcades, drawn in the state the community last reported — running water only
-/// if someone said so. Under it, the name in the poster's own type, one honest
-/// sentence about the water, and the three numbers that decide whether you walk.
+/// The top of the page is the picture: this fountain's own plate (see
+/// ``FountainPlate``), composed from its kind, its neighbourhood and its id. It
+/// shows the fountain as an object and never the water: the state is the shape
+/// and the sentence under it, and the picture must not disagree with them. Under
+/// it, the name in the poster's own type, one honest sentence about the water,
+/// and the three numbers that decide whether you walk.
 /// Everything after that is for the moment you have decided to go, or are
 /// deciding whether this one is worth it.
 struct DetailScreen: View {
@@ -117,11 +119,13 @@ struct DetailScreen: View {
         let base = Self.heroHeight + Screen.safeArea.top
         // Read here, on the main actor: the geometry closure below is Sendable.
         let barBottom = Screen.safeArea.top + 64
+        // The sun and the dot keep below the status bar and the pinned buttons.
+        let skyInset = Screen.safeArea.top + 56
         return GeometryReader { proxy in
             let minY = proxy.frame(in: .named("detail")).minY
             let stretch = reduceMotion ? 0 : max(0, minY)
             let parallax = reduceMotion ? 0 : max(0, -minY) * 0.33
-            ToretIllustration(kind: fountain.kind, state: fountain.state)
+            FountainPlate(fountain: fountain, topInset: skyInset)
                 .frame(width: proxy.size.width, height: base + stretch)
                 .offset(y: -stretch + parallax)
         }

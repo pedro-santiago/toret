@@ -121,7 +121,7 @@ struct FountainRow: View {
             }
         } else {
             HStack(alignment: .center, spacing: 14) {
-                StateMark(state: fountain.state, size: 24, night: night)
+                thumbnail
                 names(lines: 1)
                 VStack(alignment: .trailing, spacing: 2) {
                     distance(size: 30)
@@ -130,6 +130,24 @@ struct FountainRow: View {
             }
         }
     }
+
+    /// The fountain's own plate, small, with the water's state printed on its
+    /// corner. The plate never shows water (see ``FountainPlate``), so the mark is
+    /// the only thing in this square that speaks about it.
+    private var thumbnail: some View {
+        FountainPlate(fountain: fountain, night: night)
+            .frame(width: Self.thumbnailSide, height: Self.thumbnailSide)
+            .overlay { Rectangle().strokeBorder(primary, lineWidth: 2) }
+            .overlay(alignment: .topLeading) {
+                StateMark(state: fountain.state, size: 16, night: night)
+                    .padding(3)
+                    .background(Circle().fill(night ? Palette.notte : Palette.carta))
+                    .overlay { Circle().strokeBorder(primary, lineWidth: 2) }
+                    .offset(x: -8, y: -8)
+            }
+    }
+
+    private static let thumbnailSide: CGFloat = 52
 
     private func names(lines: Int) -> some View {
         VStack(alignment: .leading, spacing: 3) {

@@ -62,6 +62,37 @@ spire, and the cyan of the water, are not in the palette). `--fix` is an explici
 rectangle after quantising. `repaint_sun.py` replaces the model's lopsided sun with an exact
 disc and adds the poster's separate red dot.
 
+## Subject plates for the per-fountain illustrations
+
+Every fountain in the catalogue (723) gets its own poster in `FountainPlate`, composed in
+code (see `docs/design/poster-system.md`). The model drew only the *objects*: thirteen
+plates, one kind of fountain each, alone on a flat magenta ground, no water, no sky, no
+sun. Nothing is rendered per fountain. `generate.sh subject-<kind> <seed>` makes them
+(768 × 1024, 4 steps, same model and runner as above); `key_subject.py` keys the magenta
+out to a binary alpha, crops, scales to 768 px tall, prints the object onto the inks
+(no `notte`, and no `blu`: a blue in an object could read as water), and adds a 4 px
+`inchiostro` keyline so a cream basin still reads on cream stock.
+
+```sh
+uv run --with pillow --with numpy tools/art/key_subject.py raw/subject-toret_1.png plate-toret-a.png \
+  --height 768 --outline 4 --drop notte,blu
+python3 tools/art/make_imageset.py plate-toret-a plate-toret-a.png
+```
+
+| Kind | Kept (asset ← job and seed) | Rejected |
+| --- | --- | --- |
+| toret (184 fountains) | `plate-toret-a` ← `subject-toret 1`, `-b` ← 2, `-c` ← 3, `-d` ← 4 | 5, 6 (spare, not needed) |
+| fountain (496) | `plate-fountain-a` ← `subject-fountain-v1 2`, `-b` ← `subject-fountain 7`, `-c` ← `subject-fountain 8` | v1 1, 4 (mustard liquid in the basin), v1 5 (blue-green water in the basin), v1 3 and v1 6 (muddy flecks, olive liquid), 9 (olive pedestal), 10 (olive liquid) |
+| bubbler (33) | `plate-bubbler-a` ← `subject-bubbler 2`, `-b` ← 3, `-c` ← 5 | 1 (reads as a urinal), 4 (reads as a sink), 6 (spare) |
+| refill (10) | `plate-refill-a` ← `subject-refill-v1 1`, `-b` ← `subject-refill 8`, `-c` ← `subject-refill 7` | v1 2, 3, 4, 6 (brick-pattern posts, muddy colour), v1 5 (spare), 9, 10 (duplicates) |
+
+The subject prompts are `SUBJ_*` in `generate.sh`; the `-v1` jobs keep the first wording
+for the two kept seeds that came from it. The second wording asks for an *empty* basin
+and a *plain* post, because the first drew liquid in the basins and brick patterns on the
+posts. The model managed all four kinds, so none is code-drawn: the backdrops, sun, dot
+and ground are all drawn in code (`FountainPlate.swift`), and the model's contribution is
+the objects only. All 13 plates together are about 130 KB.
+
 ## Not generated
 
 - `docs/images/architecture.svg`, `data-flow.svg`, `banner.svg/png` — drawn by
