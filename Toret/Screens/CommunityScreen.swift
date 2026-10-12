@@ -40,7 +40,7 @@ struct CommunityScreen: View {
 
                 footer
                     .padding(.horizontal, 22)
-                    .padding(.top, 30)
+                    .padding(.top, 26)
             }
             .padding(.bottom, Screen.tabBarClearance + 24)
         }
@@ -53,20 +53,13 @@ struct CommunityScreen: View {
         .sheet(isPresented: $showingBlocked) { BlockedAuthorsSheet() }
     }
 
+    /// The title alone, as on the other poster pages. The Mole belongs to Perto; here
+    /// the only drawing is the scene below, so the page has one picture and one message.
     private var header: some View {
-        ZStack(alignment: .topTrailing) {
-            // The Mole at the trailing edge, small, as a monument beside the title. It leans
-            // with the phone and nothing else about this screen moves.
-            TiltedParallaxScene(
-                layers: [.mole], flowing: false,
-                window: CGRect(x: 480, y: 0, width: 440, height: PosterSceneGeometry.moleBase)
-            )
-            .frame(width: 104)
-            .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 0) {
-                PosterTitle(localized: "RELA\nTOS")
-                    .containerRelativeFrame(.horizontal, alignment: .leading) { width, _ in width * 0.66 }
+        VStack(alignment: .leading, spacing: 0) {
+            PosterTitle(localized: "RELA\nTOS")
+            // An empty feed says so once, under the picture; the count is for a full one.
+            if !community.feed.isEmpty {
                 Text(subtitle)
                     .font(Typo.ui(16))
                     .foregroundStyle(Palette.inchiostro)
@@ -77,8 +70,7 @@ struct CommunityScreen: View {
     }
 
     private var subtitle: String {
-        if community.feed.isEmpty { return String(localized: "Nada por aqui ainda.") }
-        return community.feed.count == 1
+        community.feed.count == 1
             ? String(localized: "1 relato nos últimos 30 dias.")
             : String(localized: "\(community.feed.count) relatos nos últimos 30 dias.")
     }
@@ -98,22 +90,26 @@ struct CommunityScreen: View {
                     .padding(.horizontal, 22)
             }
         }
-        .padding(.top, 28)
+        .padding(.top, 20)
     }
 
+    /// Small print. An empty feed has nothing to report, so the how-to is only for a full one.
     private var footer: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             PosterRule()
             Text(CommunityNotice.text(for: community.availability, failed: community.lastRefreshFailed))
-                .font(Typo.ui(14))
+                .font(Typo.ui(13))
                 .foregroundStyle(Palette.inchiostro.opacity(0.7))
+                .padding(.top, 4)
 
-            Text("Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para:")
-                .font(Typo.ui(14))
-                .foregroundStyle(Palette.inchiostro.opacity(0.7))
+            if !community.feed.isEmpty {
+                Text("Para denunciar um relato, use o menu de três pontos dele. Para qualquer outra coisa, escreva para:")
+                    .font(Typo.ui(13))
+                    .foregroundStyle(Palette.inchiostro.opacity(0.7))
+            }
             if let mail = URL(string: "mailto:contato@pedrosantiago.com.br") {
                 Link("contato@pedrosantiago.com.br", destination: mail)
-                    .font(Typo.ui(15, 700))
+                    .font(Typo.ui(14, 700))
                     .foregroundStyle(Palette.blu)
                     .tint(Palette.blu)
             }
@@ -122,7 +118,7 @@ struct CommunityScreen: View {
                 Button(String(localized: "Autores bloqueados (\(community.blockedAuthors.count))")) {
                     showingBlocked = true
                 }
-                .font(Typo.ui(15, 700))
+                .font(Typo.ui(14, 700))
                 .foregroundStyle(Palette.blu)
             }
         }
