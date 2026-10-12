@@ -114,9 +114,18 @@ struct ReportRow: View {
 
     /// Who and when, in a sentence: "Você, há 2 h" or "Visitante 4F2A91, há 2 h".
     private var byline: String {
-        var line = "\(isMine ? String(localized: "Você") : report.author), \(report.ago)"
-        if community.isPending(report) { line += ". " + String(localized: "Aguardando envio") }
-        return line
+        Self.byline(
+            who: isMine ? String(localized: "Você") : report.author, ago: report.ago,
+            pending: community.isPending(report)
+        )
+    }
+
+    /// The sentence itself. An abbreviated "há 1 seg." already ends in a full stop,
+    /// so the one before "Aguardando envio" must not be doubled.
+    static func byline(who: String, ago: String, pending: Bool) -> String {
+        guard pending else { return "\(who), \(ago)" }
+        let when = ago.hasSuffix(".") ? String(ago.dropLast()) : ago
+        return "\(who), \(when). " + String(localized: "Aguardando envio")
     }
 
     private var menu: some View {

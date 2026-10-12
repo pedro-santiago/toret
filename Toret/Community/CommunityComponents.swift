@@ -146,7 +146,15 @@ extension Icon {
 extension Report {
     /// "há 2 h", "há 3 dias".
     var ago: String {
-        Formatting.relative(date)
+        Self.ago(date)
+    }
+
+    /// A report made a moment ago is stamped by this device's clock, a hair later
+    /// than the clock that draws the row (or ahead of it, on a fast phone): it
+    /// would read "em 0 seg.", which is never what happened. Nothing is "in the
+    /// future" here, so the newest it can be is one second ago.
+    static func ago(_ date: Date, now: Date = .now, locale: Locale = .autoupdatingCurrent) -> String {
+        Formatting.relative(min(date, now.addingTimeInterval(-1)), to: now, locale: locale)
     }
 }
 

@@ -456,3 +456,28 @@ struct LocalBackendTests {
         #expect(persistence.load() == state)
     }
 }
+
+/// Found by running the app against the live server: a report written a moment
+/// ago read "Você, em 0 seg.. Aguardando envio".
+struct ReportRowCopyTests {
+    private let portuguese = Locale(identifier: "pt_BR")
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+    @Test("A report stamped a hair after now, or ahead of the clock, never reads as future")
+    func neverInTheFuture() {
+        for offset: TimeInterval in [0, 0.3, 240] {
+            let text = Report.ago(now.addingTimeInterval(offset), now: now, locale: portuguese)
+            #expect(text.hasPrefix("há"), "offset \(offset): \(text)")
+        }
+        #expect(Report.ago(now.addingTimeInterval(-2 * 3600), now: now, locale: portuguese).hasPrefix("há 2"))
+    }
+
+    @Test("The full stop of an abbreviated time is not doubled before the pending note")
+    func singleFullStop() {
+        let pending = ReportRow.byline(who: "Você", ago: "há 1 seg.", pending: true)
+        #expect(!pending.contains(".."))
+        #expect(pending.hasPrefix("Você, há 1 seg. "))
+        #expect(ReportRow.byline(who: "Você", ago: "há 2 h", pending: true).hasPrefix("Você, há 2 h. "))
+        #expect(ReportRow.byline(who: "Visitante 4F2A91", ago: "há 1 seg.", pending: false) == "Visitante 4F2A91, há 1 seg.")
+    }
+}
