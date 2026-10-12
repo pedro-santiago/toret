@@ -9,8 +9,10 @@ Revisar depois que o app for fechado: o texto só pode prometer o que a versão 
 - **Classificação etária:** 12+ por conteúdo gerado por usuários sem filtro total (relatos de texto livre).
   Respostas: sem violência, sem conteúdo adulto, sem jogos de azar; "Conteúdo gerado por usuário" = sim,
   com filtro, denúncia e bloqueio dentro do app.
-- **URL de suporte:** a hospedar — fonte em `docs/support/index.html`
-- **URL da política de privacidade:** a hospedar — fonte em `docs/privacy/index.html`
+- **URL de suporte:** a hospedar — fonte em `docs/support/index.html` (o app ainda aponta para o placeholder
+  `https://toret.deepdive.dev/support`: precisa apontar para a página hospedada)
+- **URL da política de privacidade:** a hospedar — fonte em `docs/privacy/index.html` (o app ainda aponta para o
+  placeholder `https://toret.deepdive.dev/privacy`: idem)
 
 ## Português (Brasil) — idioma principal
 
@@ -95,15 +97,40 @@ Gratuita, senza pubblicità, senza tracciamento. La tua posizione resta sul disp
 
 ## Rótulo de privacidade (App Privacy)
 
-Rever com a versão final do código e com o que o `PrivacyInfo.xcprivacy` declara.
+Rever com a versão final do código e com o que o `PrivacyInfo.xcprivacy` declara (os dois dizem a mesma
+coisa). Critério: as definições da Apple, decidindo pelo lado conservador. "Coletado" é o que sai do
+aparelho de um jeito que nós (ou terceiros) conseguimos acessar por mais tempo do que o necessário para
+atender o pedido naquele instante. Agora há um servidor nosso (AWS Milão, `eu-south-1`), então os relatos
+contam como coletados. O app só fala com `torino.deepdive.dev.br` (e com o Apple Mapas, via MapKit).
 
-- **Localização precisa:** usada apenas no aparelho para ordenar fontes, apontar a agulha, calcular rotas e
-  armar os avisos de proximidade. Não é enviada a nenhum servidor nosso. O mapa usa o MapKit (Apple).
-  → Declarar como "não coletada" só se nenhum dado de localização sair do aparelho para o desenvolvedor.
-- **Conteúdo do usuário (outro conteúdo do usuário):** os relatos e avaliações vão ao banco público do CloudKit.
-  Coletado = sim; vinculado à identidade = não (apelido anônimo, sem nome/e-mail); rastreamento = não;
-  finalidade = funcionalidade do app.
-- **Identificadores / diagnóstico / uso:** nenhum. Sem SDK de terceiros, sem analytics.
+**Declarar como coletado, todos "não usado para rastreamento":**
+
+| Tipo (Apple) | Vinculado ao usuário? | Finalidade | Por quê |
+| --- | --- | --- | --- |
+| **Conteúdo do usuário > Outro conteúdo do usuário** | Sim | Funcionalidade do app | A nota, as etiquetas, a linha de texto, o estado da água e a data de cada relato, guardados no servidor por 30 dias e públicos. |
+| **Identificadores > ID de usuário** | Sim | Funcionalidade do app | O código aleatório da instalação (Chaveiro) é enviado a cada escrita e dele sai o nome público "Visitante XXXXXX", igual em todos os relatos da mesma pessoa. O servidor guarda só um hash com chave e sal secreto, mas o apelido é um identificador de nível de usuário. |
+| **Identificadores > ID de dispositivo** | Sim | Funcionalidade do app | Decisão conservadora. O mesmo código fica no Chaveiro (só neste aparelho, sobrevive a reinstalar o app) e funciona na prática como identificador do aparelho; e o servidor deriva um hash com chave do endereço IP para limitar abuso (contadores de até uma hora; marcas de denúncia e banimento enquanto durarem). Não é o identificador de publicidade e não é compartilhado com outros apps. |
+| **Diagnóstico > Outros dados de diagnóstico** | Não | Funcionalidade do app | Os registros do servidor (rota, resultado, duração, versão do app, número da requisição) ficam 14 dias. Não têm IP, código nem texto. Declarado por cautela: é dado técnico que sai do aparelho. |
+
+**Decisão ID de usuário x ID de dispositivo.** A Apple define ID de usuário como "ID no nível do usuário
+ou da conta" (apelido, ID atribuído) e ID de dispositivo como "ID no nível do dispositivo" (como o de
+publicidade). O código é criado pelo app por instalação, sem conta, e aparece como apelido: parece ID de
+usuário. Mas ele fica no Chaveiro deste aparelho e o IP também é um dado de rede do aparelho: parece ID de
+dispositivo. Como declarar a mais custa pouco e declarar a menos pode custar a revisão, declaramos os
+dois. Vinculado = sim, porque o código liga todos os relatos de uma mesma instalação; mesmo assim ele não
+é ligado a nome, e-mail, telefone ou posição.
+
+**Rastreamento: não.** Nada é combinado com dados de terceiros, não há SDK de terceiros, anúncios nem
+analytics, e nada é compartilhado com corretores de dados. `NSPrivacyTracking = false`, sem domínios de
+rastreamento.
+
+**Não coletado:**
+
+- **Localização precisa e aproximada:** usada só no aparelho (ordenar, apontar a agulha, rota e avisos). Os
+  pedidos ao servidor não levam coordenadas; o servidor sabe qual fonte foi aberta, nunca onde a pessoa
+  está. O tempo de Turim vem de um ponto fixo, buscado pelo servidor; o aparelho não contata a Open-Meteo.
+  O endereço IP não é usado para deduzir localização. O mapa usa o MapKit (Apple, política da Apple).
+- **Contatos, e-mail, nome, telefone, fotos, histórico de navegação, compras, uso do produto:** nenhum.
 - **Criptografia:** apenas a do sistema (`ITSAppUsesNonExemptEncryption = NO`).
 
 ## Notas para a revisão da Apple
@@ -113,6 +140,14 @@ Rever com a versão final do código e com o que o `PrivacyInfo.xcprivacy` decla
   continua funcionando com "ao usar o app".
 - Conteúdo gerado por usuários (diretriz 1.2): relatos de até 140 caracteres, filtro de termos ofensivos,
   botão "Denunciar" e "Bloquear autor" em cada relato, autor pode apagar o próprio relato, e contato de suporte
-  publicado. Os relatos ficam num banco público do CloudKit moderado pelo desenvolvedor.
-- Não há login. A comunidade funciona sem iCloud (os relatos ficam locais até haver conexão/iCloud).
+  publicado. Os relatos ficam no servidor do Toret (AWS Milão), moderado pelo desenvolvedor: três denúncias
+  de instalações distintas escondem o relato sozinhas, e o desenvolvedor pode esconder, apagar ou banir.
+  Os relatos expiram em 30 dias.
+- Não há login nem conta, e o app não precisa de iCloud. Um código aleatório por instalação (Chaveiro) identifica
+  quem pode apagar o próprio relato; o servidor só guarda um hash dele. Sem conexão, os relatos ficam locais até
+  voltar a rede.
+- O app só se comunica com `torino.deepdive.dev.br`, além do MapKit. O tempo em Turim é buscado pelo servidor
+  (Open-Meteo, CC BY 4.0, com crédito em Ajustes); nenhuma localização é enviada.
+- O app mostra "sem relato recente" quando ninguém relatou: nenhuma informação sobre a água vem de outra fonte
+  que não os relatos datados dos usuários. Avisos de obras da SMAT não são usados.
 - Dados das fontes: OpenStreetMap (ODbL), embutidos no app, com atribuição em Ajustes.

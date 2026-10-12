@@ -36,9 +36,9 @@
 
 <section lang="pt-BR">
   <h1>Política de Privacidade</h1>
-  <p class="meta">Em vigor desde 10 de outubro de 2026 · <a href="#en">English</a> · <a href="#it">Italiano</a></p>
+  <p class="meta">Em vigor desde 12 de outubro de 2026 · <a href="#en">English</a> · <a href="#it">Italiano</a></p>
 
-  <p>O Toret é um app que mostra onde ficam as fontes de água potável de Turim e aponta uma bússola para a mais próxima. Ele foi feito para funcionar sem conta e sem servidor: <strong>o Toret não coleta dados pessoais e não envia a sua localização a lugar nenhum.</strong> A única coisa que sai do aparelho é o que você mesmo decide publicar: um relato ou uma nota sobre uma fonte, descrito em “Relatos da comunidade”, abaixo.</p>
+  <p>O Toret é um app que mostra onde ficam as fontes de água potável de Turim e aponta uma bússola para a mais próxima. Ele funciona sem conta: <strong>o Toret não coleta dados pessoais e não envia a sua localização a lugar nenhum.</strong> Além do Apple Mapas (que desenha o mapa), o app só conversa com um servidor, o do próprio Toret (<code>torino.deepdive.dev.br</code>), para baixar os relatos da comunidade e o tempo em Turim e para enviar o relato que você mesmo decidir publicar, descrito em “Relatos da comunidade”, abaixo.</p>
 
   <h2>O que o app usa</h2>
   <ul>
@@ -48,14 +48,18 @@
     <li><strong>Suas escolhas.</strong> As fontes que você salva, os filtros e os ajustes ficam apenas no aparelho. Se você apagar o app, eles são apagados com ele.</li>
   </ul>
 
-  <h2>Relatos da comunidade</h2>
-  <p>Você pode avaliar uma fonte e dizer como está a água. Esse é o único dado que o Toret envia para fora do aparelho, e só quando você toca em “Enviar relato”.</p>
+  <h2>Relatos da comunidade e o servidor do Toret</h2>
+  <p>Você pode avaliar uma fonte e dizer como está a água. Isso só sai do aparelho quando você toca em “Enviar relato”. O app contata apenas o servidor do Toret e nenhum outro. Nenhum pedido ao servidor leva a sua posição: o app pede “os relatos desta fonte” ou “os relatos recentes”, e o servidor só sabe qual fonte você abriu, nunca onde você está.</p>
   <ul>
-    <li><strong>O que vai no relato:</strong> qual fonte, como está a água, a nota de 1 a 5, as etiquetas que você escolheu, a linha de texto opcional (até 140 caracteres), a data e um nome anônimo do tipo “Visitante 4F2A91”, gerado a partir de um código que o iCloud cria para a sua conta. <strong>Não vão o seu nome, e-mail, telefone nem a sua posição.</strong></li>
-    <li><strong>Onde fica:</strong> no banco de dados público do iCloud (CloudKit) do Toret. Relatos são <strong>públicos</strong>: qualquer pessoa que usar o app pode lê-los. Não escreva nada que você não queira que outras pessoas leiam.</li>
-    <li><strong>Sem conta do iCloud</strong> o app continua funcionando e mostra os relatos de outras pessoas; os seus ficam guardados no aparelho e são enviados quando você entrar no iCloud. O Toret usa o iCloud apenas para isso e não tem acesso ao seu e-mail, nome ou fotos.</li>
-    <li><strong>Seus controles:</strong> você pode apagar qualquer relato seu a qualquer momento, no menu “⋯” do relato; o relato é removido do banco de dados público. Também pode denunciar um relato, bloquear um autor e desfazer o bloqueio na aba Relatos.</li>
-    <li><strong>Moderação:</strong> denúncias chegam ao responsável pelo app, que pode remover relatos ofensivos, spam ou informação falsa. Para pedir a remoção de algo, escreva para o contato abaixo.</li>
+    <li><strong>O que o servidor guarda de um relato:</strong> a fonte, como está a água, a nota de 1 a 5, as etiquetas que você escolheu, a linha de texto opcional (até 140 caracteres), a data e a hora, o nome anônimo do tipo “Visitante 4F2A91” e um código de verificação, descrito abaixo. <strong>Não vão o seu nome, e-mail, telefone nem a sua posição.</strong></li>
+    <li><strong>O código da instalação.</strong> Na primeira vez, o app cria um código aleatório e o guarda no Chaveiro do iOS; ele é enviado junto com cada envio, exclusão ou denúncia. O servidor não guarda o código: guarda só um hash dele, calculado com uma chave secreta que fica fora do código do app, o que permite reconhecer que a mesma instalação está apagando o próprio relato. O nome “Visitante 4F2A91” é derivado do mesmo código. Não há conta, e o código não é ligado ao seu nome, e-mail, telefone ou posição.</li>
+    <li><strong>Limites contra abuso.</strong> Para impedir enxurradas de relatos, o servidor conta os envios por instalação e por endereço de rede. Ele não grava o seu endereço IP: guarda apenas um hash dele, calculado com chave, em contadores que expiram em até uma hora e em marcas de denúncia que duram o tempo do relato.</li>
+    <li><strong>Registros técnicos.</strong> A infraestrutura registra cada requisição (a rota, o resultado, a duração, a versão do app e um número de requisição) e os guarda por 14 dias, para manter o serviço no ar. Esses registros não trazem o seu endereço IP, o código da instalação nem o texto dos relatos.</li>
+    <li><strong>Onde fica:</strong> na União Europeia, em servidores da AWS na região de Milão (eu-south-1). Relatos são <strong>públicos</strong>: qualquer pessoa que usar o app pode lê-los. Não escreva nada que você não queira que outras pessoas leiam.</li>
+    <li><strong>Por quanto tempo:</strong> um relato é apagado automaticamente 30 dias depois da sua data.</li>
+    <li><strong>Sem conexão</strong> o app continua funcionando e mostra os últimos relatos baixados; os seus ficam guardados no aparelho e são enviados quando a conexão voltar.</li>
+    <li><strong>Seus controles:</strong> você pode apagar qualquer relato seu a qualquer momento, no menu “⋯” do relato; o relato é removido do servidor. Também pode denunciar um relato, bloquear um autor e desfazer o bloqueio na aba Relatos. Para pedir a remoção de um relato (ou de todos os que vieram da sua instalação), escreva para o contato abaixo.</li>
+    <li><strong>Moderação:</strong> denúncias chegam ao responsável pelo app, que pode remover relatos ofensivos, spam ou informação falsa.</li>
     <li>Não há anúncios, análise de uso nem rastreamento associados aos relatos.</li>
   </ul>
 
@@ -69,7 +73,7 @@
   <h2>Serviços de terceiros</h2>
   <ul>
     <li><strong>Apple Mapas.</strong> O mapa, as buscas de rota a pé e o desenho das ruas vêm do Apple Mapas (MapKit). Essas solicitações são tratadas pela Apple, segundo a <a href="https://www.apple.com/legal/privacy/pt/">Política de Privacidade da Apple</a>.</li>
-    <li><strong>Apple iCloud (CloudKit).</strong> Os relatos que você publica são guardados no banco de dados público do iCloud, operado pela Apple, segundo a política de privacidade da Apple.</li>
+    <li><strong>Open-Meteo (o tempo).</strong> A temperatura mostrada na tela Perto vem da Open-Meteo, mas quem a busca é o servidor do Toret, para um ponto fixo no centro de Turim, e a entrega ao app. O seu aparelho não contata a Open-Meteo e nenhuma localização é enviada a ela nem ao servidor. Dados do tempo por <a href="https://open-meteo.com/">Open-Meteo.com</a>, licença <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Só se você tocar no link de crédito em Ajustes o seu navegador abre o site da Open-Meteo.</li>
     <li><strong>OpenStreetMap.</strong> As posições das fontes vêm de dados do OpenStreetMap, © colaboradores do OpenStreetMap, disponibilizados sob a licença <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Esses dados acompanham o app; o Toret não consulta o OpenStreetMap enquanto você o usa.</li>
   </ul>
 
@@ -90,9 +94,9 @@
 
 <section lang="en" id="en">
   <h1>Privacy Policy</h1>
-  <p class="meta">Effective 10 October 2026 · <a href="#top">Português</a> · <a href="#it">Italiano</a></p>
+  <p class="meta">Effective 12 October 2026 · <a href="#top">Português</a> · <a href="#it">Italiano</a></p>
 
-  <p>Toret shows where Turin’s drinking-water fountains are and points a compass at the nearest one. It is built to work without an account and without a server: <strong>Toret collects no personal data and never sends your location anywhere.</strong> The only thing that leaves the device is what you choose to publish: a report or a note about a fountain, described under “Community reports” below.</p>
+  <p>Toret shows where Turin’s drinking-water fountains are and points a compass at the nearest one. It works without an account: <strong>Toret collects no personal data and never sends your location anywhere.</strong> Besides Apple Maps (which draws the map), the app talks to one server only, Toret’s own (<code>torino.deepdive.dev.br</code>), to download community reports and the weather in Turin, and to send the report you choose to publish, described under “Community reports” below.</p>
 
   <h2>What the app uses</h2>
   <ul>
@@ -102,14 +106,18 @@
     <li><strong>Your choices.</strong> The fountains you save, your filters and your settings stay on the device only. Deleting the app deletes them.</li>
   </ul>
 
-  <h2>Community reports</h2>
-  <p>You can rate a fountain and say how the water is. This is the only data Toret sends off your device, and only when you tap “Send report”.</p>
+  <h2>Community reports and the Toret server</h2>
+  <p>You can rate a fountain and say how the water is. That leaves your device only when you tap “Send report”. The app contacts Toret’s server and no other. No request to the server carries your position: the app asks for “the reports of this fountain” or “the recent reports”, so the server knows which fountain you opened, never where you are.</p>
   <ul>
-    <li><strong>What a report contains:</strong> which fountain, how the water is, a 1–5 rating, the tags you picked, an optional line of text (up to 140 characters), the date, and an anonymous name such as “Visitante 4F2A91”, derived from a code iCloud creates for your account. <strong>It does not contain your name, email, phone number or position.</strong></li>
-    <li><strong>Where it lives:</strong> in Toret’s public iCloud (CloudKit) database. Reports are <strong>public</strong>: anyone using the app can read them. Do not write anything you would not want others to read.</li>
-    <li><strong>Without an iCloud account</strong> the app keeps working and shows other people’s reports; yours are kept on the device and sent once you sign in to iCloud. Toret uses iCloud for this only and has no access to your email, name or photos.</li>
-    <li><strong>Your controls:</strong> you can delete any of your reports at any time from the report’s “⋯” menu, which removes it from the public database. You can also report a report, block an author and undo the block from the Reports tab.</li>
-    <li><strong>Moderation:</strong> reports of abuse reach the app’s owner, who can remove offensive content, spam or false information. To ask for something to be removed, write to the contact below.</li>
+    <li><strong>What the server keeps of a report:</strong> which fountain, how the water is, a 1–5 rating, the tags you picked, an optional line of text (up to 140 characters), the date and time, the anonymous name such as “Visitante 4F2A91” and a verification code, described below. <strong>It does not contain your name, email, phone number or position.</strong></li>
+    <li><strong>The install code.</strong> The first time, the app makes a random code and keeps it in the iOS Keychain; it is sent with every report, deletion or flag. The server does not keep the code: it keeps only a hash of it, computed with a secret key that lives outside the app, which lets it recognise that the same install is deleting its own report. The name “Visitante 4F2A91” is derived from the same code. There is no account, and the code is not tied to your name, email, phone number or position.</li>
+    <li><strong>Limits against abuse.</strong> To stop floods of reports, the server counts submissions per install and per network address. It does not store your IP address: it keeps only a keyed hash of it, in counters that expire within an hour and in flag marks that last as long as the report.</li>
+    <li><strong>Technical logs.</strong> The infrastructure logs every request (the route, the result, the duration, the app version and a request number) and keeps those logs for 14 days, to keep the service running. They contain no IP address, no install code and no report text.</li>
+    <li><strong>Where it lives:</strong> in the European Union, on AWS servers in the Milan region (eu-south-1). Reports are <strong>public</strong>: anyone using the app can read them. Do not write anything you would not want others to read.</li>
+    <li><strong>For how long:</strong> a report is deleted automatically 30 days after its date.</li>
+    <li><strong>Offline</strong> the app keeps working and shows the reports it last downloaded; yours are kept on the device and sent when the connection returns.</li>
+    <li><strong>Your controls:</strong> you can delete any of your reports at any time from the report’s “⋯” menu, which removes it from the server. You can also report a report, block an author and undo the block from the Reports tab. To ask for a report (or every report from your install) to be removed, write to the contact below.</li>
+    <li><strong>Moderation:</strong> reports of abuse reach the app’s owner, who can remove offensive content, spam or false information.</li>
     <li>No advertising, analytics or tracking is attached to reports.</li>
   </ul>
 
@@ -123,7 +131,7 @@
   <h2>Third-party services</h2>
   <ul>
     <li><strong>Apple Maps.</strong> The map, walking directions and street drawing come from Apple Maps (MapKit). Those requests are handled by Apple under <a href="https://www.apple.com/legal/privacy/en-ww/">Apple’s Privacy Policy</a>.</li>
-    <li><strong>Apple iCloud (CloudKit).</strong> The reports you publish are stored in the public iCloud database operated by Apple, under Apple’s privacy policy.</li>
+    <li><strong>Open-Meteo (the weather).</strong> The temperature shown on the Nearby screen comes from Open-Meteo, but it is Toret’s server that fetches it, for one fixed point in central Turin, and hands it to the app. Your device never contacts Open-Meteo, and no location is sent to it or to the server. Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Only if you tap the credit link in Settings does your browser open the Open-Meteo site.</li>
     <li><strong>OpenStreetMap.</strong> Fountain positions come from OpenStreetMap data, © OpenStreetMap contributors, available under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. That data ships inside the app; Toret does not contact OpenStreetMap while you use it.</li>
   </ul>
 
@@ -144,9 +152,9 @@
 
 <section lang="it" id="it">
   <h1>Informativa sulla privacy</h1>
-  <p class="meta">In vigore dal 10 ottobre 2026 · <a href="#top">Português</a> · <a href="#en">English</a></p>
+  <p class="meta">In vigore dal 12 ottobre 2026 · <a href="#top">Português</a> · <a href="#en">English</a></p>
 
-  <p>Toret mostra dove si trovano le fontanelle di acqua potabile di Torino e punta una bussola verso la più vicina. È pensata per funzionare senza account e senza server: <strong>Toret non raccoglie dati personali e non invia da nessuna parte la tua posizione.</strong> L’unica cosa che lascia il dispositivo è ciò che decidi tu di pubblicare: una segnalazione o una nota su una fontanella, descritta qui sotto in «Segnalazioni della comunità».</p>
+  <p>Toret mostra dove si trovano le fontanelle di acqua potabile di Torino e punta una bussola verso la più vicina. Funziona senza account: <strong>Toret non raccoglie dati personali e non invia da nessuna parte la tua posizione.</strong> Oltre ad Apple Mappe (che disegna la mappa), l’app parla con un solo server, quello di Toret (<code>torino.deepdive.dev.br</code>), per scaricare le segnalazioni della comunità e il meteo di Torino e per inviare la segnalazione che decidi tu di pubblicare, descritta qui sotto in «Segnalazioni della comunità».</p>
 
   <h2>Cosa usa l’app</h2>
   <ul>
@@ -156,14 +164,18 @@
     <li><strong>Le tue scelte.</strong> Le fontanelle che salvi, i filtri e le impostazioni restano solo sul dispositivo. Se elimini l’app, vengono eliminati con lei.</li>
   </ul>
 
-  <h2>Segnalazioni della comunità</h2>
-  <p>Puoi valutare una fontanella e dire com’è l’acqua. È l’unico dato che Toret invia fuori dal dispositivo, e solo quando tocchi «Invia segnalazione».</p>
+  <h2>Segnalazioni della comunità e il server di Toret</h2>
+  <p>Puoi valutare una fontanella e dire com’è l’acqua. Questo lascia il dispositivo solo quando tocchi «Invia segnalazione». L’app contatta il server di Toret e nessun altro. Nessuna richiesta al server contiene la tua posizione: l’app chiede «le segnalazioni di questa fontanella» o «le segnalazioni recenti», quindi il server sa quale fontanella hai aperto, mai dove ti trovi.</p>
   <ul>
-    <li><strong>Cosa contiene una segnalazione:</strong> quale fontanella, com’è l’acqua, il voto da 1 a 5, le etichette che hai scelto, una riga di testo facoltativa (fino a 140 caratteri), la data e un nome anonimo del tipo «Visitante 4F2A91», ricavato da un codice che iCloud crea per il tuo account. <strong>Non contiene il tuo nome, l’e-mail, il telefono né la tua posizione.</strong></li>
-    <li><strong>Dove si trova:</strong> nel database pubblico iCloud (CloudKit) di Toret. Le segnalazioni sono <strong>pubbliche</strong>: chiunque usi l’app può leggerle. Non scrivere nulla che non vorresti far leggere ad altri.</li>
-    <li><strong>Senza un account iCloud</strong> l’app continua a funzionare e mostra le segnalazioni degli altri; le tue restano sul dispositivo e vengono inviate quando accedi a iCloud. Toret usa iCloud solo per questo e non ha accesso alla tua e-mail, al tuo nome o alle tue foto.</li>
-    <li><strong>I tuoi controlli:</strong> puoi eliminare una tua segnalazione in qualsiasi momento dal menu «⋯» della segnalazione, che la rimuove dal database pubblico. Puoi anche segnalare un contenuto, bloccare un autore e annullare il blocco dalla scheda Segnalazioni.</li>
-    <li><strong>Moderazione:</strong> le segnalazioni di abusi arrivano al responsabile dell’app, che può rimuovere contenuti offensivi, spam o informazioni false. Per chiedere la rimozione di qualcosa, scrivi al contatto qui sotto.</li>
+    <li><strong>Cosa conserva il server di una segnalazione:</strong> quale fontanella, com’è l’acqua, il voto da 1 a 5, le etichette che hai scelto, una riga di testo facoltativa (fino a 140 caratteri), data e ora, il nome anonimo del tipo «Visitante 4F2A91» e un codice di verifica, descritto qui sotto. <strong>Non contiene il tuo nome, l’e-mail, il telefono né la tua posizione.</strong></li>
+    <li><strong>Il codice dell’installazione.</strong> La prima volta l’app crea un codice casuale e lo conserva nel Portachiavi di iOS; viene inviato con ogni segnalazione, cancellazione o contrassegno. Il server non conserva il codice: conserva solo un hash, calcolato con una chiave segreta che resta fuori dall’app, che gli permette di riconoscere che la stessa installazione sta cancellando una propria segnalazione. Il nome «Visitante 4F2A91» deriva dallo stesso codice. Non c’è alcun account, e il codice non è collegato al tuo nome, all’e-mail, al telefono o alla posizione.</li>
+    <li><strong>Limiti contro gli abusi.</strong> Per evitare inondazioni di segnalazioni, il server conta gli invii per installazione e per indirizzo di rete. Non registra il tuo indirizzo IP: conserva solo un suo hash con chiave, in contatori che scadono entro un’ora e in contrassegni di segnalazione che durano quanto la segnalazione.</li>
+    <li><strong>Registri tecnici.</strong> L’infrastruttura registra ogni richiesta (il percorso, l’esito, la durata, la versione dell’app e un numero di richiesta) e conserva i registri per 14 giorni, per mantenere il servizio attivo. Non contengono l’indirizzo IP, il codice dell’installazione né il testo delle segnalazioni.</li>
+    <li><strong>Dove si trova:</strong> nell’Unione europea, su server AWS nella regione di Milano (eu-south-1). Le segnalazioni sono <strong>pubbliche</strong>: chiunque usi l’app può leggerle. Non scrivere nulla che non vorresti far leggere ad altri.</li>
+    <li><strong>Per quanto tempo:</strong> una segnalazione viene eliminata automaticamente 30 giorni dopo la sua data.</li>
+    <li><strong>Senza connessione</strong> l’app continua a funzionare e mostra le ultime segnalazioni scaricate; le tue restano sul dispositivo e vengono inviate quando la connessione torna.</li>
+    <li><strong>I tuoi controlli:</strong> puoi eliminare una tua segnalazione in qualsiasi momento dal menu «⋯» della segnalazione, che la rimuove dal server. Puoi anche segnalare un contenuto, bloccare un autore e annullare il blocco dalla scheda Segnalazioni. Per chiedere la rimozione di una segnalazione (o di tutte quelle della tua installazione), scrivi al contatto qui sotto.</li>
+    <li><strong>Moderazione:</strong> le segnalazioni di abusi arrivano al responsabile dell’app, che può rimuovere contenuti offensivi, spam o informazioni false.</li>
     <li>Nessuna pubblicità, analisi d’uso o tracciamento è collegata alle segnalazioni.</li>
   </ul>
 
@@ -177,7 +189,7 @@
   <h2>Servizi di terze parti</h2>
   <ul>
     <li><strong>Apple Mappe.</strong> La mappa, le indicazioni a piedi e il disegno delle strade provengono da Apple Mappe (MapKit). Queste richieste sono gestite da Apple secondo l’<a href="https://www.apple.com/legal/privacy/it/">Informativa sulla privacy di Apple</a>.</li>
-    <li><strong>Apple iCloud (CloudKit).</strong> Le segnalazioni che pubblichi sono conservate nel database pubblico iCloud gestito da Apple, secondo l’informativa sulla privacy di Apple.</li>
+    <li><strong>Open-Meteo (il meteo).</strong> La temperatura mostrata nella schermata Vicino viene da Open-Meteo, ma è il server di Toret a recuperarla, per un punto fisso nel centro di Torino, e a consegnarla all’app. Il tuo dispositivo non contatta mai Open-Meteo e nessuna posizione viene inviata a lei né al server. Dati meteo di <a href="https://open-meteo.com/">Open-Meteo.com</a>, con licenza <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Solo se tocchi il link dei crediti nelle Impostazioni il browser apre il sito di Open-Meteo.</li>
     <li><strong>OpenStreetMap.</strong> Le posizioni delle fontanelle provengono da dati OpenStreetMap, © contributori di OpenStreetMap, disponibili con licenza <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Questi dati sono inclusi nell’app; Toret non contatta OpenStreetMap mentre lo usi.</li>
   </ul>
 

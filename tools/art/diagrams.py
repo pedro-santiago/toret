@@ -129,7 +129,7 @@ def box(x, y, w, h, title, rows, fill=CHIARA, accent=None, title_size=26, row_si
 
 def architecture():
     b = heading(60, 130, ["Architecture"], 78)
-    b += text(60, 178, "One Swift codebase, three targets, no server of ours.", 22, INK, wght=500)
+    b += text(60, 178, "One Swift codebase, three targets, one small server of ours.", 22, INK, wght=500)
 
     # Targets: widgets left, the app in the middle, the services it talks to on the right
     b += box(60, 230, 440, 300, "ToretWidgets", [
@@ -146,12 +146,12 @@ def architecture():
         "State: ToretModel, LocationProvider,",
         "ProximityAlerts, BackgroundLocation",
         "Community: store, LocalBackend,",
-        "CloudKitBackend",
+        "HTTPBackend, APIClient",
         "Intents: Siri, Shortcuts, Spotlight",
     ], accent=BLU)
     b += box(1140, 230, 400, 140, "Apple MapKit", ["Basemap and walking routes"], accent=SALVIA)
-    b += box(1140, 390, 400, 140, "CloudKit public database",
-             ["Community reports, Release builds only"], accent=SALVIA)
+    b += box(1140, 390, 400, 140, "Toret API, AWS Milan",
+             ["Community reports, and weather", "from Open-Meteo. No accounts."], accent=SALVIA)
     b += arrow(1140, 300, 1102, 300, dashed=True)
     b += arrow(1140, 460, 1102, 460, dashed=True)
 
@@ -185,7 +185,8 @@ def architecture():
     return svg(1600, 1000, b, "Toret architecture",
                "The Toret app and the widget extension share one Swift module of models, design system and a "
                "bundled catalogue of fountains, and talk through an app group. OpenStreetMap feeds the catalogue "
-               "at build time, MapKit draws the map, and CloudKit stores community reports.")
+               "at build time, MapKit draws the map, and the Toret server in AWS Milan stores community reports "
+               "and relays the weather.")
 
 
 # --------------------------------------------------------------------------- data flow
@@ -211,9 +212,9 @@ def data_flow():
     b += text(60, 640, "Water state", 30, INK, "display", 900)
     b += box(60, 664, 330, 150, "A person at the fountain", ["Rates it, says running,", "weak or dry, adds a note"],
              title_size=24, row_size=17, accent=ROSSO)
-    b += box(470, 664, 330, 150, "Local store", ["A JSON file on the device,", "works with no iCloud"],
+    b += box(470, 664, 330, 150, "Local store", ["A JSON file on the device,", "works with no connection"],
              title_size=24, row_size=17, accent=SOLE)
-    b += box(880, 664, 330, 150, "CloudKit public DB", ["Anonymous handle, no name,", "no position, 140 characters"],
+    b += box(880, 664, 330, 150, "Toret server (EU)", ["Anonymous handle, no name,", "no position, 140 characters"],
              title_size=24, row_size=17, accent=BLU)
     b += box(1290, 664, 250, 150, "Every pin", ["Reports older than", "36 h count as unknown"],
              title_size=24, row_size=17, accent=SALVIA)
@@ -230,7 +231,7 @@ def data_flow():
     b += text(1540, 990, "ODbL for the positions, MIT for the code", 20, INK, wght=500, anchor="end")
     return svg(1600, 1030, b, "Toret data flow",
                "Fountain positions flow from OpenStreetMap through a build script into a bundled JSON file. "
-               "Water state flows from people's reports through a local store and CloudKit's public database "
+               "Water state flows from people's reports through a local store and the Toret server (AWS Milan, EU) "
                "onto every pin, and expires after thirty-six hours.")
 
 

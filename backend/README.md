@@ -78,6 +78,61 @@ to pick another).
 `make deploy` never uses `--guided`, so SAM writes no `samconfig.toml`; the file
 and `.aws-sam/` are in `.gitignore` anyway.
 
+### Deploying without the SAM CLI
+
+`make deploy` needs the SAM CLI, which is an x86 binary. On an arm64 Mac without
+Rosetta it does not run, so the first deploy (to `eu-south-1`) was done with the
+AWS CLI and CloudFormation directly, which is all SAM does after its transform.
+The steps, run from `backend/`, with every build output in a scratch directory
+outside the repository:
+
+```sh
+export AWS_REGION=eu-south-1
+WORK=$(mktemp -d)
+
+# 1. Build both functions with the Makefile's own targets: CGO_ENABLED=0
+#    GOOS=linux GOARCH=arm64 go build, one `bootstrap` binary per directory.
+for fn in Api Ingest; do
+  mkdir -p "$WORK/$fn"
+  make build-${fn}Function ARTIFACTS_DIR="$WORK/$fn"
+done
+
+# 2. A temporary copy of the template whose function CodeUri point at those
+#    directories (the global `CodeUri: .` would package the whole module).
+python3 - "$WORK" <<'PY'
+import re, sys
+work = sys.argv[1]
+t = open("template.yaml").read()
+for fn in ("Api", "Ingest"):
+    # add `CodeUri` as the first property of the function
+    t, n = re.subn(rf"(\n  {fn}Function:\n(?:    .*\n|\n)*?    Properties:\n)",
+                   rf"\1      CodeUri: {work}/{fn}\n", t, count=1)
+    assert n == 1, fn
+open(f"{work}/template.yaml", "w").write(t)
+PY
+
+# 3. Package: uploads each directory (zipped) to a private S3 bucket in the
+#    same region and writes the template with S3 locations.
+aws cloudformation package --template-file "$WORK/template.yaml" \
+  --s3-bucket "<private bucket in eu-south-1>" --output-template-file "$WORK/packaged.yaml"
+
+# 4. Deploy the stack. SAM's transform needs CAPABILITY_AUTO_EXPAND.
+aws cloudformation deploy --template-file "$WORK/packaged.yaml" --stack-name toret-api \
+  --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --no-fail-on-empty-changeset \
+  --parameter-overrides CertificateArn=<wildcard certificate in eu-south-1> \
+    PepperParameterName=/toret/pepper SmatEnabled=false
+```
+
+The pepper (`make pepper`) must exist first, and the stack name, bucket and
+certificate are looked up in the account (`aws acm list-certificates`, the
+bucket you created), never typed into a file that is committed: no account id,
+ARN or bucket name belongs in this repository. Anything the Makefile passes
+besides those three parameters (`AlarmEmail`, the concurrency settings,
+`TableName`) is optional and can be added to `--parameter-overrides` the same
+way. Redeploying with `SmatEnabled=true|false` is how the SMAT flag changes.
+Afterwards run the checks under "What the stack creates" (API mapping, log
+stream, `/v1/health`).
+
 ### What the stack creates
 
 Only its own things: the DynamoDB table (deletion protection on; kept on stack delete and on replacement), two Lambdas

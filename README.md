@@ -51,8 +51,11 @@ Built:
 In progress (see the `Toret/Community` and `ToretWidgets` folders):
 
 - **Community**: rate a fountain, report the water, read the feed. Offline-first,
-  anonymous (no accounts), stored on the project's own server (`backend/`, API in
-  `docs/backend/api.md`). Report, block and delete are built in.
+  anonymous (no accounts), stored on the project's own server (see "Backend"
+  below). Report, block and delete are built in.
+- **Weather**: one quiet line on Nearby with Turin's temperature, its source
+  (Open-Meteo) and the time of the reading. Context only: it says nothing about
+  the water in any fountain.
 - **Widgets and system integration**: home and lock-screen widgets, a Live
   Activity for the walk, Control Center controls, Siri and Shortcuts.
 
@@ -74,12 +77,40 @@ Shared/          Model, design system and components used by the app and widgets
 Toret/           The app: screens, state, community, intents
 ToretWidgets/    Widgets and the Live Activity
 ToretTests/      Swift Testing suites (bearings, catalogue, community, model)
-tools/           build-catalogue.py, TestFlight export options
-docs/            Privacy and support pages, App Store metadata
+backend/         The community API: a Go Lambda and DynamoDB (AWS, Milan)
+tools/           build-catalogue.py, TestFlight export options, diagram art
+docs/            Privacy and support pages, App Store metadata, API contract
 ```
 
+![Architecture](docs/images/architecture.svg)
+
 The app and the widgets share an app group (`group.br.tec.nuance.toret`) for
-the saved fountains and the last measured position.
+the saved fountains and the last measured position. The catalogue, the compass,
+the map and the distances all work on the device with no network. The only thing
+the app talks to over the network, apart from Apple Maps, is the Toret server at
+`https://torino.deepdive.dev.br`, through one seam (`CommunityBackend`:
+`HTTPBackend` over `APIClient`, with a device-only `LocalBackend` for Debug
+builds and tests). Reports are offline-first: they appear at once, queue on the
+device and upload when the network is there.
+
+### Backend
+
+`backend/` is a small server of ours: a Go Lambda behind an API Gateway HTTP API
+and one on-demand DynamoDB table, in AWS `eu-south-1` (Milan), plus a scheduled
+Lambda that caches the weather. There are no accounts: a write carries a random
+per-install token, and the server stores only a keyed hash of it. Routes are
+under `/v1` (`reports`, `fountains/{id}/reports`, `summaries`, `conditions`,
+`health`); the contract is [`docs/backend/api.md`](docs/backend/api.md) and its
+machine-readable twin [`openapi.yaml`](docs/backend/openapi.yaml). Build, test
+and deploy: [`backend/README.md`](backend/README.md); running it and moderating
+reports: [`docs/community-moderation.md`](docs/community-moderation.md).
+
+The honesty rule holds on the wire too. The server has **no live per-fountain
+data**: only a dated user report can make the app say a fountain is running or
+dry, and only for 36 hours. Weather (from Open-Meteo, fetched by the server) is
+context, never a water state. SMAT works notices are **off**: SMAT publishes no
+licence for them and there is no permission, so the switch (`SmatEnabled`) stays
+`false`.
 
 ### The catalogue
 
@@ -124,9 +155,12 @@ how to add a string and how to check the translations: [`docs/localization.md`](
 ## Privacy
 
 Your location stays on your device: it orders the list, points the needle and
-arms the 100 m alert, and nothing is sent to a server. No account, no analytics,
-no tracking. Community reports are public and carry no name, email or position.
-Maps come from Apple Maps. See [`docs/privacy`](docs/privacy/index.html) and
+arms the 100 m alert, and no request to the Toret server carries a position. No
+account, no analytics, no ads, no tracking. A community report you choose to send
+is public and carries no name, email or position; the server (AWS Milan) keeps it
+30 days, with only a keyed hash of a random per-install code, and you can delete
+it in the app. The weather is fetched by the server, so your device never contacts
+Open-Meteo. Maps come from Apple Maps. See [`docs/privacy`](docs/privacy/index.html) and
 [`docs/support`](docs/support/index.html).
 
 ## Contributing
@@ -139,6 +173,8 @@ To fix fountain data, fix it in OpenStreetMap and rebuild the catalogue.
 - **Source code**: [MIT](LICENSE).
 - **Fountain data**: ODbL 1.0, © OpenStreetMap contributors.
   See [`DATA-LICENSE.md`](DATA-LICENSE.md).
+- **Weather**: [Open-Meteo.com](https://open-meteo.com/), CC BY 4.0 (free tier,
+  non-commercial). SMAT works data is not used.
 - **Fonts**: League Spartan and Archivo, SIL OFL 1.1.
 - **Artwork** (icon and illustrations): CC BY 4.0, © 2026 Pedro Santiago.
 
