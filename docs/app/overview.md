@@ -115,7 +115,6 @@ flowchart LR
   D -->|Avaliar| RV[Review sheet]
   D -->|Traçar rota| W[Walk route]
   M -->|compass button| C[Compass]
-  C --> W
   S -->|Traçar rota| W
   A -.-> OS[iOS Settings]
   WG[Widget] -->|toret://fountain| D

@@ -20,8 +20,8 @@ weather and works notices never carry a field worded like a water state.
 | Distance | Straight-line geodesic distance from the user (or from the anchor) to the fountain, in metres | Re-measured on every fix of 10 m or more | Everywhere | "84 m" as the crow flies. Not a walking distance. |
 | Walking minutes | Distance / 80 m per minute, minimum 1 | Same | Detail, Perto, Live Activity | An estimate. The route screen uses MapKit's route and distance once it answers. |
 | Bearing | Forward azimuth, user to fountain, degrees clockwise from north | Same | Compass, widgets, Live Activity | A direction. The compass spoken form is relative to landmarks: "Olhe entre a Mole Antonelliana e a Basilica di Superga". |
-| Heading (which way the phone faces) | Magnetometer, true heading when available | Live; used only if accuracy is 35 degrees or better | Compass dial, widgets | The dial turns only with a trustworthy heading and a real fix; otherwise it is a north-up chart and says so. |
-| User position | Device GPS | Live | Never leaves the device. The app writes a bare fix into the on-device app group so widgets can measure (discarded after 6 h) | "A sua localização fica no aparelho" (Ajustes). |
+| Heading (which way the phone faces) | Magnetometer, true heading when available | Live; used only if accuracy is 35 degrees or better | Compass dial, Live Activity needle | The dial turns only with a trustworthy heading and a real fix; otherwise it is a north-up chart and says so. |
+| User position | Device GPS | Live; the fix the widgets use is discarded after 6 h | Distances everywhere, the user dot on the map | Never sent to the Toret server (reports carry no position). The app writes a bare fix into the on-device app group so widgets can measure, and the walk route asks Apple MapKit for walking directions from it. Ajustes says: "A sua localização fica no aparelho". |
 
 ## The four states
 

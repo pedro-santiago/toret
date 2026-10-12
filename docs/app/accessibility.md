@@ -28,7 +28,7 @@ Counts across `Toret/`, `Shared/`, `ToretWidgets/` (grep): about 36 `accessibili
 | Switches | Value "Ligado"/"Desligado" | `Chrome.swift` |
 | External links | Hint "Abre no navegador" | `SettingsScreen.swift` |
 | Weather line | Spoken form with the source: "...Fonte: Open-Meteo, 14:05." | `ConditionsViews.swift` |
-| Widgets | One full sentence per tile/row: "place, 84 metros para NO, 2 minutos a pé" (plus state when known) | `WidgetProvider`/`WidgetReading.swift`, `FountainWidgetViews.swift` |
+| Widgets | One full sentence per tile/row: "place, 84 metros para NO, 2 minutos a pé"; it never includes a water state, because widgets receive no community data | `WidgetProvider`/`WidgetReading.swift`, `FountainWidgetViews.swift` |
 | Live Activity | A spoken summary on the disc | `WalkViews.swift` |
 | Decoration | Fountain plates, illustrations, skyline, parallax, water stripes, launch overlay: hidden | `accessibilityHidden` |
 
@@ -98,7 +98,7 @@ blended over the stated background).
 | seccaNotte on notte | 5.79 | AA text |
 | sole on notte | 9.48 | AAA |
 | inchiostro on sole | 9.68 | AAA |
-| inchiostro at 0.78 / 0.75 / 0.72 / 0.70 on carta (captions) | 7.95 / 7.24 / 6.57 / 6.17 | AAA / AAA / AA+ / AA+ |
+| inchiostro at 0.78 / 0.75 / 0.72 / 0.70 on carta (captions) | 7.95 / 7.24 / 6.57 / 6.17 | AAA / AAA / AA / AA |
 | inchiostro at 0.55 on carta (the "no report" ring) | 3.80 | non-text 3:1 |
 | inchiostro at 0.62 on carta (search placeholder) | 4.74 | AA text |
 | inchiostro at 0.60 on carta / cartaChiara (review note placeholder) | 4.47 / 4.60 | **just below AA on carta**; which ground the field uses was not checked |

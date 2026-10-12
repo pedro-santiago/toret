@@ -123,10 +123,11 @@ Gaps and caveats: [accessibility.md](accessibility.md).
 
 - No account, no ad, no purchase, no streaks, no counters that invite return.
 - Permissions are asked in context. The notification prompt and the step up from
-  "while using" to "always" location only appear after the user flips the alert switch
-  (`ProximityAlerts.authorise(asking:)`); startup never asks. Note the switches default
-  to *on*, so in Ajustes they can read on while the system permission is still "Ainda
-  não perguntadas"; nothing fires until the user toggles once.
+  "while using" to "always" location are requested only when the user turns the alert
+  switch on (`ProximityAlerts.authorise(asking:)`); startup never asks. The switches
+  default to *on*, so on a fresh install Ajustes can read "on" while the system
+  permission is still "Ainda não perguntadas" and nothing is armed. Turning a switch off
+  passes `asking: false`; the prompts appear on the next off-then-on cycle.
 - Rate limit of one report per fountain per device per 30 minutes keeps feeds honest
   (`Community.rateLimit`); a short note is checked for contact details and abuse
   (`NoteFilter`).
