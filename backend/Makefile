@@ -7,7 +7,7 @@
 
 GO       ?= go
 STACK    ?= toret-api
-REGION   ?= sa-east-1
+REGION   ?= eu-south-1
 VERSION  ?= 1.0.0
 PROFILE  ?=
 # The ISSUED wildcard certificate to use; resolved by `deploy` unless CERT_ARN is given.

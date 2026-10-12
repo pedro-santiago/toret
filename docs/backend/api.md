@@ -819,7 +819,7 @@ region first. Attribute names go through `#` placeholders because several of
 them (`date`, `ttl`, `hidden`...) are DynamoDB reserved words:
 
 ```sh
-export AWS_REGION=sa-east-1     # default profile
+export AWS_REGION=eu-south-1     # default profile
 export TABLE=$(aws cloudformation describe-stacks --stack-name toret-api \
   --query "Stacks[0].Outputs[?OutputKey=='TableName'].OutputValue" --output text)
 ```

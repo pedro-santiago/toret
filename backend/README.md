@@ -12,7 +12,7 @@ Internet ── torino.deepdive.dev.br ── API Gateway HTTP API ($default, th
 EventBridge ── rate(15 minutes) / rate(1 hour) ── ingest Lambda ─┘   └─ SSM /toret/pepper
 ```
 
-Region `sa-east-1`. No CDN: the source IP API Gateway reports is the real one.
+Region `eu-south-1` (Milan, about 140 km from Turin; an opt-in AWS region, enabled once with `aws account enable-region --region-name eu-south-1`; reports stay in the EU). No CDN: the source IP API Gateway reports is the real one.
 Idle cost is close to zero: on-demand DynamoDB, 14-day log retention, no NAT, no
 provisioned anything.
 
@@ -64,7 +64,7 @@ to pick another).
    (and so every user's ability to delete their reports) derives from it. It is
    not in the repository or the template.
 2. **Certificate.** The ISSUED wildcard certificate `*.deepdive.dev.br` in
-   `sa-east-1` is looked up by `make deploy` (exactly one match or it stops) and
+   `eu-south-1` is looked up by `make deploy` (exactly one match or it stops) and
    passed as the `CertificateArn` parameter. Override with `CERT_ARN=`. It is
    never written to a file.
 3. **Upload bucket.** Name one with `S3_BUCKET=<bucket>`, or `RESOLVE_S3=1` to let
@@ -110,7 +110,7 @@ The execute-api endpoint is disabled, so only the custom domain reaches the API.
 API rejects the host and every route is `403`. Check after a deploy:
 
 ```sh
-aws apigatewayv2 get-api-mappings --domain-name torino.deepdive.dev.br --region sa-east-1
+aws apigatewayv2 get-api-mappings --domain-name torino.deepdive.dev.br --region eu-south-1
 curl -s https://torino.deepdive.dev.br/v1/health
 ```
 
@@ -119,7 +119,7 @@ offline, and a function that cannot write logs fails silently):
 
 ```sh
 curl -s https://torino.deepdive.dev.br/v1/health
-aws logs describe-log-streams --log-group-name /aws/lambda/toret-api-api --region sa-east-1 --max-items 1
+aws logs describe-log-streams --log-group-name /aws/lambda/toret-api-api --region eu-south-1 --max-items 1
 ```
 
 The second command must list a stream after the first request; an empty answer
