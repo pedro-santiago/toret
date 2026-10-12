@@ -51,7 +51,7 @@ a value is a `/v2` change.
 | `If-None-Match` | optional on list `GET`s | Section 5. |
 
 `GET` responses never depend on the install header, so one ETag is shared by
-every client and nothing needs `Vary`.
+every client (the only `Vary` is `Accept-Encoding`, section 5).
 
 ### 2.3 Value formats
 
@@ -96,7 +96,7 @@ the status code, not the body, and treat a 429 without `Retry-After` as 60 s.
 | 304 | | `If-None-Match` matched (no body). |
 | 400 | `bad_request`, `invalid_limit` | Malformed JSON, bad query parameter, bad path id. |
 | 401 | `install_required` | Missing or malformed `X-Toret-Install` on a write. |
-| 403 | `not_owner`, `forbidden` | Delete by a different install; banned install. |
+| 403 | `not_owner`, `forbidden` | Delete by a different install; banned install (on any write). |
 | 404 | `unknown_fountain` | `GET /v1/fountains/{id}/reports` with an id not in the catalogue. |
 | 409 | `id_conflict` | Report id already stored by a different install. |
 | 413 | `body_too_large` | Body over 4 KiB. |
@@ -179,6 +179,11 @@ limit, so a retry of a report that already landed is a success, never a 429):
 6. Conditional `PutItem` (`attribute_not_exists(pk)`). Losing that race to a
    concurrent identical request is treated as step 3's success.
 
+`DELETE /v1/reports/{id}` and `POST /v1/reports/{id}/flag` check, in order:
+size and content type (flag only), `X-Toret-Install`, the id (`422 invalid_id`),
+the flag body (`400` / `422 invalid_reason`), the ban, the install and IP hourly
+buckets, then act. The per-fountain gate applies to `POST /v1/reports` only.
+
 ## 5. Caching
 
 | Route | `Cache-Control` | ETag |
@@ -199,9 +204,12 @@ The `ETag` is a strong validator: `"` + first 16 hex characters of the SHA-256 o
 the response body + `"`. Bodies therefore contain **no generation time** (use
 the `Date` response header), otherwise every response would differ. A matching
 `If-None-Match` gets `304`, no body, and the same `ETag` and `Cache-Control`.
-URLSession handles this transparently when the request uses the default cache
-policy. Responses of 1 KiB or more are gzipped when `Accept-Encoding` allows it
-(API Gateway HTTP APIs do not compress for you).
+The comparison is weak (`W/` prefixes are ignored) and a list of tags or `*` is
+accepted. URLSession handles this transparently when the request uses the
+default cache policy. Responses of 1 KiB or more are gzipped when
+`Accept-Encoding` allows it (API Gateway HTTP APIs do not compress for you); the
+`ETag` is that of the uncompressed body and cacheable responses carry
+`Vary: Accept-Encoding`.
 
 ### 5.1 Read-after-write is eventually consistent
 
@@ -231,7 +239,8 @@ Liveness. No authentication, no DynamoDB access.
 { "status": "ok", "version": "1.0.0", "catalogue": 723 }
 ```
 
-`version` is the deployed server version; `catalogue` is the number of fountains
+`version` is the deployed server version (set at build time with
+`-ldflags -X main.version=`); `catalogue` is the number of fountains
 in the embedded catalogue (a quick check that the right file was embedded).
 
 ### 6.2 Reading reports
@@ -250,6 +259,10 @@ asks for** (200 and 40). This is load-bearing: `Community.merge` calls a downloa
 complete when `count < limit` and then discards cached reports it did not see.
 A server that silently returned fewer than `limit` reports while more exist would
 make the app delete real reports. There is no pagination for that reason.
+
+The window boundary is inclusive: a report dated exactly 30 days ago is still
+listed, one second older is not (the cutoff key is `<RFC 3339>#`, and every key
+of a report dated at or after that second sorts above it).
 
 Order: newest first by `date`, ties broken by `id` descending. Reports hidden by
 flags or by the owner are excluded (they are absent from the indexes). Reports
@@ -507,17 +520,34 @@ is read from DynamoDB; the API Lambda never calls an upstream.
   hourly). If the last success is more than 6 hours old, or there was none,
   `fetchedAt` is omitted and `items` is `[]`: that means **no data**, which the
   app must not present as "no works".
-- `kind` is `waterWorks` (an order of the water division) or `fountainWorks`
-  (the "FONTANELLE & TORETTI" order). Nothing else is exposed.
-- `street` is SMAT's address string, as published (Italian).
-- `fountainIDs` are fountains whose catalogue `street` equals the order's street
-  after normalisation (case, accents, "C.so"/"Corso", punctuation); `match` is
-  always `"street"` and is there so the approximation stays visible in the data.
-  An order that matches nothing is kept with `fountainIDs: []`. This is
-  approximate by construction (SMAT publishes no coordinates and no fountain id),
-  and the app words it "near <street>", "may be affected".
-- `startedOn` always present; `plannedEnd` omitted when SMAT gives none.
-- `id` is a stable 12-hex-character hash of the order, for list identity.
+- `kind` is `waterWorks` (an order of the water division, `divisione` =
+  `ACQUEDOTTO`) or `fountainWorks` (the order object `FONTANELLE & TORETTI`,
+  whichever division lists it). Sewer (`FOGNATURA`) orders and everything else
+  are dropped.
+- Only orders in Turin are kept: the address must end `, 101xx Torino TO, Italia`.
+  The service returns the whole province (about two thirds of the water orders in
+  the first capture were in Chivasso, Rosta, Chieri...), and matching those
+  against a Turin catalogue would produce false "near <street>" claims. An order
+  whose start date is after today (Europe/Rome) is also dropped, because the app
+  words it "started <date>".
+- `street` is the street part of SMAT's address string, as published (Italian,
+  abbreviations and all): `"C.so Francesco Ferrucci"` from
+  `"C.so Francesco Ferrucci, 28, 10138 Torino TO, Italia"`. House number, postcode
+  and town are not sent. An intersection stays whole: `"Corso Moncalieri & Corso Fiume"`.
+- `fountainIDs` are the fountains whose catalogue `street` equals the order's
+  street after normalisation (case and accents folded, dots and punctuation
+  removed, a leading abbreviation spelled out: `C.so` is `corso`, `V.` is `via`,
+  `Str.`/`S.da` are `strada`, `SC` is `strada comunale`, `P.za` is `piazza`); both
+  streets of an intersection are tried. `match` is always `"street"` and is there
+  so the approximation stays visible in the data. An order that matches nothing is
+  kept with `fountainIDs: []`. This is approximate by construction (SMAT publishes
+  no coordinates and no fountain id), and the app words it "near <street>", "may
+  be affected".
+- `startedOn` always present (an order without a valid start date is dropped);
+  `plannedEnd` omitted when SMAT gives none or an invalid one.
+- `id` is a stable 12-hex-character hash of SMAT's order number (`numero
+  d'ordine`), for list identity. Two orders on one street are two notices; an
+  order listed twice is one. At most 300 notices are kept, newest start first.
 - `source` is always `"SMAT S.p.A., Mappa Cantieri"`. SMAT has no stated
   licence: this is context, with attribution and time, behind a flag.
 - There is **no status, state or availability field**, and there never is one.
@@ -661,11 +691,12 @@ restored.
    `hidden`, or owned by the caller: stop, answer `204`.
 2. Transaction: `Put` the `FLAG#<installHash>` item and the `FLAGIP#<ipHash>`
    item, each with `attribute_not_exists(pk)`, and `Update` `META` with
-   `ADD flagCount :1` under the condition `flagCount = :seen`. When
+   `ADD flagCount :1` under the condition `flagCount = :seen AND attribute_not_exists(hidden)`. When
    `:seen + 1 >= 3` and `reviewed` is absent, the same update also does `SET
    hidden = :true, hiddenBy = :flags REMOVE gsi1pk, gsi1sk, gsi2pk, gsi2sk`.
 3. If cancelled because a flag item already exists: answer `204` (already
-   flagged). If cancelled because `flagCount` moved: go back to step 1.
+   flagged). If cancelled because `flagCount` moved, the report was hidden, or
+   another transaction conflicted: go back to step 1.
 
 `reviewed` is set by the owner when restoring a report (section 9); a reviewed
 report is never auto-hidden again.
@@ -703,13 +734,18 @@ A failed condition is a `429`; `Retry-After` is the seconds left in the window.
 
 A `POST` is about 2 reads and 4 writes; a feed read is one query. At the
 expected volume the table is a few cents a month; idle, it is zero. The
-template sets reserved concurrency on the function and API Gateway throttling on
-the stage, and uses 14-day CloudWatch retention.
+template sets reserved concurrency on both functions (parameters; `-1` leaves
+one unreserved on an account whose limit is too low to reserve) and API Gateway
+throttling on the stage, and uses 14-day CloudWatch retention. The roles are
+explicit: the API role may use the table, read the pepper parameter and write
+to its own log group; the ingest role may only read and write the two
+`CONDITIONS` items.
 
 ## 9. Moderation runbook (owner, by AWS CLI)
 
 Offline reference; nothing here is run by the build. Set the table name and
-region first:
+region first. Attribute names go through `#` placeholders because several of
+them (`date`, `ttl`, `hidden`...) are DynamoDB reserved words:
 
 ```sh
 export TABLE=toret AWS_REGION=sa-east-1     # default profile
@@ -719,10 +755,10 @@ export TABLE=toret AWS_REGION=sa-east-1     # default profile
 
 ```sh
 aws dynamodb scan --table-name $TABLE \
-  --filter-expression 'sk = :m AND flagCount > :z' \
+  --filter-expression '#sk = :m AND #fc > :z' \
   --expression-attribute-values '{":m":{"S":"META"},":z":{"N":"0"}}' \
-  --projection-expression 'id,fountainID,author,note,#d,flagCount,hidden,hiddenBy' \
-  --expression-attribute-names '{"#d":"date"}'
+  --projection-expression '#id,#f,#a,#n,#d,#fc,#h,#hb' \
+  --expression-attribute-names '{"#sk":"sk","#fc":"flagCount","#id":"id","#f":"fountainID","#a":"author","#n":"note","#d":"date","#h":"hidden","#hb":"hiddenBy"}'
 ```
 
 **Hide a report now** (also what auto-hide does):
@@ -730,7 +766,8 @@ aws dynamodb scan --table-name $TABLE \
 ```sh
 aws dynamodb update-item --table-name $TABLE \
   --key '{"pk":{"S":"REPORT#<ID>"},"sk":{"S":"META"}}' \
-  --update-expression 'SET hidden = :t, hiddenBy = :o REMOVE gsi1pk, gsi1sk, gsi2pk, gsi2sk' \
+  --update-expression 'SET #h = :t, #hb = :o REMOVE #g1p, #g1s, #g2p, #g2s' \
+  --expression-attribute-names '{"#h":"hidden","#hb":"hiddenBy","#g1p":"gsi1pk","#g1s":"gsi1sk","#g2p":"gsi2pk","#g2s":"gsi2sk"}' \
   --expression-attribute-values '{":t":{"BOOL":true},":o":{"S":"owner"}}'
 ```
 
@@ -739,7 +776,8 @@ aws dynamodb update-item --table-name $TABLE \
 ```sh
 aws dynamodb update-item --table-name $TABLE \
   --key '{"pk":{"S":"REPORT#<ID>"},"sk":{"S":"META"}}' \
-  --update-expression 'SET gsi1pk = :feed, gsi1sk = dateKey, gsi2pk = fountainKey, gsi2sk = dateKey, flagCount = :z, reviewed = :t REMOVE hidden, hiddenBy' \
+  --update-expression 'SET #g1p = :feed, #g1s = #dk, #g2p = #fk, #g2s = #dk, #fc = :z, #r = :t REMOVE #h, #hb' \
+  --expression-attribute-names '{"#g1p":"gsi1pk","#g1s":"gsi1sk","#g2p":"gsi2pk","#g2s":"gsi2sk","#dk":"dateKey","#fk":"fountainKey","#fc":"flagCount","#r":"reviewed","#h":"hidden","#hb":"hiddenBy"}' \
   --expression-attribute-values '{":feed":{"S":"FEED"},":z":{"N":"0"},":t":{"BOOL":true}}'
 ```
 
@@ -759,7 +797,9 @@ aws dynamodb put-item --table-name $TABLE --item \
 ```
 
 Unban: `delete-item` on the same key. To hide everything from that install, scan
-for `installHash = :h` on `META` items and apply "hide" to each.
+for `#ih = :h` (`{"#ih":"installHash"}`) on `META` items and apply "hide" to each.
+A banned install can still read; its `POST`, `DELETE` and flag calls answer
+`403 forbidden`.
 
 **Turn SMAT on or off** is a function environment variable (`SMAT_ENABLED`) set
 through the template parameter and a redeploy, not a table edit.

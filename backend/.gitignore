@@ -1,0 +1,11 @@
+# Build output and per-machine deploy state: never commit
+bin/
+.aws-sam/
+samconfig.toml
+samconfig.*.toml
+packaged.yaml
+*.env
+.env
+.env.*
+*.test
+coverage.out

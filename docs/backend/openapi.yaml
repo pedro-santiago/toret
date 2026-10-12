@@ -238,7 +238,7 @@ components:
 
   headers:
     ETag:
-      description: Strong validator; quoted first 16 hex characters of the SHA-256 of the body
+      description: Strong validator; quoted first 16 hex characters of the SHA-256 of the uncompressed body. Cacheable responses also carry Vary Accept-Encoding.
       schema: { type: string, example: '"3f9a1c0b7d2e4a68"' }
     RateLimitLimit:
       description: Writes allowed per clock hour for this install
@@ -406,8 +406,12 @@ components:
     Notice:
       type: object
       description: |
-        A SMAT works order, matched to fountains only approximately by street
-        name. There is deliberately no status or availability field.
+        A SMAT works order in Turin (water division, or the FONTANELLE & TORETTI
+        order), matched to fountains only approximately by street name. Orders
+        elsewhere in the province, sewer orders and orders not yet started are
+        dropped. `street` is the street part of SMAT's address as published
+        (no number, postcode or town). There is deliberately no status or
+        availability field.
       required: [id, kind, street, fountainIDs, match, startedOn, source, fetchedAt]
       properties:
         id: { type: string, pattern: "^[0-9a-f]{12}$" }

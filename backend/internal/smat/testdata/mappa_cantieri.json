@@ -1,0 +1,319 @@
+{
+ "features": [
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2028030",
+   "properties": {
+    "cdr": "02C20",
+    "data_fine_prevista": "2028-02-15",
+    "data_inizio": "2024-02-13",
+    "divisione": "FOGNATURA",
+    "indirizzo": "Largo Millefonti, 52, 10126 Torino TO, Italia",
+    "numero d'ordine": "2028030",
+    "oggetto_di_intervento": "(FG) COLLETTORE MISTO",
+    "tipo_di_intervento": "(FG) POSA NUOVA OPERA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2119001",
+   "properties": {
+    "cdr": "02C211",
+    "data_fine_prevista": "2026-12-31",
+    "data_inizio": "2025-01-13",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso G. Ferraris, 51/T, 10034 Chivasso TO, Italia",
+    "numero d'ordine": "2119001",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "RINNOVO CONDOTTE"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2239819",
+   "properties": {
+    "cdr": "02B109",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-09-24",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "V. Luigi Lavazza, 30, 10131 Torino TO, Italia",
+    "numero d'ordine": "2239819",
+    "oggetto_di_intervento": "PRESA IDRICA UTENZA",
+    "tipo_di_intervento": "RIFACIMENTO PRESA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2262563",
+   "properties": {
+    "cdr": "02B100",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-03-16",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Ellero, 22, 10126 Torino TO, Italia",
+    "numero d'ordine": "2262563",
+    "oggetto_di_intervento": "PRESA IDRICA UTENZA",
+    "tipo_di_intervento": "RIFACIMENTO PRESA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2236832",
+   "properties": {
+    "cdr": "02B100",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-01-13",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Ellero, 22, 10126 Torino TO, Italia",
+    "numero d'ordine": "2236832",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "POSA NUOVA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2280680",
+   "properties": {
+    "cdr": "02C217",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-03-25",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Torino, 10080 Salassa TO, Italia",
+    "numero d'ordine": "2280680",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "POSA NUOVA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2299154",
+   "properties": {
+    "cdr": "02B100",
+    "data_fine_prevista": "2026-11-28",
+    "data_inizio": "2026-09-24",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso Stati Uniti, 38, 10128 Torino TO, Italia",
+    "numero d'ordine": "2299154",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "POSA NUOVA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2305794",
+   "properties": {
+    "cdr": "02B100",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-05-25",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "C.so Francesco Ferrucci, 28, 10138 Torino TO, Italia",
+    "numero d'ordine": "2305794",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "INTUBAMENTO CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2323942",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-08-31",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso Moncalieri & Corso Fiume, 10131 Torino TO, Italia",
+    "numero d'ordine": "2323942",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "MODIFICA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2333019",
+   "properties": {
+    "cdr": "02C211",
+    "data_fine_prevista": "2026-10-16",
+    "data_inizio": "2026-10-07",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Piazza Nassirya, 10099 San Mauro Torinese TO, Italia",
+    "numero d'ordine": "2333019",
+    "oggetto_di_intervento": "PRESA IDRICA UTENZA",
+    "tipo_di_intervento": "NUOVA PRESA CONTATORE"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2346955",
+   "properties": {
+    "cdr": "02C211",
+    "data_fine_prevista": "2026-12-31",
+    "data_inizio": "2026-10-08",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Rivera, 9A, 10034 Chivasso TO, Italia",
+    "numero d'ordine": "2346955",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "RIPARAZIONE PEZZI SPECIALI E DERIVAZIONI"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2350713",
+   "properties": {
+    "cdr": "02C211",
+    "data_fine_prevista": "2026-10-30",
+    "data_inizio": "2026-09-28",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Viale C. Cavour, 20, 10034 Chivasso TO, Italia",
+    "numero d'ordine": "2350713",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "RIPARAZIONE PEZZI SPECIALI E DERIVAZIONI"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2352233",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-10-07",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Str. dei Biasoni, 1, 10156 Torino TO, Italia",
+    "numero d'ordine": "2352233",
+    "oggetto_di_intervento": "PRESA IDRICA UTENZA",
+    "tipo_di_intervento": "NUOVA PRESA CONTATORE"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2339896",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": "2026-12-31",
+    "data_inizio": "2026-09-14",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "SC di Superga, 124, 10132 Torino TO, Italia",
+    "numero d'ordine": "2339896",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "POSA NUOVA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2348114",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": "2026-12-16",
+    "data_inizio": "2026-10-06",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Oropa, 9, 10153 Torino TO, Italia",
+    "numero d'ordine": "2348114",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "POSA NUOVA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2351837",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-09-07",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Piazza Carlo Alberto Dalla Chiesa, 10129 Torino TO, Italia",
+    "numero d'ordine": "2351837",
+    "oggetto_di_intervento": "FONTANELLE & TORETTI",
+    "tipo_di_intervento": "(FG) DISOTTURAZIONE"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2346251",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-10-12",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso Massimo d'Azeglio, 82, 10126 Torino TO, Italia",
+    "numero d'ordine": "2346251",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "MODIFICA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2363952",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": "2026-10-13",
+    "data_inizio": "2026-10-09",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso Unione Sovietica & Via Cesare Pavese, 10135 Torino TO, Italia",
+    "numero d'ordine": "2363952",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "FUGA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2367346",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-10-12",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Lungo Po Armando Diaz, 10123 Torino TO, Italia",
+    "numero d'ordine": "2367346",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "FUGA CONDOTTA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2359668",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-09-29",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Via Val Lagarina & Via Quarto dei Mille, 10142 Torino TO, Italia",
+    "numero d'ordine": "2359668",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "CAMBIO SARACINESCA"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": null,
+   "id": "vm_mappa_cantieri.2364170",
+   "properties": {
+    "cdr": "02B10",
+    "data_fine_prevista": null,
+    "data_inizio": "2026-10-06",
+    "divisione": "ACQUEDOTTO",
+    "indirizzo": "Corso Cairoli & Lungo Po Armando Diaz, 10123 Torino TO, Italia",
+    "numero d'ordine": "2364170",
+    "oggetto_di_intervento": "CONDOTTA RETE IDRICA",
+    "tipo_di_intervento": "FUGA CONDOTTA"
+   },
+   "type": "Feature"
+  }
+ ]
+}
