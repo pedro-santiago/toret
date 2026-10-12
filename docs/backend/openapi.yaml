@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: Toret community API
+  version: 1.0.0
+  description: |
+    Machine-readable twin of docs/backend/api.md. Where they disagree, api.md wins.
+    Dates are RFC 3339 UTC at whole-second precision (no fractions). Enums are
+    closed in v1: a server never emits a value not listed here.
+servers:
+  - url: https://torino.deepdive.dev.br
+    description: Production (regional custom domain, API Gateway HTTP API, stage $default)
+tags:
+  - name: reports
+  - name: context
+  - name: system
+
+paths:
+  /v1/health:
+    get:
+      tags: [system]
+      operationId: getHealth
+      summary: Liveness; touches nothing
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control: { schema: { type: string, example: no-store } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /v1/reports:
+    get:
+      tags: [reports]
+      operationId: listRecentReports
+      summary: Newest visible reports in the last 30 days, newest first
+      description: |
+        CommunityBackend.recent(limit:). No pagination: the client treats
+        count < limit as a complete download, so the maximum must never be
+        below what the app asks for (200).
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 50, description: "Values above 200 are clamped to 200." }
+        - $ref: "#/components/parameters/IfNoneMatch"
+        - $ref: "#/components/parameters/ClientHeader"
+      responses:
+        "200": { $ref: "#/components/responses/ReportList" }
+        "304": { $ref: "#/components/responses/NotModified" }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+    post:
+      tags: [reports]
+      operationId: saveReport
+      summary: Create a report; idempotent by id
+      description: |
+        CommunityBackend.save(_:). The same id from the same install is a no-op
+        success (200). The server derives `author` itself and ignores any author
+        or isMine in the body. Order of checks: size, headers, validation,
+        idempotency, ban, rate limits, conditional put.
+      parameters:
+        - $ref: "#/components/parameters/Install"
+        - $ref: "#/components/parameters/ClientHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReportInput" }
+      responses:
+        "201":
+          description: Stored
+          headers: { RateLimit-Limit: { $ref: "#/components/headers/RateLimitLimit" }, RateLimit-Remaining: { $ref: "#/components/headers/RateLimitRemaining" }, RateLimit-Reset: { $ref: "#/components/headers/RateLimitReset" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
+        "200":
+          description: Already stored by this install; the stored report is returned unchanged
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Error" }
+
+  /v1/fountains/{id}/reports:
+    get:
+      tags: [reports]
+      operationId: listFountainReports
+      summary: Newest visible reports about one fountain in the last 30 days
+      description: CommunityBackend.reports(for:limit:).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: OSM node id, as in fountains.json
+          schema: { type: string, pattern: "^[0-9]{1,12}$", example: "421310659" }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 40, description: "Values above 100 are clamped to 100." }
+        - $ref: "#/components/parameters/IfNoneMatch"
+        - $ref: "#/components/parameters/ClientHeader"
+      responses:
+        "200": { $ref: "#/components/responses/ReportList" }
+        "304": { $ref: "#/components/responses/NotModified" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /v1/summaries:
+    get:
+      tags: [reports]
+      operationId: getSummaries
+      summary: Per-fountain aggregate of reports in the last 36 hours
+      description: |
+        The shape ToretModel.apply(summaries:) takes ([String: CommunitySummary]).
+        Mirrors CommunitySummary.summarising over a 36 hour window. A hint for
+        pins, widgets and cold start; it ignores local blocks and covers 36 hours
+        where the app computes over 30 days. Fountains with no report in the
+        window are absent (CommunitySummary.empty).
+      parameters:
+        - $ref: "#/components/parameters/IfNoneMatch"
+        - $ref: "#/components/parameters/ClientHeader"
+      responses:
+        "200":
+          description: OK
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+            Cache-Control: { schema: { type: string, example: "private, max-age=60" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Summaries" }
+        "304": { $ref: "#/components/responses/NotModified" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /v1/reports/{id}:
+    delete:
+      tags: [reports]
+      operationId: deleteReport
+      summary: Delete the caller's own report
+      description: CommunityBackend.delete(reportID:). 204 also when the report is already gone.
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+        - $ref: "#/components/parameters/Install"
+        - $ref: "#/components/parameters/ClientHeader"
+      responses:
+        "204":
+          description: Deleted, or nothing to delete
+          headers: { RateLimit-Limit: { $ref: "#/components/headers/RateLimitLimit" }, RateLimit-Remaining: { $ref: "#/components/headers/RateLimitRemaining" }, RateLimit-Reset: { $ref: "#/components/headers/RateLimitReset" } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /v1/reports/{id}/flag:
+    post:
+      tags: [reports]
+      operationId: flagReport
+      summary: Report someone else's report as objectionable
+      description: |
+        CommunityBackend.flag(reportID:reason:). Always 204 for a well-formed
+        request, including a missing or already hidden report, a repeat flag from
+        the same install, and the caller's own report. Three distinct flaggers
+        (distinct installs and distinct source IPs) hide the report from all reads.
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+        - $ref: "#/components/parameters/Install"
+        - $ref: "#/components/parameters/ClientHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FlagInput" }
+      responses:
+        "204":
+          description: Recorded, or nothing to record
+          headers: { RateLimit-Limit: { $ref: "#/components/headers/RateLimitLimit" }, RateLimit-Remaining: { $ref: "#/components/headers/RateLimitRemaining" }, RateLimit-Reset: { $ref: "#/components/headers/RateLimitReset" } }
+        "401": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /v1/conditions:
+    get:
+      tags: [context]
+      operationId: getConditions
+      summary: Weather and SMAT works notices, each with provenance
+      description: |
+        Context only. Nothing in the response is a water state, and no field may
+        ever be added that reads like one. Weather is null when never fetched or
+        older than 6 hours. When notices.enabled is false the app hides the feature.
+      parameters:
+        - $ref: "#/components/parameters/IfNoneMatch"
+        - $ref: "#/components/parameters/ClientHeader"
+      responses:
+        "200":
+          description: OK
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+            Cache-Control: { schema: { type: string, example: "public, max-age=300" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Conditions" }
+        "304": { $ref: "#/components/responses/NotModified" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+components:
+  parameters:
+    Install:
+      name: X-Toret-Install
+      in: header
+      required: true
+      description: |
+        Random install token from the Keychain (UUID string). Used byte for byte;
+        the author handle is SHA256("toret.author." + token), first 3 bytes, hex upper.
+      schema: { type: string, pattern: "^[A-Za-z0-9._-]{16,64}$", example: "5B0C6E0D-7F7B-4D5E-9E3A-2C1F8A4B9D10" }
+    ClientHeader:
+      name: X-Toret-Client
+      in: header
+      required: false
+      description: "App version and build, e.g. 1.0.0+42. Logged only."
+      schema: { type: string, example: "1.0.0+42" }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema: { type: string }
+    ReportId:
+      name: id
+      in: path
+      required: true
+      description: Report id, a UUID in any case (stored and returned upper case)
+      schema: { type: string, format: uuid }
+
+  headers:
+    ETag:
+      description: Strong validator; quoted first 16 hex characters of the SHA-256 of the body
+      schema: { type: string, example: '"3f9a1c0b7d2e4a68"' }
+    RateLimitLimit:
+      description: Writes allowed per clock hour for this install
+      schema: { type: integer, example: 40 }
+    RateLimitRemaining:
+      schema: { type: integer, example: 37 }
+    RateLimitReset:
+      description: Seconds until the hourly window ends
+      schema: { type: integer, example: 1260 }
+
+  responses:
+    ReportList:
+      description: OK
+      headers:
+        ETag: { $ref: "#/components/headers/ETag" }
+        Cache-Control: { schema: { type: string, example: no-cache } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ReportList" }
+    NotModified:
+      description: If-None-Match matched; no body
+      headers:
+        ETag: { $ref: "#/components/headers/ETag" }
+    Error:
+      description: Error. Codes are listed in api.md section 3.1.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    RateLimited:
+      description: |
+        Rate limited by the Lambda (body below) or throttled by API Gateway
+        (body {"message":"Too Many Requests"}, no Retry-After; treat as 60 s).
+      headers:
+        Retry-After:
+          required: true
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    WaterState:
+      type: string
+      enum: [running, weak, dry, unknown]
+    ReportTag:
+      type: string
+      enum: [cold, clean, strongFlow, easyToReach, shade, dirty, hardToFind]
+    Timestamp:
+      type: string
+      format: date-time
+      description: RFC 3339 UTC, whole seconds, e.g. 2026-10-12T09:41:00Z
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+      example: "2026-10-12T09:41:00Z"
+    CalendarDate:
+      type: string
+      format: date
+      example: "2026-10-12"
+
+    Health:
+      type: object
+      required: [status, version, catalogue]
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string, example: "1.0.0" }
+        catalogue: { type: integer, example: 723, description: Fountains in the embedded catalogue }
+
+    Report:
+      type: object
+      description: Swift `Report`, 1:1. The server always emits isMine false.
+      required: [id, fountainID, state, tags, note, date, author, isMine]
+      properties:
+        id: { type: string, format: uuid, example: "7D2B7C54-3F0A-4C5E-8B6D-0E5C6C1B9A10" }
+        fountainID: { type: string, example: "421310659" }
+        state: { $ref: "#/components/schemas/WaterState" }
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Omitted when the person did not rate; never 0
+        tags:
+          type: array
+          maxItems: 3
+          uniqueItems: true
+          items: { $ref: "#/components/schemas/ReportTag" }
+        note: { type: string, description: "Trimmed; empty string when none" }
+        date: { $ref: "#/components/schemas/Timestamp" }
+        author: { type: string, pattern: '^Visitante [0-9A-F]{6}$', example: "Visitante E95596" }
+        isMine: { type: boolean, enum: [false] }
+
+    ReportInput:
+      type: object
+      description: |
+        A Report without author and isMine (ignored if sent). At least a state
+        other than unknown, or a rating, is required.
+      required: [id, fountainID, date]
+      properties:
+        id: { type: string, format: uuid }
+        fountainID: { type: string }
+        state: { $ref: "#/components/schemas/WaterState" }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        tags:
+          type: array
+          maxItems: 3
+          uniqueItems: true
+          items: { $ref: "#/components/schemas/ReportTag" }
+        note:
+          type: string
+          maxLength: 280
+          description: "UI limit is 140 characters; the server tolerates 280 Unicode code points."
+        date:
+          allOf: [{ $ref: "#/components/schemas/Timestamp" }]
+          description: Within 30 days in the past and 10 minutes in the future of the server clock.
+
+    ReportList:
+      type: object
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          items: { $ref: "#/components/schemas/Report" }
+
+    FlagInput:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, enum: [offensive, spam, "false"] }
+
+    CommunitySummary:
+      type: object
+      description: Swift `CommunitySummary`, 1:1 (average and latestDate omitted when nil)
+      required: [state, ratingCount, reportCount]
+      properties:
+        state: { $ref: "#/components/schemas/WaterState" }
+        latestDate: { $ref: "#/components/schemas/Timestamp" }
+        average: { type: number, minimum: 1, maximum: 5, description: "Rounded to 2 decimals" }
+        ratingCount: { type: integer, minimum: 0 }
+        reportCount: { type: integer, minimum: 0 }
+
+    Summaries:
+      type: object
+      required: [windowHours, summaries]
+      properties:
+        windowHours: { type: integer, enum: [36] }
+        summaries:
+          type: object
+          description: "Fountain id to summary; decodes to [String: CommunitySummary]"
+          additionalProperties: { $ref: "#/components/schemas/CommunitySummary" }
+
+    Weather:
+      type: object
+      description: Context with provenance. Shown with its attribution and fetchedAt.
+      required: [temperatureC, apparentTemperatureC, relativeHumidityPercent, observedAt, fetchedAt, attribution, licence, licenceURL, sourceURL]
+      properties:
+        temperatureC: { type: number, example: 24.1 }
+        apparentTemperatureC: { type: number, example: 26.3 }
+        relativeHumidityPercent: { type: integer, example: 48 }
+        apparentTemperatureMaxTodayC: { type: number, example: 29.5 }
+        observedAt: { $ref: "#/components/schemas/Timestamp" }
+        fetchedAt: { $ref: "#/components/schemas/Timestamp" }
+        attribution: { type: string, enum: ["Weather data by Open-Meteo.com"] }
+        licence: { type: string, enum: ["CC BY 4.0"] }
+        licenceURL: { type: string, format: uri }
+        sourceURL: { type: string, format: uri }
+
+    Notice:
+      type: object
+      description: |
+        A SMAT works order, matched to fountains only approximately by street
+        name. There is deliberately no status or availability field.
+      required: [id, kind, street, fountainIDs, match, startedOn, source, fetchedAt]
+      properties:
+        id: { type: string, pattern: "^[0-9a-f]{12}$" }
+        kind: { type: string, enum: [waterWorks, fountainWorks] }
+        street: { type: string, example: "Corso Vittorio Emanuele II" }
+        fountainIDs:
+          type: array
+          items: { type: string }
+        match: { type: string, enum: [street] }
+        startedOn: { $ref: "#/components/schemas/CalendarDate" }
+        plannedEnd: { $ref: "#/components/schemas/CalendarDate" }
+        source: { type: string, enum: ["SMAT S.p.A., Mappa Cantieri"] }
+        fetchedAt: { $ref: "#/components/schemas/Timestamp" }
+
+    Notices:
+      type: object
+      required: [enabled, items]
+      properties:
+        enabled:
+          type: boolean
+          description: Mirrors the SMAT_ENABLED flag. When false, items is empty and the app hides the feature.
+        fetchedAt:
+          allOf: [{ $ref: "#/components/schemas/Timestamp" }]
+          description: Last successful ingest; omitted when disabled, never fetched or older than 6 hours (no data, not "no works").
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Notice" }
+
+    Conditions:
+      type: object
+      required: [notices]
+      properties:
+        weather:
+          nullable: true
+          allOf: [{ $ref: "#/components/schemas/Weather" }]
+        notices: { $ref: "#/components/schemas/Notices" }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - bad_request
+                - invalid_limit
+                - install_required
+                - not_owner
+                - forbidden
+                - unknown_fountain
+                - id_conflict
+                - body_too_large
+                - unsupported_media_type
+                - empty_report
+                - invalid_id
+                - invalid_state
+                - invalid_rating
+                - invalid_tags
+                - invalid_note
+                - invalid_date
+                - invalid_reason
+                - upgrade_required
+                - rate_limited
+                - internal
+                - unavailable
+            message: { type: string, description: Developer-facing; never shown to users }
+            field: { type: string, example: note }
+            reason:
+              type: string
+              description: "invalid_note: too_long, control_characters, objectionable, contains_contact. rate_limited: install, ip, fountain."
+            requestId: { type: string }
