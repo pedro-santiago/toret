@@ -20,6 +20,10 @@ S3_BUCKET  ?=
 RESOLVE_S3 ?=
 PEPPER_PARAM ?= /toret/pepper
 SMAT_ENABLED ?= false
+# Reserved concurrent executions; -1 leaves a function unreserved (accounts whose
+# limit is so low that reserving would leave fewer than 10 unreserved).
+API_CONCURRENCY    ?= 10
+INGEST_CONCURRENCY ?= 1
 # Pass CONFIRM= to deploy without reviewing the change set first.
 CONFIRM ?= --confirm-changeset
 
@@ -87,9 +91,10 @@ deploy: test validate build
 	cert="$(CERT_ARN)"; \
 	if [ -z "$$cert" ]; then \
 	  cert=$$($(AWS) acm list-certificates --certificate-statuses ISSUED \
+	    --includes keyTypes=RSA_2048,EC_prime256v1,EC_secp384r1 \
 	    --query "CertificateSummaryList[?DomainName=='$(CERT_DOMAIN)'].CertificateArn" --output text); \
 	  n=$$(printf '%s' "$$cert" | wc -w | tr -d ' '); \
-	  if [ "$$n" != 1 ]; then echo "expected exactly one ISSUED certificate for $(CERT_DOMAIN) in $(REGION), found $$n; set CERT_ARN=" >&2; exit 1; fi; \
+	  if [ "$$n" != 1 ]; then echo "expected exactly one ISSUED certificate for $(CERT_DOMAIN) in $(REGION), found $$n; pass CERT_ARN=<arn> to choose one" >&2; exit 1; fi; \
 	fi; \
 	$(AWS) ssm get-parameter --name "$(PEPPER_PARAM)" --query 'Parameter.Type' --output text >/dev/null 2>&1 \
 	  || { echo "$(PEPPER_PARAM) does not exist: run 'make pepper' first" >&2; exit 1; }; \
@@ -98,7 +103,8 @@ deploy: test validate build
 	  $(if $(S3_BUCKET),--s3-bucket $(S3_BUCKET)) $(if $(RESOLVE_S3),--resolve-s3) \
 	  --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset $(CONFIRM) \
 	  --tags project=toret \
-	  --parameter-overrides "CertificateArn=$$cert" "PepperParameterName=$(PEPPER_PARAM)" "SmatEnabled=$(SMAT_ENABLED)"
+	  --parameter-overrides "CertificateArn=$$cert" "PepperParameterName=$(PEPPER_PARAM)" "SmatEnabled=$(SMAT_ENABLED)" \
+	    "ApiReservedConcurrency=$(API_CONCURRENCY)" "IngestReservedConcurrency=$(INGEST_CONCURRENCY)"
 
 outputs:
 	@$(AWS) cloudformation describe-stacks --stack-name $(STACK) --query 'Stacks[0].Outputs' --output table

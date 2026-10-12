@@ -72,14 +72,15 @@ to pick another).
    is outside this one, so the choice is yours; with neither, `sam deploy` stops.
 4. `make deploy S3_BUCKET=...` runs the tests, lints, builds and deploys stack
    `toret-api`, showing the change set for confirmation (`CONFIRM=` to skip).
-   `SMAT_ENABLED=true` turns the SMAT feature on (default `false`).
+   `SMAT_ENABLED=true` turns the SMAT feature on (default `false`);
+   `API_CONCURRENCY=` and `INGEST_CONCURRENCY=` set the reserved concurrency (`-1`: none).
 
 `make deploy` never uses `--guided`, so SAM writes no `samconfig.toml`; the file
 and `.aws-sam/` are in `.gitignore` anyway.
 
 ### What the stack creates
 
-Only its own things: the DynamoDB table (`DeletionPolicy: Retain`), two Lambdas
+Only its own things: the DynamoDB table (kept on stack delete and on replacement; a failed first create does not leave it behind), two Lambdas
 with explicit roles, two log groups (14 days), the HTTP API with stage `$default`
 and a throttle (20 requests/s, burst 40), a regional custom domain, an API
 mapping to `$default`, the schedules, and one Route 53 `A` alias for the name.

@@ -73,7 +73,9 @@ Resources:
   # ---------------------------------------------------------------- data
   Table:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
+    # Kept when the stack is deleted or the table replaced, but not when the
+    # first create fails and rolls back (an orphaned "toret" would block every retry).
+    DeletionPolicy: RetainExceptOnCreate
     UpdateReplacePolicy: Retain
     Properties:
       TableName: !Ref TableName
