@@ -796,7 +796,7 @@ refused request has already counted in the earlier ones.
 
 ### 8.5 Cost and capacity
 
-A `POST` is about 2 reads (the id, two bans) and 8 write units (the report and its
+A `POST` is about 3 reads (the id, two bans) and 8 write units (the report and its
 two index entries, five counters). A feed or per-fountain list is one query,
 kept for 10 seconds per warm Lambda and read at its largest limit, so a flood of
 reads costs one query per container per 10 seconds, not one per request. At the
