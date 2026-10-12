@@ -135,19 +135,20 @@ struct FountainRow: View {
     /// corner. The plate never shows water (see ``FountainPlate``), so the mark is
     /// the only thing in this square that speaks about it.
     private var thumbnail: some View {
-        FountainPlate(fountain: fountain, night: night)
+        CachedFountainPlate(fountain: fountain, size: CGSize(width: Self.thumbnailSide, height: Self.thumbnailSide), night: night)
             .frame(width: Self.thumbnailSide, height: Self.thumbnailSide)
+            .clipped()
             .overlay { Rectangle().strokeBorder(primary, lineWidth: 2) }
             .overlay(alignment: .topLeading) {
                 StateMark(state: fountain.state, size: 16, night: night)
                     .padding(3)
                     .background(Circle().fill(night ? Palette.notte : Palette.carta))
                     .overlay { Circle().strokeBorder(primary, lineWidth: 2) }
-                    .offset(x: -8, y: -8)
+                    .offset(x: -7, y: -7)
             }
     }
 
-    private static let thumbnailSide: CGFloat = 52
+    private static let thumbnailSide: CGFloat = 44
 
     private func names(lines: Int) -> some View {
         VStack(alignment: .leading, spacing: 3) {

@@ -35,6 +35,79 @@ struct FountainPlate: View {
     }
 }
 
+/// A plate drawn once and kept as a bitmap.
+///
+/// The live `FountainPlate` redraws its landmark paths whenever it is laid out; in a
+/// list, and in a header that stretches under a finger, that is work every frame for
+/// a picture that never changes. This renders it once at the size it will be shown
+/// (`ImageRenderer`, on the main actor, a few milliseconds) and the cache hands the
+/// same bitmap to every later appearance. Scrolling then costs a texture, not paths.
+@MainActor
+enum PlateCache {
+    private static let cache: NSCache<NSString, UIImage> = {
+        let cache = NSCache<NSString, UIImage>()
+        cache.totalCostLimit = 48 * 1024 * 1024
+        return cache
+    }()
+
+    private static func key(_ spec: FountainPlateSpec, _ size: CGSize, _ night: Bool, _ topInset: CGFloat, _ scale: CGFloat) -> NSString {
+        "\(spec.hashValue)|\(Int(size.width))x\(Int(size.height))|\(night)|\(Int(topInset))|\(Int(scale))" as NSString
+    }
+
+    static func image(
+        for spec: FountainPlateSpec, size: CGSize, night: Bool, topInset: CGFloat, scale: CGFloat
+    ) -> UIImage? {
+        guard size.width >= 1, size.height >= 1 else { return nil }
+        let size = CGSize(width: size.width.rounded(), height: size.height.rounded())
+        let key = Self.key(spec, size, night, topInset, scale)
+        if let hit = cache.object(forKey: key) { return hit }
+        let renderer = ImageRenderer(
+            content: FountainPlate(spec: spec, night: night, topInset: topInset).frame(width: size.width, height: size.height)
+        )
+        renderer.scale = scale
+        renderer.isOpaque = true
+        guard let image = renderer.uiImage else { return nil }
+        cache.setObject(image, forKey: key, cost: Int(size.width * size.height * scale * scale * 4))
+        return image
+    }
+
+    /// Whether a plate for these arguments is already cached (for tests).
+    static func isCached(for spec: FountainPlateSpec, size: CGSize, night: Bool, topInset: CGFloat, scale: CGFloat) -> Bool {
+        let size = CGSize(width: size.width.rounded(), height: size.height.rounded())
+        let key = Self.key(spec, size, night, topInset, scale)
+        return cache.object(forKey: key) != nil
+    }
+}
+
+/// A fountain's plate at a fixed design size, from the cache. Where the frame is
+/// larger than `size` (a header being pulled down) the bitmap fills it.
+struct CachedFountainPlate: View {
+    let spec: FountainPlateSpec
+    var size: CGSize
+    var night = false
+    var topInset: CGFloat = 0
+    @Environment(\.displayScale) private var displayScale
+
+    init(fountain: Fountain, size: CGSize, night: Bool = false, topInset: CGFloat = 0) {
+        spec = FountainPlateSpec(fountain)
+        self.size = size
+        self.night = night
+        self.topInset = topInset
+    }
+
+    var body: some View {
+        if let image = PlateCache.image(for: spec, size: size, night: night, topInset: topInset, scale: displayScale) {
+            Image(uiImage: image)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFill()
+                .accessibilityHidden(true)
+        } else {
+            FountainPlate(spec: spec, night: night, topInset: topInset)
+        }
+    }
+}
+
 extension FountainPlateSpec {
     /// A fountain's plate depends on who it is and where, never on its water.
     init(_ fountain: Fountain) {
@@ -43,6 +116,9 @@ extension FountainPlateSpec {
 }
 
 /// The inks of one pairing, by day or night.
+///
+/// No pairing may print a filled blue disc: that is the running `StateMark`, and a
+/// decorative dot must never be mistaken for it. The dot is red, black or cream.
 struct PlateInks {
     var sky: Color
     var sun: Color
@@ -71,7 +147,7 @@ struct PlateInks {
             )
         case .gold:
             return PlateInks(
-                sky: Palette.sole, sun: Palette.rosso, dot: Palette.blu,
+                sky: Palette.sole, sun: Palette.rosso, dot: Palette.inchiostro,
                 ground: Palette.cartaScura, stripe: Palette.blu, rule: Palette.inchiostro,
                 motifA: Palette.carta, motifB: Palette.rosso
             )
@@ -83,7 +159,7 @@ struct PlateInks {
             )
         case .ochre:
             return PlateInks(
-                sky: Palette.facciata, sun: Palette.rosso, dot: Palette.blu,
+                sky: Palette.facciata, sun: Palette.rosso, dot: Palette.inchiostro,
                 ground: Palette.inchiostro, stripe: Palette.sole, rule: Palette.inchiostro,
                 motifA: Palette.carta, motifB: Palette.sole
             )

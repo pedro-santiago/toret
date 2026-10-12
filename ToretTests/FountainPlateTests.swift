@@ -120,6 +120,26 @@ struct FountainPlateTests {
         }
     }
 
+    @Test("No pairing prints a blue dot, which is the running mark")
+    func noBlueDot() {
+        for pairing in PlatePairing.allCases {
+            #expect(PlateInks.of(pairing, night: false).dot != Palette.blu)
+            #expect(PlateInks.of(pairing, night: true).dot != Palette.blu)
+        }
+    }
+
+    @MainActor
+    @Test("Plates are rendered once and then cached")
+    func caching() {
+        let spec = FountainPlateSpec(id: "42424242", kind: .refill, zone: "Aurora")
+        let size = CGSize(width: 44, height: 44)
+        #expect(!PlateCache.isCached(for: spec, size: size, night: false, topInset: 0, scale: 3))
+        let first = PlateCache.image(for: spec, size: size, night: false, topInset: 0, scale: 3)
+        #expect(first != nil)
+        #expect(PlateCache.isCached(for: spec, size: size, night: false, topInset: 0, scale: 3))
+        #expect(PlateCache.image(for: spec, size: size, night: false, topInset: 0, scale: 3) === first)
+    }
+
     @MainActor
     @Test("A plate renders at every size we use, day and night")
     func renders() throws {

@@ -79,6 +79,8 @@ uv run --with pillow --with numpy tools/art/key_subject.py raw/subject-toret_1.p
 python3 tools/art/make_imageset.py plate-toret-a plate-toret-a.png
 ```
 
+The basin fountains use `--min-area 2500` (seed 2) and `6000` (7, 8) (the model flecks their stone with mottling that a smaller island filter keeps); the others use the default 120.
+
 | Kind | Kept (asset ← job and seed) | Rejected |
 | --- | --- | --- |
 | toret (184 fountains) | `plate-toret-a` ← `subject-toret 1`, `-b` ← 2, `-c` ← 3, `-d` ← 4 | 5, 6 (spare, not needed) |

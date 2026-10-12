@@ -125,7 +125,7 @@ struct DetailScreen: View {
             let minY = proxy.frame(in: .named("detail")).minY
             let stretch = reduceMotion ? 0 : max(0, minY)
             let parallax = reduceMotion ? 0 : max(0, -minY) * 0.33
-            FountainPlate(fountain: fountain, topInset: skyInset)
+            CachedFountainPlate(fountain: fountain, size: CGSize(width: proxy.size.width, height: base), topInset: skyInset)
                 .frame(width: proxy.size.width, height: base + stretch)
                 .offset(y: -stretch + parallax)
         }
