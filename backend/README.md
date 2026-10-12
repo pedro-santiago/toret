@@ -24,8 +24,8 @@ provisioned anything.
 | `internal/api` | Routing on API Gateway's `routeKey`, the checks of api.md in their documented order, response shapes |
 | `internal/reports` | Report validation, the `NoteFilter` port, summaries (mirrors `CommunitySummary.summarising`) |
 | `internal/store` | The `Store` interface, the DynamoDB implementation and an in-memory fake |
-| `internal/ratelimit` | Fixed-window counters: install and IP per hour, install per fountain per 20 minutes |
-| `internal/handle` | `Visitante XXXXXX`, install hash, IP hash (the test vectors of api.md section 7) |
+| `internal/ratelimit` | Fixed-window counters: install and address per hour, install and address per fountain per 20 minutes, a global ceiling per hour |
+| `internal/handle` | `Visitante XXXXXX`, install hash, IP hash with IPv6 masked to its /64 (the test vectors of api.md section 7) |
 | `internal/catalogue`, `data/` | The embedded copy of `Shared/Resources/fountains.json`, street index and normaliser |
 | `internal/weather`, `internal/smat`, `internal/ingest` | Open-Meteo, SMAT Mappa Cantieri and the scheduled job |
 | `internal/httpx`, `internal/fold` | ETag, gzip, error body and messages (pt/en/it); diacritic folding without `x/text` |
@@ -40,7 +40,7 @@ is committed so the module builds alone; `make data` refreshes it and a test in
 
 ```sh
 make test       # go vet + go test -race ./...; offline, no AWS
-make validate   # cfn-lint on template.yaml (or sam validate --lint with credentials blanked)
+make validate   # cfn-lint on template.yaml (or sam validate --lint with credentials blanked; cfn-lint also runs the SAM transform)
 ```
 
 Needs Go 1.26 or newer (the AWS SDK module requires it; with an older `go`,
@@ -80,10 +80,12 @@ and `.aws-sam/` are in `.gitignore` anyway.
 
 ### What the stack creates
 
-Only its own things: the DynamoDB table (kept on stack delete and on replacement; a failed first create does not leave it behind), two Lambdas
+Only its own things: the DynamoDB table (deletion protection on; kept on stack delete and on replacement), two Lambdas
 with explicit roles, two log groups (14 days), the HTTP API with stage `$default`
-and a throttle (20 requests/s, burst 40), a regional custom domain, an API
-mapping to `$default`, the schedules, and one Route 53 `A` alias for the name.
+and per-route throttles (reads 20 requests/s, burst 40; writes 2/s, burst 5), a regional custom domain, an API
+mapping to `$default`, the schedules, two CloudWatch alarms on the table's consumed
+read and write units (plus an SNS topic and e-mail subscription only if `AlarmEmail`
+is given), and one Route 53 `A` alias for the name.
 The alias creation fails, rather than replaces, if the name already has a record.
 Nothing refers to any other stack, function or record.
 
@@ -92,10 +94,15 @@ Nothing refers to any other stack, function or record.
 | `CertificateArn` | none | Required; ACM, same region |
 | `DomainName` | `torino.deepdive.dev.br` | |
 | `HostedZoneId` | the `deepdive.dev.br` zone | An id, not a secret |
-| `TableName` | `toret` | |
+| `TableName` | empty | Empty: CloudFormation generates the name (see "The table outlives the stack") |
 | `PepperParameterName` | `/toret/pepper` | |
 | `SmatEnabled` | `false` | SMAT publishes no licence for this data |
-| `ThrottleRate` / `ThrottleBurst` | 20 / 40 | Stage default route settings |
+| `ThrottleRate` / `ThrottleBurst` | 20 / 40 | Stage default route settings (per route, all callers together) |
+| `WriteThrottleRate` / `WriteThrottleBurst` | 2 / 5 | The three write routes, each |
+| `LightThrottleRate` / `LightThrottleBurst` | 5 / 10 | `/v1/health` and `/v1/conditions` |
+| `GlobalWritesPerHour` | 200 (max 270) | Circuit breaker on writes of everyone together; beyond it, `429` reason `global` until the next hour |
+| `AlarmEmail` | empty | Address for the consumption alarms (confirm the SNS e-mail); `ALARM_EMAIL=` in `make deploy`. Never committed |
+| `WriteUnitsAlarmPerHour` / `ReadUnitsAlarmPerHour` | 10000 / 500000 | Consumed capacity units in an hour that trip the alarms |
 | `ApiReservedConcurrency` / `IngestReservedConcurrency` | 10 / 1 | `-1` leaves it unreserved (needed if the account's concurrency limit is so low that reserving would leave fewer than 10 unreserved) |
 
 The execute-api endpoint is disabled, so only the custom domain reaches the API.
@@ -107,6 +114,19 @@ aws apigatewayv2 get-api-mappings --domain-name torino.deepdive.dev.br --region 
 curl -s https://torino.deepdive.dev.br/v1/health
 ```
 
+Smoke test after a deploy (nothing in the template can prove the log permission
+offline, and a function that cannot write logs fails silently):
+
+```sh
+curl -s https://torino.deepdive.dev.br/v1/health
+aws logs describe-log-streams --log-group-name /aws/lambda/toret-api-api --region sa-east-1 --max-items 1
+```
+
+The second command must list a stream after the first request; an empty answer
+means the role cannot write its logs. Also check that `/v1/summaries` answers
+and that the stage shows the route throttles
+(`aws apigatewayv2 get-stage --api-id <id> --stage-name '$default'`).
+
 The API role can use the table, read the pepper parameter and write its own log
 group. The pepper is a SecureString under the AWS managed key `aws/ssm`, whose
 key policy already allows decryption through SSM, so there is no `kms:Decrypt`
@@ -114,10 +134,40 @@ grant; if the parameter is ever moved to a customer key, add one scoped with
 `kms:ViaService`. The ingest role can only `GetItem`/`PutItem` on the partition
 `CONDITIONS`.
 
+## The table outlives the stack
+
+The table has `DeletionPolicy: Retain`, `UpdateReplacePolicy: Retain` and
+deletion protection, and its name is generated unless `TableName` is given. So:
+
+- **Delete the stack, then deploy again.** The old table stays (with its reports,
+  under its generated name) and the new stack creates a new, empty one; nothing
+  fails with "already exists". To carry the data over, copy the items (scan and
+  batch-write; the table is small) or import the old table into the new stack
+  with a CloudFormation resource import. To get rid of the old table, turn off
+  its protection first: `aws dynamodb update-table --table-name <old>
+  --no-deletion-protection-enabled`, then delete it.
+- **A change that needs the table replaced** (a new key attribute, say) creates a
+  new table next to the old one, which is kept; a fixed `TableName` would make
+  that update fail, which is why the default is no name.
+- **Failed first deploy.** The rollback leaves the (empty) retained table behind
+  because deletion protection forbids deleting it; it does no harm, and
+  `update-table --no-deletion-protection-enabled` followed by `delete-table`
+  removes it.
+
 ## Operating it
 
-- **Moderation** (hide, restore, delete, ban): the runbook in api.md section 9,
-  by `aws dynamodb` on the table.
+- **Moderation** (hide, restore, delete, ban an install or a source address): the
+  runbook in api.md section 9, by `aws dynamodb` on the table.
+- **Abuse.** Install tokens are free, so the per-install limits are courtesy
+  limits. What bounds a flood: the address buckets (IPv6 as a /64), the global
+  write ceiling (writes answer `429 global`, reads stay up, the cost stays under
+  about 1,600 write units an hour), the lower route throttles on the writes, and
+  the consumption alarms. **Residual risk:** route throttles are shared by every
+  caller, so someone sending 20 requests/s to a read route (or 2 to a write
+  route) makes that route answer `429` to real users too, at no cost to
+  them. Stopping a volumetric attack needs a WAF or CDN in front, which this
+  design leaves out on purpose (the owner's call, and it would hide the source
+  address the limits use).
 - **SMAT on or off**: redeploy with `SMAT_ENABLED=true|false`. Off means the
   ingest does nothing and `/v1/conditions` answers `{"enabled": false, "items": []}`.
 - **Logs**: JSON lines, one per request (route, status, request id, client
@@ -131,16 +181,21 @@ grant; if the parameter is ever moved to a customer key, add one scoped with
 ## Behaviour worth knowing
 
 - Rate limits are fixed windows (clock hour, 20-minute window). A request
-  refused by the IP or fountain bucket has already counted against the install
-  bucket before it. A retry of a report that was stored is a `200`, checked
+  refused by a later bucket has already counted in the earlier ones; the global
+  ceiling is last, so a refusal never spends it. A retry of a report that was stored is a `200`, checked
   before any counter.
 - Lists run on sparse global secondary indexes (hidden reports have no index
   keys), so they are eventually consistent: the client keeps its own just-sent and
   just-deleted reports for 60 seconds (api.md section 5.1).
 - `/v1/summaries` is recomputed at most every 20 seconds per warm Lambda and
-  covers 36 hours, not the app's 30 days (api.md section 6.3).
+  covers 36 hours, not the app's 30 days (api.md section 6.3). The feed and
+  per-fountain lists are kept 10 seconds per warm Lambda (a write through the
+  same Lambda clears them), inside the 60 seconds the client already tolerates.
+- A report dated up to 10 minutes ahead (a fast phone clock) is stored as dated
+  now.
 - Weather older than 6 hours is `null` and SMAT notices older than 6 hours are
   "no data" (no `fetchedAt`, empty `items`), never "no works".
 - SMAT: the Mappa Cantieri service returns the whole province, so only
   `101xx Torino` addresses are kept; the match to fountains is by street name
-  and is approximate by construction (api.md section 6.7).
+  and is approximate by construction (api.md section 6.7); a customer connection
+  order is not a notice. The app's wording should say "on <street>", not "near".

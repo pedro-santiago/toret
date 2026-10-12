@@ -78,7 +78,8 @@ func TestListOrderAndWindow(t *testing.T) {
 		t.Errorf("fountain = %v", got)
 	}
 	// A second later OLD has aged out; TTL deletes lazily but reads never rely on it.
-	e.now = e.now.Add(time.Second)
+	// (Lists are cached for listCacheTime, so look once the cache has expired.)
+	e.now = e.now.Add(listCacheTime)
 	if got := ids(t, e.get("/v1/reports", nil, nil)); fmt.Sprint(got) != "[C B D A]" {
 		t.Errorf("feed one second later = %v", got)
 	}
@@ -245,5 +246,70 @@ func TestSummariesEmpty(t *testing.T) {
 	e := newEnv(t)
 	if r := e.get("/v1/summaries", nil, nil); r.Body != `{"summaries":{},"windowHours":36}` {
 		t.Errorf("empty = %s", r.Body)
+	}
+}
+
+// Lists are read from the store at most once per listCacheTime per warm
+// container, at the largest limit, and sliced; a write through the container
+// clears them.
+func TestListCache(t *testing.T) {
+	e := newEnv(t)
+	for i := 0; i < 3; i++ {
+		e.submit(map[string]any{"fountainID": []string{fountain, "422640291", "421310659"}[i]})
+	}
+	reads := func() int { return e.mem.Calls["Feed"] + e.mem.Calls["Fountain"] }
+	before := reads()
+
+	for _, tc := range []struct {
+		path  string
+		limit string
+		want  int
+	}{
+		{"/v1/reports", "", 3}, {"/v1/reports", "2", 2}, {"/v1/reports", "200", 3},
+		{"/v1/fountains/" + fountain + "/reports", "", 2}, {"/v1/fountains/" + fountain + "/reports", "1", 1},
+	} {
+		q := map[string]string{}
+		if tc.limit != "" {
+			q["limit"] = tc.limit
+		}
+		if got := len(ids(t, e.get(tc.path, q, nil))); got != tc.want {
+			t.Errorf("%s limit=%q: %d reports, want %d", tc.path, tc.limit, got, tc.want)
+		}
+	}
+	if got := reads() - before; got != 2 { // one feed read and one fountain read serve every limit
+		t.Errorf("store reads = %d, want 2", got)
+	}
+
+	// Still cached just inside the window, read again at it.
+	e.mem.PutReport(context.Background(), store.Record{ID: "ZZZ", FountainID: fountain, State: "dry", Date: e.now, Author: "Visitante 000000", InstallHash: "x"})
+	e.now = e.now.Add(listCacheTime - time.Second)
+	if got := len(ids(t, e.get("/v1/reports", nil, nil))); got != 3 {
+		t.Errorf("inside the cache time: %d reports, want the cached 3", got)
+	}
+	e.now = e.now.Add(time.Second)
+	if got := len(ids(t, e.get("/v1/reports", nil, nil))); got != 4 {
+		t.Errorf("after the cache time: %d reports, want 4", got)
+	}
+
+	// A write through this container clears the cache at once.
+	id, tok, _ := e.submit(map[string]any{"fountainID": "422640291"})
+	if got := ids(t, e.get("/v1/reports", nil, nil)); len(got) != 5 {
+		t.Errorf("after a post: %v", got)
+	}
+	if r := e.delete(tok, id); r.StatusCode != 204 {
+		t.Fatalf("delete: %d", r.StatusCode)
+	}
+	if got := ids(t, e.get("/v1/reports", nil, nil)); len(got) != 4 {
+		t.Errorf("after a delete: %v", got)
+	}
+	// A failed read is not cached.
+	e.now = e.now.Add(listCacheTime)
+	e.mem.Err = errBoom
+	if r := e.get("/v1/reports", nil, nil); r.StatusCode != 500 {
+		t.Errorf("store failure: %d", r.StatusCode)
+	}
+	e.mem.Err = nil
+	if r := e.get("/v1/reports", nil, nil); r.StatusCode != 200 {
+		t.Errorf("after recovery: %d", r.StatusCode)
 	}
 }

@@ -20,6 +20,10 @@ S3_BUCKET  ?=
 RESOLVE_S3 ?=
 PEPPER_PARAM ?= /toret/pepper
 SMAT_ENABLED ?= false
+# Optional: an address for the DynamoDB consumption alarms (SNS asks it to confirm);
+# a fixed physical table name (empty: generated, which lets the stack be recreated).
+ALARM_EMAIL ?=
+TABLE_NAME  ?=
 # Reserved concurrent executions; -1 leaves a function unreserved (accounts whose
 # limit is so low that reserving would leave fewer than 10 unreserved).
 API_CONCURRENCY    ?= 10
@@ -104,7 +108,8 @@ deploy: test validate build
 	  --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset $(CONFIRM) \
 	  --tags project=toret \
 	  --parameter-overrides "CertificateArn=$$cert" "PepperParameterName=$(PEPPER_PARAM)" "SmatEnabled=$(SMAT_ENABLED)" \
-	    "ApiReservedConcurrency=$(API_CONCURRENCY)" "IngestReservedConcurrency=$(INGEST_CONCURRENCY)"
+	    "ApiReservedConcurrency=$(API_CONCURRENCY)" "IngestReservedConcurrency=$(INGEST_CONCURRENCY)" \
+	    $(if $(ALARM_EMAIL),"AlarmEmail=$(ALARM_EMAIL)") $(if $(TABLE_NAME),"TableName=$(TABLE_NAME)")
 
 outputs:
 	@$(AWS) cloudformation describe-stacks --stack-name $(STACK) --query 'Stacks[0].Outputs' --output table

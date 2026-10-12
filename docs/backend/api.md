@@ -21,8 +21,10 @@ make the app say a fountain is running or dry, and only for 36 hours
   `fetchedAt`, and they never carry a field named or worded like a water state
   (`status`, `dry`, `off`, `running`, `available`). A server must not add one.
 - The server sends **structured fields only**. The sentence the app shows ("SMAT
-  lists a works order near <street>, started <date>. Supply nearby may be
-  affected.") is built and localised in the app (pt-BR, en, it).
+  lists a works order on <street>, started <date>. Supply nearby may be
+  affected.") is built and localised in the app (pt-BR, en, it). It says "on
+  <street>", not "near": the street name is all SMAT gives, so a long street
+  puts the notice on fountains far from the works (section 6.7).
 - Summaries are a hint for cold start, pins and widgets, not the truth
   (section 6.3).
 
@@ -85,7 +87,7 @@ for validation errors. `message` is for logs, never shown to users.
 
 Two responses are produced by API Gateway itself and do **not** have this body:
 `404 {"message":"Not Found"}` for an unknown route and `429
-{"message":"Too Many Requests"}` when the stage throttle trips. Clients key on
+{"message":"Too Many Requests"}` when a route's throttle trips (section 4). Clients key on
 the status code, not the body, and treat a 429 without `Retry-After` as 60 s.
 
 ### 3.1 Status codes
@@ -96,7 +98,7 @@ the status code, not the body, and treat a 429 without `Retry-After` as 60 s.
 | 304 | | `If-None-Match` matched (no body). |
 | 400 | `bad_request`, `invalid_limit` | Malformed JSON, bad query parameter, bad path id. |
 | 401 | `install_required` | Missing or malformed `X-Toret-Install` on a write. |
-| 403 | `not_owner`, `forbidden` | Delete by a different install; banned install (on any write). |
+| 403 | `not_owner`, `forbidden` | Delete by a different install; banned install or source address (on any write). |
 | 404 | `unknown_fountain` | `GET /v1/fountains/{id}/reports` with an id not in the catalogue. |
 | 409 | `id_conflict` | Report id already stored by a different install. |
 | 413 | `body_too_large` | Body over 4 KiB. |
@@ -128,7 +130,7 @@ The HTTP backend therefore splits errors in two:
 | anything else permanent | dropped silently |
 
 The app filters before it sends, so these should only fire for a modified
-client or a filter that drifted. `403 forbidden` (banned install) is dropped
+client or a filter that drifted. `403 forbidden` (banned install or address) is dropped
 the same way.
 
 ## 4. Limits, rate limits and size caps
@@ -140,9 +142,22 @@ the same way.
 | Note | UI limit 140 characters (`Report.maximumNoteLength`). Server cap: at most **280 Unicode code points** after trimming | `422 invalid_note`, `reason: too_long` |
 | Tags | at most 3, unique | `422 invalid_tags` |
 | Writes per install | 40 per clock hour (`POST`, `DELETE` and flags share the bucket) | `429` |
-| Writes per source IP | 300 per clock hour (carriers put many phones behind one address) | `429` |
+| Writes per source address | 300 per clock hour (carriers put many phones behind one address). An IPv6 address counts as its **/64** (section 7) | `429` |
 | Reports per install per fountain | 1 per **20 minutes** (the app's own rule is 30; the server is looser so a slow queue never trips it) | `429`, `Retry-After` up to 1200 |
-| Reads | no per-caller limit; API Gateway stage throttling only (suggested: 20 req/s steady, 40 burst) | gateway `429` |
+| Reports per source address per fountain | 5 per **20 minutes**, whatever the installs (the install gate above is bypassed by a fresh token) | `429`, `Retry-After` up to 1200 |
+| Writes, everyone together | **200 per clock hour** (`GlobalWritesPerHour`): the circuit breaker that bounds the table's write cost and keeps a flood from pushing genuine reports out of the summaries (section 6.3) | `429`, `Retry-After` up to 3600 |
+| Reads | API Gateway route throttling only (default 20 req/s steady, 40 burst per route) | gateway `429` |
+| Write routes | API Gateway route throttling: 2 req/s steady, 5 burst per route (`POST /v1/reports`, `DELETE /v1/reports/{id}`, `POST /v1/reports/{id}/flag`); 5 and 10 for `/v1/health` and `/v1/conditions` | gateway `429` |
+
+**The per-install limits are courtesy limits.** A token is free to make (any 16
+to 64 characters are accepted), so they only keep an honest client from
+hammering. What bounds an abuser is the source-address buckets, the global
+ceiling and the route throttles; none of them identifies a person, and the
+global ceiling can be spent by one attacker, which turns a write flood into
+"writes answer `429 global` for the rest of the hour" instead of a bill. Reads
+stay up. Route throttles are shared by every caller, so a volumetric attack on a
+read route still makes that route answer `429` to everyone; stopping that needs
+a WAF or CDN in front, which this design leaves out on purpose.
 
 The server cap on the note is deliberately more tolerant than the 140-character
 limit. Swift counts grapheme clusters; Go would count runes or bytes, and an
@@ -165,7 +180,8 @@ RateLimit-Reset: 1260        (seconds until the hourly window ends)
 
 **On `429`** the response also carries `Retry-After: <integer seconds, at least 1>`
 and `error.code = "rate_limited"`, with `error.reason` one of `install`, `ip`,
-`fountain` so logs say which bucket tripped.
+`fountain`, `ip_fountain`, `global` so logs say which bucket tripped. A client
+treats them all alike: wait `Retry-After`, keep the report queued.
 
 **Order of checks on `POST /v1/reports`** (idempotency comes before the rate
 limit, so a retry of a report that already landed is a success, never a 429):
@@ -174,15 +190,19 @@ limit, so a retry of a report that already landed is a success, never a 429):
 2. Validate the body (section 6.4).
 3. `GetItem` the report id. Exists with the same install hash: `200` with the
    stored report. Exists with another install hash: `409 id_conflict`.
-4. Ban check (`BAN#<installHash>`): `403 forbidden`.
-5. Rate-limit counters: install hour, IP hour, install-fountain gate.
+4. Ban check (`BAN#<installHash>`, then `BANIP#<ipHash>`): `403 forbidden`.
+5. Rate-limit counters, in this order, stopping at the first that is full:
+   install hour, IP hour, install-fountain gate, IP-fountain gate, global hour.
+   The global one is last so that a request refused by a per-caller gate does
+   not spend the shared budget.
 6. Conditional `PutItem` (`attribute_not_exists(pk)`). Losing that race to a
    concurrent identical request is treated as step 3's success.
 
 `DELETE /v1/reports/{id}` and `POST /v1/reports/{id}/flag` check, in order:
 size and content type (flag only), `X-Toret-Install`, the id (`422 invalid_id`),
 the flag body (`400` / `422 invalid_reason`), the ban, the install and IP hourly
-buckets, then act. The per-fountain gate applies to `POST /v1/reports` only.
+buckets, the global hour, then act. The per-fountain gates apply to
+`POST /v1/reports` only.
 
 ## 5. Caching
 
@@ -358,8 +378,12 @@ Three honest caveats, which the client must keep in mind:
   seeds pins, widgets and notifications before (or without) a feed download.
 - **Blocks.** Summaries cannot honour a person's local blocks (those are by
   handle, on the device) and count every report that is not hidden.
-- **Cap.** The server reads at most 5000 reports for one aggregate. Beyond that
-  it stops (newest first), which at this volume is a flood, not a normal day.
+- **Cap.** The server reads at most 10000 reports for one aggregate. Beyond that
+  it stops (newest first) and logs a warning; fountains whose reports lie beyond
+  it are absent, which reads as "no report" (fails safe). The global write
+  ceiling (200 an hour) times the 37 hourly windows a 36 h read can touch is
+  7400, so a flood the limits let through still fits under the cap (a test pins
+  this arithmetic).
 
 ### 6.4 `POST /v1/reports`
 
@@ -406,7 +430,11 @@ Validation, in this order (first failure wins; `field` names the culprit):
 8. `date`: within **30 days in the past** and **10 minutes in the future** of the
    server clock, else `422 invalid_date`. Queued offline reports can be days old;
    an old date is not corrected, it is only bounded. (A report older than 36 h is
-   simply stale in every summary.)
+   simply stale in every summary.) The 10 minutes only forgive a fast phone
+   clock: a date after the server's "now" is **stored as now**, in the response
+   and in every read, so a report can never outrank genuine reports made after
+   it was sent. A retry of the same `id` returns the stored report (and its
+   stored date), not the date it sends.
 
 **Content filter.** The server ports `NoteFilter` (`Toret/Community/NoteFilter.swift`)
 with the same normalisation (fold diacritics and case, then map `0 1 3 4 5 @ $` to
@@ -455,8 +483,10 @@ report are left to expire with their TTL.
 
 **Auto-hide.** A report with **three** distinct flaggers is removed from every
 read automatically (section 8.2). To make three throwaway tokens from one phone
-not enough, a flag also counts only once per source IP per report. The owner can
-override either way, section 9.
+not enough, a flag also counts only once per source IP per report (an IPv6
+address counts as its /64). Behind a carrier-grade NAT, many real people share one
+IPv4 address and so count as one flagger: reports they all find abusive can need
+the owner to hide them (section 9). The owner can override either way.
 
 ### 6.7 `GET /v1/conditions`
 
@@ -523,11 +553,13 @@ is read from DynamoDB; the API Lambda never calls an upstream.
 - `kind` is `waterWorks` (an order of the water division, `divisione` =
   `ACQUEDOTTO`) or `fountainWorks` (the order object `FONTANELLE & TORETTI`,
   whichever division lists it). Sewer (`FOGNATURA`) orders and everything else
-  are dropped.
+  are dropped, and so are customer connection orders of the water division
+  (`oggetto_di_intervento` = `PRESA IDRICA UTENZA`: new meters, rebuilt service
+  connections), which concern one building's pipe, not the street's supply.
 - Only orders in Turin are kept: the address must end `, 101xx Torino TO, Italia`.
   The service returns the whole province (about two thirds of the water orders in
   the first capture were in Chivasso, Rosta, Chieri...), and matching those
-  against a Turin catalogue would produce false "near <street>" claims. An order
+  against a Turin catalogue would produce false "on <street>" claims. An order
   whose start date is after today (Europe/Rome) is also dropped, because the app
   words it "started <date>".
 - `street` is the street part of SMAT's address string, as published (Italian,
@@ -541,8 +573,9 @@ is read from DynamoDB; the API Lambda never calls an upstream.
   streets of an intersection are tried. `match` is always `"street"` and is there
   so the approximation stays visible in the data. An order that matches nothing is
   kept with `fountainIDs: []`. This is approximate by construction (SMAT publishes
-  no coordinates and no fountain id), and the app words it "near <street>", "may
-  be affected".
+  no coordinates and no fountain id): a long street puts the notice on fountains
+  kilometres from the works. So the app words it "on <street>" (never "near"),
+  "may be affected".
 - `startedOn` always present (an order without a valid start date is dropped);
   `plannedEnd` omitted when SMAT gives none or an invalid one.
 - `id` is a stable 12-hex-character hash of SMAT's order number (`numero
@@ -581,10 +614,27 @@ Keychain and sends it in `X-Toret-Install` on writes.
   repository. **Never rotate it**: every install would lose ownership of its
   reports (delete would answer `403`). If a rotation is ever needed, add a
   `PEPPER_PREVIOUS` fallback for lookups first.
-- **IP hash** (rate limiting only, never stored on a report):
-  `lowerHex( HMAC-SHA256( pepper, UTF8("toret.ip.v1:" + sourceIP) ) )`, with the
-  address from API Gateway's `requestContext.http.sourceIp`.
+- **IP hash** (rate limiting, flag de-duplication and IP bans only, never stored
+  on a report): `lowerHex( HMAC-SHA256( pepper, UTF8("toret.ip.v1:" + key) ) )`,
+  with the address from API Gateway's `requestContext.http.sourceIp` turned into
+  `key`: an IPv4 address as it is, an IPv4-mapped IPv6 address as its IPv4, any
+  other IPv6 address as its **/64 prefix** (`2001:db8:1:2::/64`), because a
+  subscriber commonly holds a whole /64 and would otherwise have 2^64 buckets.
+  An address that does not parse is used as it came.
 - The raw token and the raw IP are never written to DynamoDB or the logs.
+
+**The handle is a label, not a credential.** It is 24 bits of an unsalted hash of
+a token the caller chooses, so anyone can pick a token that gives *another*
+person's handle (a probe found the handle of the first test vector below in
+under a second). The server cannot fix this without breaking real collisions
+among honest users, so it is an accepted limitation of the "same as
+`AuthorHandle.make`" decision: what the server trusts for ownership (delete,
+flag-own, ban) is the `installHash`, an HMAC under a secret pepper, never the
+handle. What a forger can do is post under a victim's handle, so that the
+victim's app shows the post as theirs (`isMine`, a delete button that answers
+`403 not_owner`) and a block of that handle blocks the victim; and an abuser
+evades a block by changing token. A client may treat a `403 not_owner` on delete
+as "not mine after all". A longer handle is a v2 matter.
 
 **The client must use the same token as the handle's seed.** `Community` derives
 its own handle with `AuthorHandle.make(from: accountToken ?? installID)`. For the
@@ -623,6 +673,13 @@ the exact code path of `AuthorHandle.make`.
 | test-only pepper | `toret-test-pepper` |
 | ipHash | `37cea502c2d2c94e6df6ab280294eced6331705eb23d99671e29af5c5476700c` |
 
+| | |
+| --- | --- |
+| source IP | `2001:db8:1:2:aaaa:bbbb:cccc:dddd` (any address of that /64) |
+| key | `2001:db8:1:2::/64` |
+| test-only pepper | `toret-test-pepper` |
+| ipHash | `3ed90d77bfa68a5eb307c474ca0fcdabc8fbcd2ba521e30b1da3fcc880237391` |
+
 `toret-test-pepper` exists only so tests have a fixed key. The production pepper
 is never this value.
 
@@ -634,7 +691,9 @@ python3 -c 'import hashlib,hmac,sys;t=sys.argv[1];d=hashlib.sha256(("toret.autho
 
 ## 8. DynamoDB: one table, on demand
 
-Table `toret` (name is a template parameter), `PAY_PER_REQUEST`, partition key
+Table (name generated by CloudFormation unless the `TableName` parameter is
+given; the runbook reads it from the stack output), `PAY_PER_REQUEST`, deletion
+protection on, partition key
 `pk` (S), sort key `sk` (S), TTL attribute `ttl` (N, epoch seconds), point-in-time
 recovery on. Two global secondary indexes, both projecting all attributes (items
 are about 500 bytes, so no second read is worth saving):
@@ -653,6 +712,7 @@ are about 500 bytes, so no second read is worth saving):
 | Flag per IP | `REPORT#<ID>` | `FLAGIP#<ipHash>` | `ttl` |
 | Rate counter | `RL#<scope>#<key>#<window>` | `COUNT` | `n` (N), `ttl` |
 | Ban | `BAN#<installHash>` | `BAN` | `createdAt`, `note` |
+| Ban by address | `BANIP#<ipHash>` | `BAN` | `createdAt`, `note` |
 | Weather cache | `CONDITIONS` | `WEATHER` | `temperatureC`, `apparentTemperatureC`, `relativeHumidityPercent`, `apparentTemperatureMaxTodayC`?, `observedAt`, `fetchedAt` |
 | SMAT cache | `CONDITIONS` | `SMAT` | `fetchedAt`, `items` (list of notice maps) |
 
@@ -725,18 +785,29 @@ UpdateItem  pk = RL#INSTALL#<installHash>#<epochHour>   sk = COUNT
 | --- | --- | --- | --- |
 | `INSTALL` | install hash | clock hour | 40 |
 | `IP` | ip hash | clock hour | 300 |
-| `FOUNTAIN` | install hash + fountain id | 20 minutes (`epoch / 1200`) | 1 (`POST` only) |
+| `FOUNTAIN` | install hash + `.` + fountain id | 20 minutes (`epoch / 1200`) | 1 (`POST` only) |
+| `IPFOUNTAIN` | ip hash + `.` + fountain id | 20 minutes (`epoch / 1200`) | 5 (`POST` only) |
+| `GLOBAL` | none: `pk = RL#GLOBAL#<epochHour>` | clock hour | 200 (`GlobalWritesPerHour`) |
 
 A failed condition is a `429`; `Retry-After` is the seconds left in the window.
-`RateLimit-Remaining` is `limit - n` for the install bucket.
+`RateLimit-Remaining` is `limit - n` for the install bucket. A write counts the
+buckets in the order of section 4 and stops at the first that is full, so a
+refused request has already counted in the earlier ones.
 
 ### 8.5 Cost and capacity
 
-A `POST` is about 2 reads and 4 writes; a feed read is one query. At the
+A `POST` is about 2 reads (the id, two bans) and 8 write units (the report and its
+two index entries, five counters). A feed or per-fountain list is one query,
+kept for 10 seconds per warm Lambda and read at its largest limit, so a flood of
+reads costs one query per container per 10 seconds, not one per request. At the
 expected volume the table is a few cents a month; idle, it is zero. The
-template sets reserved concurrency on both functions (parameters; `-1` leaves
-one unreserved on an account whose limit is too low to reserve) and API Gateway
-throttling on the stage, and uses 14-day CloudWatch retention. The roles are
+cost ceiling of a write flood is the global ceiling: 200 writes an hour is
+about 1,600 write units an hour whoever sends them. The template also sets
+reserved concurrency on both functions (parameters; `-1` leaves
+one unreserved on an account whose limit is too low to reserve), API Gateway
+throttling per route (lower on the write routes), two CloudWatch alarms on the
+table's consumed read and write units (an e-mail through SNS when the
+`AlarmEmail` parameter is given), and 14-day CloudWatch retention. The roles are
 explicit: the API role may use the table, read the pepper parameter and write
 to its own log group; the ingest role may only read and write the two
 `CONDITIONS` items.
@@ -748,7 +819,9 @@ region first. Attribute names go through `#` placeholders because several of
 them (`date`, `ttl`, `hidden`...) are DynamoDB reserved words:
 
 ```sh
-export TABLE=toret AWS_REGION=sa-east-1     # default profile
+export AWS_REGION=sa-east-1     # default profile
+export TABLE=$(aws cloudformation describe-stacks --stack-name toret-api \
+  --query "Stacks[0].Outputs[?OutputKey=='TableName'].OutputValue" --output text)
 ```
 
 **List everything flagged or hidden** (a scan is fine at this size):
@@ -757,8 +830,8 @@ export TABLE=toret AWS_REGION=sa-east-1     # default profile
 aws dynamodb scan --table-name $TABLE \
   --filter-expression '#sk = :m AND #fc > :z' \
   --expression-attribute-values '{":m":{"S":"META"},":z":{"N":"0"}}' \
-  --projection-expression '#id,#f,#a,#n,#d,#fc,#h,#hb' \
-  --expression-attribute-names '{"#sk":"sk","#fc":"flagCount","#id":"id","#f":"fountainID","#a":"author","#n":"note","#d":"date","#h":"hidden","#hb":"hiddenBy"}'
+  --projection-expression '#id,#f,#a,#n,#d,#fc,#h,#hb,#ih' \
+  --expression-attribute-names '{"#sk":"sk","#fc":"flagCount","#id":"id","#f":"fountainID","#a":"author","#n":"note","#d":"date","#h":"hidden","#hb":"hiddenBy","#ih":"installHash"}'
 ```
 
 **Hide a report now** (also what auto-hide does):
@@ -800,6 +873,42 @@ Unban: `delete-item` on the same key. To hide everything from that install, scan
 for `#ih = :h` (`{"#ih":"installHash"}`) on `META` items and apply "hide" to each.
 A banned install can still read; its `POST`, `DELETE` and flag calls answer
 `403 forbidden`.
+
+**Ban a source address** (the answer to an abuser who changes token: tokens are
+free, a banned install is evaded by the next one). A report does not store the
+address, so find the hash of a flooding one in the rate counters of the current
+or last hour (a scan is fine; `n` is how many writes it made):
+
+```sh
+aws dynamodb scan --table-name $TABLE \
+  --filter-expression 'begins_with(#pk, :p) AND #n > :min' \
+  --expression-attribute-values '{":p":{"S":"RL#IP#"},":min":{"N":"100"}}' \
+  --projection-expression '#pk,#n' --expression-attribute-names '{"#pk":"pk","#n":"n"}'
+```
+
+`pk` is `RL#IP#<ipHash>#<epochHour>`. If you know the address instead, compute its
+hash with the pepper (this prints the hash of an IPv4 address, or of the /64 of
+an IPv6 one, exactly as the API does):
+
+```sh
+PEPPER=$(aws ssm get-parameter --name /toret/pepper --with-decryption --query Parameter.Value --output text)
+python3 -c 'import hmac,hashlib,ipaddress,sys
+a=ipaddress.ip_address(sys.argv[2].split("%")[0])
+if a.version==6 and a.ipv4_mapped: a=a.ipv4_mapped
+k=str(a) if a.version==4 else str(ipaddress.ip_network((a,64),strict=False))
+print(hmac.new(sys.argv[1].encode(),("toret.ip.v1:"+k).encode(),hashlib.sha256).hexdigest())' "$PEPPER" 203.0.113.7
+aws dynamodb put-item --table-name $TABLE --item \
+  '{"pk":{"S":"BANIP#<ipHash>"},"sk":{"S":"BAN"},"createdAt":{"S":"2026-10-12T00:00:00Z"},"note":{"S":"flood"}}'
+```
+
+Every install behind that address (the whole /64 for IPv6) then answers
+`403 forbidden` on writes; reads stay open. A carrier-grade NAT puts many people
+behind one IPv4 address, so ban those with care and remove the item when the
+flood is over (`delete-item` on the same key).
+
+**Open the breaker early or late.** When writes answer `429` with reason `global`
+and the traffic is legitimate, raise the `GlobalWritesPerHour` parameter (at most
+270) and redeploy.
 
 **Turn SMAT on or off** is a function environment variable (`SMAT_ENABLED`) set
 through the template parameter and a redeploy, not a table edit.

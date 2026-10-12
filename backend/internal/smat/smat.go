@@ -37,6 +37,7 @@ const (
 	maxNotices      = 300
 	fountainObject  = "fontanelle & toretti"
 	waterDivision   = "acquedotto"
+	connectionObj   = "presa idrica utenza" // a customer's service connection or meter
 	maxResponseSize = 8 << 20
 
 	URL = "https://api-octopus.smatorino.it/mappacantieri/index.php/lizmap/service?repository=mappacantieri&project=mappa_cantieri" +
@@ -97,7 +98,10 @@ var rome = func() *time.Location {
 
 // Parse turns a GetFeatureInfo response into notices:
 //   - water division orders (kind waterWorks) and the "FONTANELLE & TORETTI"
-//     order (kind fountainWorks), whichever division lists it; nothing else;
+//     order (kind fountainWorks), whichever division lists it; nothing else.
+//     Customer connection orders (object "PRESA IDRICA UTENZA": new meters,
+//     rebuilt service connections) are dropped: they are one building's pipe,
+//     not the street's supply;
 //   - only orders whose address is in Turin;
 //   - only orders that have started (startedOn is not after today in Rome),
 //     because the app words them "started <date>";
@@ -125,6 +129,9 @@ func Parse(body []byte, cat *catalogue.Catalogue, fetchedAt time.Time) ([]store.
 		case strings.EqualFold(text(p, "oggetto_di_intervento"), fountainObject):
 			kind = KindFountain
 		case strings.EqualFold(text(p, "divisione"), waterDivision):
+			if strings.EqualFold(text(p, "oggetto_di_intervento"), connectionObj) {
+				continue
+			}
 		default:
 			continue
 		}

@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"net/netip"
 )
 
 // Author is the public handle, identical to AuthorHandle.make(from:) in the app:
@@ -23,10 +24,27 @@ func InstallHash(pepper []byte, token string) string {
 	return mac(pepper, "toret.install.v1:"+token)
 }
 
-// IPHash is used for rate limiting and flag de-duplication only:
-// lower-case hex HMAC-SHA256(pepper, "toret.ip.v1:" + ip).
+// IPHash is used for rate limiting, flag de-duplication and IP bans only:
+// lower-case hex HMAC-SHA256(pepper, "toret.ip.v1:" + IPKey(ip)).
 func IPHash(pepper []byte, ip string) string {
-	return mac(pepper, "toret.ip.v1:"+ip)
+	return mac(pepper, "toret.ip.v1:"+IPKey(ip))
+}
+
+// IPKey is the address the limits are keyed by. An IPv4 address is itself and
+// an IPv4-mapped IPv6 address is unmapped to it. Any other IPv6 address becomes
+// its /64 prefix ("2001:db8:1:2::/64"): one subscriber commonly holds a whole
+// /64, so keying by the exact address would give one host 2^64 buckets.
+// Something that does not parse is used as it came.
+func IPKey(ip string) string {
+	addr, err := netip.ParseAddr(ip)
+	if err != nil {
+		return ip
+	}
+	addr = addr.WithZone("").Unmap()
+	if addr.Is4() {
+		return addr.String()
+	}
+	return netip.PrefixFrom(addr, 64).Masked().String()
 }
 
 func mac(key []byte, msg string) string {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/pedro-santiago/toret/backend/internal/api"
 	"github.com/pedro-santiago/toret/backend/internal/catalogue"
+	"github.com/pedro-santiago/toret/backend/internal/ratelimit"
 	"github.com/pedro-santiago/toret/backend/internal/store"
 )
 
@@ -43,6 +45,13 @@ func main() {
 	}
 	parameters := ssm.NewFromConfig(cfg)
 
+	// The global write ceiling (writes of everyone together per hour); unset or
+	// invalid keeps the default.
+	var limits ratelimit.Config
+	if n, err := strconv.Atoi(os.Getenv("GLOBAL_WRITES_PER_HOUR")); err == nil && n > 0 {
+		limits.GlobalPerHour = n
+	}
+
 	h := api.New(api.Config{
 		Store:     &store.Dynamo{DB: dynamodb.NewFromConfig(cfg), Table: table},
 		Catalogue: cat,
@@ -56,6 +65,7 @@ func main() {
 		},
 		SMATEnabled: strings.EqualFold(os.Getenv("SMAT_ENABLED"), "true"),
 		Version:     version,
+		Limits:      limits,
 		Logger:      log,
 	})
 	lambda.Start(h.Handle)

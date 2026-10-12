@@ -206,8 +206,8 @@ func TestWriteChecksRunInOrder(t *testing.T) {
 			}
 		}
 	}
-	if e.mem.Calls["Incr"] != 3 { // install, IP and fountain of the one accepted report
-		t.Errorf("counters consulted %d times, want 3", e.mem.Calls["Incr"])
+	if e.mem.Calls["Incr"] != 5 { // install, IP, install-fountain, IP-fountain and global of the one accepted report
+		t.Errorf("counters consulted %d times, want 5", e.mem.Calls["Incr"])
 	}
 }
 

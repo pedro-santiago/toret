@@ -14,21 +14,36 @@ type Counter interface {
 	Incr(ctx context.Context, key string, limit int, expires time.Time) (n int, allowed bool, err error)
 }
 
-// Config holds the limits. The zero value is replaced by Defaults.
+// Config holds the limits. A zero field is replaced by its Defaults value.
+//
+// Install tokens are free to make, so the install buckets only keep an honest
+// client from hammering; what actually bounds abuse is the source-address
+// buckets (IPv6 masked to a /64, see handle.IPKey) and the global ceiling.
 type Config struct {
-	InstallPerHour int           // writes per install per clock hour
-	IPPerHour      int           // writes per source address per clock hour
-	FountainWindow time.Duration // one report per install and fountain per window
+	InstallPerHour   int           // writes per install per clock hour
+	IPPerHour        int           // writes per source address per clock hour
+	FountainWindow   time.Duration // one report per install and fountain per window
+	IPFountainPerWin int           // reports per source address and fountain per FountainWindow, whatever the install
+	GlobalPerHour    int           // writes of every caller together per clock hour
 }
 
 // Defaults are the contract's numbers.
-var Defaults = Config{InstallPerHour: 40, IPPerHour: 300, FountainWindow: 20 * time.Minute}
+//
+// GlobalPerHour times the 37 hourly windows that a 36 h summary read can touch
+// must stay under the API's summary read cap (a test pins it), so a flood cannot
+// push genuine reports out of /v1/summaries.
+var Defaults = Config{
+	InstallPerHour: 40, IPPerHour: 300, FountainWindow: 20 * time.Minute,
+	IPFountainPerWin: 5, GlobalPerHour: 200,
+}
 
 // Scopes name the bucket that tripped, for logs and error.reason.
 const (
-	ScopeInstall  = "install"
-	ScopeIP       = "ip"
-	ScopeFountain = "fountain"
+	ScopeInstall    = "install"
+	ScopeIP         = "ip"
+	ScopeFountain   = "fountain"
+	ScopeIPFountain = "ip_fountain"
+	ScopeGlobal     = "global"
 )
 
 // Result describes one check. Limit, Remaining and Reset always describe the
@@ -98,18 +113,46 @@ func (l *Limiter) Write(ctx context.Context, installHash, ipHash string) (Result
 	return res, nil
 }
 
-// Fountain counts one report against the install-and-fountain gate and
+// Fountain counts one report against the install-and-fountain gate and the
+// address-and-fountain gate (which a fresh install token does not reset), and
 // returns prev with Allowed, Scope and RetryAfter updated.
-func (l *Limiter) Fountain(ctx context.Context, prev Result, installHash, fountainID string) (Result, error) {
+func (l *Limiter) Fountain(ctx context.Context, prev Result, installHash, ipHash, fountainID string) (Result, error) {
 	cfg := l.cfg()
 	now := l.Now()
 	idx, end := window(now, cfg.FountainWindow)
-	_, ok, err := l.Counter.Incr(ctx, key("FOUNTAIN", installHash+"."+fountainID, idx), 1, end.Add(time.Hour))
+	expires := end.Add(time.Hour)
+	_, ok, err := l.Counter.Incr(ctx, key("FOUNTAIN", installHash+"."+fountainID, idx), 1, expires)
+	if err != nil {
+		return prev, err
+	}
+	scope := ScopeFountain
+	if ok {
+		_, ok, err = l.Counter.Incr(ctx, key("IPFOUNTAIN", ipHash+"."+fountainID, idx), cfg.IPFountainPerWin, expires)
+		if err != nil {
+			return prev, err
+		}
+		scope = ScopeIPFountain
+	}
+	if !ok {
+		prev.Allowed, prev.Scope, prev.RetryAfter = false, scope, secondsUntil(now, end)
+	}
+	return prev, nil
+}
+
+// Global counts one write against the ceiling shared by every caller: the
+// circuit breaker that bounds the table's write cost whatever the attacker
+// rotates. Callers run it after every per-caller gate so that a request refused
+// there never spends the shared budget.
+func (l *Limiter) Global(ctx context.Context, prev Result) (Result, error) {
+	cfg := l.cfg()
+	now := l.Now()
+	idx, end := window(now, time.Hour)
+	_, ok, err := l.Counter.Incr(ctx, "RL#GLOBAL#"+strconv.FormatInt(idx, 10), cfg.GlobalPerHour, end.Add(time.Hour))
 	if err != nil {
 		return prev, err
 	}
 	if !ok {
-		prev.Allowed, prev.Scope, prev.RetryAfter = false, ScopeFountain, secondsUntil(now, end)
+		prev.Allowed, prev.Scope, prev.RetryAfter = false, ScopeGlobal, secondsUntil(now, end)
 	}
 	return prev, nil
 }
@@ -124,6 +167,12 @@ func (l *Limiter) cfg() Config {
 	}
 	if c.FountainWindow == 0 {
 		c.FountainWindow = Defaults.FountainWindow
+	}
+	if c.IPFountainPerWin == 0 {
+		c.IPFountainPerWin = Defaults.IPFountainPerWin
+	}
+	if c.GlobalPerHour == 0 {
+		c.GlobalPerHour = Defaults.GlobalPerHour
 	}
 	return c
 }

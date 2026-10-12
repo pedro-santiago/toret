@@ -350,7 +350,7 @@ components:
           description: "UI limit is 140 characters; the server tolerates 280 Unicode code points."
         date:
           allOf: [{ $ref: "#/components/schemas/Timestamp" }]
-          description: Within 30 days in the past and 10 minutes in the future of the server clock.
+          description: Within 30 days in the past and 10 minutes in the future of the server clock. A date after the server's now is stored, and returned, as now.
 
     ReportList:
       type: object
@@ -485,5 +485,5 @@ components:
             field: { type: string, example: note }
             reason:
               type: string
-              description: "invalid_note: too_long, control_characters, objectionable, contains_contact. rate_limited: install, ip, fountain."
+              description: "invalid_note: too_long, control_characters, objectionable, contains_contact. rate_limited: install, ip, fountain, ip_fountain, global."
             requestId: { type: string }

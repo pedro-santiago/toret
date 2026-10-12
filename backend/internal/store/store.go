@@ -112,8 +112,9 @@ type Store interface {
 	Feed(ctx context.Context, cutoff time.Time, limit int) ([]Record, error)
 	// Fountain is Feed for one fountain.
 	Fountain(ctx context.Context, fountainID string, cutoff time.Time, limit int) ([]Record, error)
-	// Banned reports whether the install may not write.
-	Banned(ctx context.Context, installHash string) (bool, error)
+	// Banned reports whether the install, or the source address (its hash,
+	// IPv6 already masked to a /64), may not write.
+	Banned(ctx context.Context, installHash, ipHash string) (bool, error)
 	// Flag stores a flag and applies the auto-hide rule.
 	Flag(ctx context.Context, f FlagRequest) (FlagOutcome, error)
 	// Incr atomically adds one to the counter under key unless it already

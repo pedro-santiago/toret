@@ -150,6 +150,12 @@ func Validate(body []byte, cat *catalogue.Catalogue, now time.Time) (Draft, *Rej
 	if err != nil || date.Before(now.Add(-PastWindow)) || date.After(now.Add(FutureWindow)) {
 		return d, reject("invalid_date", "date", "")
 	}
+	// FutureWindow only forgives a fast clock: a report is never dated after
+	// the moment the server saw it, or it would outrank every genuine report
+	// of the next ten minutes as the deciding one of its fountain.
+	if date.After(now) {
+		date = now.UTC().Truncate(time.Second)
+	}
 	d.Date = date
 	return d, nil
 }

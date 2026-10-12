@@ -246,14 +246,21 @@ func (d *Dynamo) Fountain(ctx context.Context, fountainID string, cutoff time.Ti
 	return d.query(ctx, "gsi2", "gsi2pk", "gsi2sk", "FOUNTAIN#"+fountainID, cutoff, limit)
 }
 
-func (d *Dynamo) Banned(ctx context.Context, installHash string) (bool, error) {
-	out, err := d.DB.GetItem(ctx, &dynamodb.GetItemInput{
-		TableName: &d.Table, Key: d.pk("BAN#"+installHash, "BAN"),
-	})
-	if err != nil {
-		return false, unavailable(err)
+// Banned looks for BAN#<installHash> and BANIP#<ipHash>: two plain GetItems,
+// so the API role needs no BatchGetItem.
+func (d *Dynamo) Banned(ctx context.Context, installHash, ipHash string) (bool, error) {
+	for _, pk := range []string{"BAN#" + installHash, "BANIP#" + ipHash} {
+		out, err := d.DB.GetItem(ctx, &dynamodb.GetItemInput{
+			TableName: &d.Table, Key: d.pk(pk, "BAN"),
+		})
+		if err != nil {
+			return false, unavailable(err)
+		}
+		if len(out.Item) > 0 {
+			return true, nil
+		}
 	}
-	return len(out.Item) > 0, nil
+	return false, nil
 }
 
 // ---- flags -------------------------------------------------------------------

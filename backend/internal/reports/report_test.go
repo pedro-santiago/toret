@@ -205,3 +205,26 @@ func TestNormaliseID(t *testing.T) {
 		}
 	}
 }
+
+// The tolerance for a fast clock never lets a report be dated after "now".
+func TestFutureDateIsClampedToNow(t *testing.T) {
+	c := cat(t)
+	at := now.Add(250 * time.Millisecond) // whole seconds in the record
+	for _, tc := range []struct {
+		date string
+		want time.Time
+	}{
+		{"2026-10-12T12:09:59Z", now},                   // inside the 10 minutes: now
+		{"2026-10-12T14:09:59+02:00", now},              // the same, in another zone
+		{"2026-10-12T12:00:00Z", now},                   // exactly now
+		{"2026-10-12T11:59:59Z", now.Add(-time.Second)}, // past: untouched
+	} {
+		d, rej := Validate(body(t, map[string]any{"date": tc.date}), c, at)
+		if rej != nil || !d.Date.Equal(tc.want) || d.Date.Nanosecond() != 0 {
+			t.Errorf("date %s: %v, %v; want %v", tc.date, d.Date, rej, tc.want)
+		}
+	}
+	if _, rej := Validate(body(t, map[string]any{"date": "2026-10-12T12:10:01Z"}), c, now); rej == nil || rej.Code != "invalid_date" {
+		t.Errorf("more than 10 minutes ahead: %+v", rej)
+	}
+}

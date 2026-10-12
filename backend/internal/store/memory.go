@@ -53,7 +53,10 @@ func clone(r Record) *Record {
 }
 
 // Ban marks an install as banned.
-func (m *Memory) Ban(installHash string) { m.mu.Lock(); m.bans[installHash] = true; m.mu.Unlock() }
+func (m *Memory) Ban(installHash string) { m.mu.Lock(); m.bans["i:"+installHash] = true; m.mu.Unlock() }
+
+// BanIP marks a source address (its hash) as banned.
+func (m *Memory) BanIP(ipHash string) { m.mu.Lock(); m.bans["p:"+ipHash] = true; m.mu.Unlock() }
 
 // HideByOwner mimics the runbook's "hide a report now".
 func (m *Memory) HideByOwner(id string) {
@@ -168,13 +171,13 @@ func (m *Memory) Fountain(_ context.Context, fountainID string, cutoff time.Time
 	return m.list(func(r *Record) bool { return r.FountainID == fountainID }, cutoff, limit), nil
 }
 
-func (m *Memory) Banned(_ context.Context, installHash string) (bool, error) {
+func (m *Memory) Banned(_ context.Context, installHash, ipHash string) (bool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if err := m.enter("Banned"); err != nil {
 		return false, err
 	}
-	return m.bans[installHash], nil
+	return m.bans["i:"+installHash] || m.bans["p:"+ipHash], nil
 }
 
 func (m *Memory) Flag(_ context.Context, f FlagRequest) (FlagOutcome, error) {

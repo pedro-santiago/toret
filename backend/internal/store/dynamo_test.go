@@ -484,17 +484,33 @@ func TestFlagCancellations(t *testing.T) {
 
 func TestBanned(t *testing.T) {
 	d, st := newDynamo()
-	if b, err := d.Banned(ctx, "abc"); b || err != nil {
+	if b, err := d.Banned(ctx, "abc", "def"); b || err != nil {
 		t.Fatal(b, err)
 	}
-	if str1(t, st.gets[0].Key, "pk") != "BAN#abc" || str1(t, st.gets[0].Key, "sk") != "BAN" {
-		t.Errorf("key = %v", st.gets[0].Key)
+	if len(st.gets) != 2 || str1(t, st.gets[0].Key, "pk") != "BAN#abc" || str1(t, st.gets[0].Key, "sk") != "BAN" ||
+		str1(t, st.gets[1].Key, "pk") != "BANIP#def" || str1(t, st.gets[1].Key, "sk") != "BAN" {
+		t.Errorf("keys = %v", st.gets)
 	}
+	// Only the address is banned: the second lookup finds it.
+	st.getOut = func(in *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error) {
+		if str1(t, in.Key, "pk") == "BANIP#def" {
+			return &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{"pk": sv("BANIP#def")}}, nil
+		}
+		return &dynamodb.GetItemOutput{}, nil
+	}
+	if b, _ := d.Banned(ctx, "abc", "def"); !b {
+		t.Error("a banned address must be banned")
+	}
+	if b, _ := d.Banned(ctx, "abc", "other"); b {
+		t.Error("another address must not be banned")
+	}
+	// A banned install stops at the first lookup.
+	st.gets = nil
 	st.getOut = func(*dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error) {
 		return &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{"pk": sv("BAN#abc")}}, nil
 	}
-	if b, _ := d.Banned(ctx, "abc"); !b {
-		t.Error("not banned")
+	if b, _ := d.Banned(ctx, "abc", "def"); !b || len(st.gets) != 1 {
+		t.Errorf("banned install: %v after %d lookups", b, len(st.gets))
 	}
 }
 

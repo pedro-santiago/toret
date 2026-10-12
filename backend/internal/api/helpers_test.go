@@ -52,7 +52,7 @@ func newEnv(t *testing.T, opts ...option) *env {
 		Store: e.mem, Catalogue: cat,
 		Pepper: func(context.Context) ([]byte, error) { return pepper, nil },
 		// Generous by default; the rate-limit tests set their own.
-		Limits: ratelimit.Config{InstallPerHour: 1000, IPPerHour: 10000},
+		Limits: ratelimit.Config{InstallPerHour: 1000, IPPerHour: 10000, IPFountainPerWin: 10000, GlobalPerHour: 100000},
 		Now:    func() time.Time { return e.now },
 		Logger: slog.New(slog.NewJSONHandler(e.logs, nil)),
 	}
@@ -239,5 +239,7 @@ func ids(t *testing.T, r events.APIGatewayV2HTTPResponse) []string {
 func authorOf(token string) string { return handle.Author(token) }
 
 func hashOf(token string) string { return handle.InstallHash(pepper, token) }
+
+func ipHashOf(ip string) string { return handle.IPHash(pepper, ip) }
 
 var errBoom = errors.New("boom")

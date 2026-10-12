@@ -122,7 +122,7 @@ func TestSMATJob(t *testing.T) {
 		t.Fatal(err)
 	}
 	n, _ := g.mem.GetNotices(ctx)
-	if n == nil || len(n.Items) != 15 || !n.FetchedAt.Equal(now) {
+	if n == nil || len(n.Items) != 13 || !n.FetchedAt.Equal(now) {
 		t.Fatalf("cache = %+v", n)
 	}
 	// Hourly at most.
@@ -143,7 +143,7 @@ func TestSMATJob(t *testing.T) {
 	if err := g.r.Run(ctx, JobSMAT); err == nil {
 		t.Error("a broken upstream must be reported")
 	}
-	if n, _ := g.mem.GetNotices(ctx); len(n.Items) != 15 || !n.FetchedAt.Equal(now.Add(time.Hour)) {
+	if n, _ := g.mem.GetNotices(ctx); len(n.Items) != 13 || !n.FetchedAt.Equal(now.Add(time.Hour)) {
 		t.Errorf("the cache was overwritten: %+v", n)
 	}
 }

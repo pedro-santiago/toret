@@ -62,3 +62,32 @@ func TestValidToken(t *testing.T) {
 		t.Error("64 is the longest accepted token")
 	}
 }
+
+// A subscriber holds a whole /64, so every address in it is one bucket.
+func TestIPKeyMasksIPv6(t *testing.T) {
+	for _, tc := range []struct{ in, want string }{
+		{"203.0.113.7", "203.0.113.7"},
+		{"::ffff:203.0.113.7", "203.0.113.7"},
+		{"2001:db8:1:2:aaaa:bbbb:cccc:dddd", "2001:db8:1:2::/64"},
+		{"2001:0DB8:0001:0002:0000:0000:0000:0001", "2001:db8:1:2::/64"},
+		{"2001:db8:1:2::1%eth0", "2001:db8:1:2::/64"},
+		{"2001:db8:1:3::1", "2001:db8:1:3::/64"},
+		{"not an address", "not an address"},
+		{"", ""},
+	} {
+		if got := IPKey(tc.in); got != tc.want {
+			t.Errorf("IPKey(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+	a := IPHash(pepper, "2001:db8:1:2::1")
+	if b := IPHash(pepper, "2001:db8:1:2:ffff:ffff:ffff:ffff"); a != b {
+		t.Error("two addresses of one /64 must hash alike")
+	}
+	if b := IPHash(pepper, "2001:db8:1:3::1"); a == b {
+		t.Error("another /64 must hash differently")
+	}
+	// api.md section 7 vector.
+	if want := "3ed90d77bfa68a5eb307c474ca0fcdabc8fbcd2ba521e30b1da3fcc880237391"; a != want {
+		t.Errorf("IPHash(/64) = %q, want %q", a, want)
+	}
+}

@@ -34,8 +34,10 @@ func byStreet(ns []store.Notice) map[string]store.Notice {
 	return m
 }
 
-// testdata/mappa_cantieri.json is 21 features of one real response (fetched
-// 2026-10-12): Turin and other towns, ACQUEDOTTO and FOGNATURA, intersections,
+// testdata/mappa_cantieri.json is a synthetic answer in the shape of Mappa
+// Cantieri's (made-up order numbers, house numbers and dates; SMAT's own data
+// has no stated licence and is not redistributed here): 21 features, Turin and
+// other towns, ACQUEDOTTO and FOGNATURA, customer connections, intersections,
 // abbreviations ("C.so", "V.", "Str.", "SC") and the FONTANELLE & TORETTI order.
 func TestParseFixture(t *testing.T) {
 	raw, err := os.ReadFile("testdata/mappa_cantieri.json")
@@ -55,14 +57,15 @@ func TestParseFixture(t *testing.T) {
 	m := byStreet(got)
 
 	// Excluded: the sewer order, the five other-town orders (Chivasso x3, San
-	// Mauro Torinese, "Via Torino" in Salassa).
-	for _, street := range []string{"Largo Millefonti", "Corso G. Ferraris", "Via Rivera", "Piazza Nassirya", "Via Torino"} {
+	// Mauro Torinese, "Via Torino" in Salassa) and the two Turin customer
+	// connections (new meter, rebuilt service connection).
+	for _, street := range []string{"Largo Millefonti", "Corso G. Ferraris", "Via Rivera", "Piazza Nassirya", "Via Torino", "V. Luigi Lavazza", "Str. dei Biasoni"} {
 		if _, ok := m[street]; ok {
 			t.Errorf("%q must be excluded", street)
 		}
 	}
-	if len(got) != 15 { // 21 features - 1 sewer - 5 other towns
-		t.Errorf("%d notices, want 15", len(got))
+	if len(got) != 13 { // 21 features - 1 sewer - 5 other towns - 2 customer connections
+		t.Errorf("%d notices, want 13", len(got))
 	}
 
 	for _, tc := range []struct {
@@ -72,13 +75,12 @@ func TestParseFixture(t *testing.T) {
 		start  string
 		end    string
 	}{
-		{"Corso Stati Uniti", KindWater, []string{"3287889713", "422952469"}, "2026-09-24", "2026-11-28"},
-		{"C.so Francesco Ferrucci", KindWater, []string{"1371984107", "5335920473", "5562792829", "9577650963"}, "2026-05-25", ""},
-		{"Piazza Carlo Alberto Dalla Chiesa", KindFountain, []string{"4289455495"}, "2026-09-07", ""},
-		{"SC di Superga", KindWater, []string{"10839646105", "7243439610"}, "2026-09-14", "2026-12-31"},
-		{"Corso Massimo d'Azeglio", KindWater, []string{"1456706457", "4069862135", "429780458"}, "2026-10-12", ""},
-		{"V. Luigi Lavazza", KindWater, []string{}, "2026-09-24", ""},
-		{"Str. dei Biasoni", KindWater, []string{}, "2026-10-07", ""},
+		{"Corso Stati Uniti", KindWater, []string{"3287889713", "422952469"}, "2026-09-27", "2026-12-01"},
+		{"C.so Francesco Ferrucci", KindWater, []string{"1371984107", "5335920473", "5562792829", "9577650963"}, "2026-05-22", ""},
+		{"Piazza Carlo Alberto Dalla Chiesa", KindFountain, []string{"4289455495"}, "2026-09-11", ""},
+		{"SC di Superga", KindWater, []string{"10839646105", "7243439610"}, "2026-09-19", "2027-01-05"},
+		{"Corso Massimo d'Azeglio", KindWater, []string{"1456706457", "4069862135", "429780458"}, "2026-10-10", ""},
+		{"Via Oropa", KindWater, []string{}, "2026-10-05", "2026-12-15"},
 	} {
 		n, ok := m[tc.street]
 		if !ok {
@@ -152,6 +154,9 @@ func TestParseRules(t *testing.T) {
 	}{
 		{"water division", feature("ACQUEDOTTO", "CONDOTTA RETE IDRICA", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 1},
 		{"water lower case", feature("acquedotto", "x", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 1},
+		{"customer connection", feature("ACQUEDOTTO", "PRESA IDRICA UTENZA", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 0},
+		{"customer connection lower case", feature("acquedotto", "presa idrica utenza", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 0},
+		{"fountain order in the water division", feature("ACQUEDOTTO", "FONTANELLE & TORETTI", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 1},
 		{"sewer", feature("FOGNATURA", "(FG) COLLETTORE MISTO", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 0},
 		{"fountain order in another division", feature("FOGNATURA", "FONTANELLE & TORETTI", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 1},
 		{"no division", feature("", "x", "Corso Stati Uniti, 38"+turin, "2026-09-24", ""), 0},

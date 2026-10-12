@@ -55,29 +55,86 @@ func TestFountainGate(t *testing.T) {
 	l := New(mem, func() time.Time { return now })
 	base := Result{Allowed: true, Limit: 40, Remaining: 39, Reset: 100}
 
-	r, err := l.Fountain(ctx, base, "inst", "421310659")
+	r, err := l.Fountain(ctx, base, "inst", "ip", "421310659")
 	if err != nil || !r.Allowed {
 		t.Fatalf("first: %+v, %v", r, err)
 	}
-	r, _ = l.Fountain(ctx, base, "inst", "421310659")
+	r, _ = l.Fountain(ctx, base, "inst", "ip", "421310659")
 	// 09:41:30 sits in the window 09:40:00-10:00:00, so 1110 s are left.
 	if r.Allowed || r.Scope != ScopeFountain || r.RetryAfter != 1110 || r.Remaining != 39 {
 		t.Errorf("second: %+v", r)
 	}
-	if r, _ := l.Fountain(ctx, base, "inst", "422640291"); !r.Allowed {
+	if r, _ := l.Fountain(ctx, base, "inst", "ip", "422640291"); !r.Allowed {
 		t.Errorf("another fountain must pass: %+v", r)
 	}
-	if r, _ := l.Fountain(ctx, base, "someone-else", "421310659"); !r.Allowed {
+	if r, _ := l.Fountain(ctx, base, "someone-else", "ip2", "421310659"); !r.Allowed {
 		t.Errorf("another install must pass: %+v", r)
 	}
 	now = now.Add(20 * time.Minute)
-	if r, _ := l.Fountain(ctx, base, "inst", "421310659"); !r.Allowed {
+	if r, _ := l.Fountain(ctx, base, "inst", "ip", "421310659"); !r.Allowed {
 		t.Errorf("next window: %+v", r)
 	}
 	// Retry-After is bounded by the window and is at least one second.
 	now = time.Date(2026, 10, 12, 9, 59, 59, 999_000_000, time.UTC)
-	l.Fountain(ctx, base, "x", "1")
-	if r, _ := l.Fountain(ctx, base, "x", "1"); r.RetryAfter != 1 {
+	l.Fountain(ctx, base, "x", "ipx", "1")
+	if r, _ := l.Fountain(ctx, base, "x", "ipx", "1"); r.RetryAfter != 1 {
 		t.Errorf("last millisecond: %+v", r)
+	}
+}
+
+// A fresh install token must not reset the per-fountain gate: the address-and-
+// fountain bucket holds across installs, and the next window starts clean.
+func TestIPFountainGateIgnoresInstall(t *testing.T) {
+	ctx := context.Background()
+	now := time.Date(2026, 10, 12, 9, 41, 30, 0, time.UTC)
+	l := New(store.NewMemory(), func() time.Time { return now })
+	l.Config = Config{IPFountainPerWin: 2}
+	base := Result{Allowed: true, Limit: 40, Remaining: 39, Reset: 100}
+
+	for i, inst := range []string{"a", "b"} {
+		if r, err := l.Fountain(ctx, base, inst, "ip", "421310659"); err != nil || !r.Allowed {
+			t.Fatalf("report %d: %+v, %v", i, r, err)
+		}
+	}
+	r, _ := l.Fountain(ctx, base, "c", "ip", "421310659")
+	if r.Allowed || r.Scope != ScopeIPFountain || r.RetryAfter != 1110 || r.Remaining != 39 {
+		t.Errorf("third install, same address: %+v", r)
+	}
+	if r, _ := l.Fountain(ctx, base, "d", "ip", "422640291"); !r.Allowed {
+		t.Errorf("another fountain must pass: %+v", r)
+	}
+	if r, _ := l.Fountain(ctx, base, "e", "other-ip", "421310659"); !r.Allowed {
+		t.Errorf("another address must pass: %+v", r)
+	}
+	// The install gate is checked first and does not spend the address bucket.
+	l.Fountain(ctx, base, "a", "ip3", "9")
+	if r, _ := l.Fountain(ctx, base, "a", "ip3", "9"); r.Scope != ScopeFountain {
+		t.Errorf("repeat by one install: %+v", r)
+	}
+	now = now.Add(20 * time.Minute)
+	if r, _ := l.Fountain(ctx, base, "f", "ip", "421310659"); !r.Allowed {
+		t.Errorf("next window: %+v", r)
+	}
+}
+
+func TestGlobalCeiling(t *testing.T) {
+	ctx := context.Background()
+	now := time.Date(2026, 10, 12, 9, 41, 30, 0, time.UTC)
+	l := New(store.NewMemory(), func() time.Time { return now })
+	l.Config = Config{GlobalPerHour: 3}
+	base := Result{Allowed: true, Limit: 40, Remaining: 39, Reset: 1110}
+
+	for i := 0; i < 3; i++ {
+		if r, err := l.Global(ctx, base); err != nil || !r.Allowed {
+			t.Fatalf("write %d: %+v, %v", i, r, err)
+		}
+	}
+	r, _ := l.Global(ctx, base)
+	if r.Allowed || r.Scope != ScopeGlobal || r.RetryAfter != 1110 || r.Remaining != 39 {
+		t.Errorf("4th write: %+v", r)
+	}
+	now = now.Add(time.Hour)
+	if r, _ := l.Global(ctx, base); !r.Allowed {
+		t.Errorf("next hour: %+v", r)
 	}
 }
